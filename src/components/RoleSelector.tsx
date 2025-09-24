@@ -21,7 +21,7 @@ const ROLE_NAMES = {
   'final_approver': '🏁 Final Approver'
 }
 
-const ROLE_COLORS = {
+const ROLE_COLORS: { [key: string]: string } = {
   'driver': '#6b7280',
   'first_approver': '#2563eb',
   'second_approver': '#0284c7',

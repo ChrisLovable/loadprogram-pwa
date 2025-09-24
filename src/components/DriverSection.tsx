@@ -15,7 +15,6 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
   const [uploading, setUploading] = useState(false)
   const [ocrResult, setOcrResult] = useState<OCRResult | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
-  const [visionResult, setVisionResult] = useState<any>(null)
   const [visionLoading, setVisionLoading] = useState(false)
   const [visionError, setVisionError] = useState<string | null>(null)
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
@@ -145,68 +144,6 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
     }
   }
 
-  // AWS Textract integration
-  const handleVisionAnalyze = async () => {
-    console.log('AWS Textract button clicked!')
-    if (!photos[0]) return
-    setVisionLoading(true)
-    setVisionResult(null)
-    setVisionError(null)
-    try {
-      // Convert image to base64
-      const reader = new FileReader()
-      const base64Promise = new Promise<string>((resolve, reject) => {
-        reader.onload = () => {
-          const result = reader.result as string
-          // Remove data:image/...;base64, prefix
-          const base64 = result.split(',')[1]
-          resolve(base64)
-        }
-        reader.onerror = reject
-      })
-      reader.readAsDataURL(photos[0])
-      const base64Image = await base64Promise
-
-      const res = await fetch('https://b5nahrxq89.execute-api.us-east-1.amazonaws.com/prod/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: base64Image
-        })
-      })
-      
-      if (!res.ok) {
-        const errorText = await res.text()
-        console.error('AWS Textract API error:', res.status, errorText)
-        throw new Error(`AWS Textract API error: ${res.status} ${errorText}`)
-      }
-      const data = await res.json()
-      setVisionResult(data)
-      
-      // Parse the response body if it's a string
-      let textractData = data
-      if (data.body && typeof data.body === 'string') {
-        textractData = JSON.parse(data.body)
-      }
-      
-      console.log('Parsed Textract data:', textractData)
-      
-      // Pass Textract data to parent component for use in FirstApprover
-      if (onTextractComplete) {
-        console.log('DriverSection calling onTextractComplete with:', textractData)
-        onTextractComplete(textractData)
-      } else {
-        console.log('onTextractComplete callback not provided!')
-      }
-    } catch (err: any) {
-      console.error('AWS Textract API call failed:', err)
-      setVisionError(err.message || 'AWS Textract API error')
-    } finally {
-      setVisionLoading(false)
-    }
-  }
 
 
   return (

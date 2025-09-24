@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { supabase } from '../lib/supabase'
 
 interface FirstApproverSectionProps {
   load: any // expects load with ocr_data and optionally vision_data
@@ -44,10 +43,6 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
   // Vision fields
   const [sender, setSender] = useState(getField(load, 'sender', ''))
   const [receiver, setReceiver] = useState(getField(load, 'receiver', ''))
-  const [loadingArrived, setLoadingArrived] = useState(getField(load, 'loading_time_arrived', ''))
-  const [loadingCompleted, setLoadingCompleted] = useState(getField(load, 'loading_time_completed', ''))
-  const [offloadingArrived, setOffloadingArrived] = useState(getField(load, 'offloading_time_arrived', ''))
-  const [offloadingCompleted, setOffloadingCompleted] = useState(getField(load, 'offloading_time_completed', ''))
   const [date, setDate] = useState(getField(load, 'date', ''))
   const [truckReg, setTruckReg] = useState(getField(load, 'truck_reg', ''))
   const [trailerReg, setTrailerReg] = useState(getField(load, 'trailer_reg', ''))
