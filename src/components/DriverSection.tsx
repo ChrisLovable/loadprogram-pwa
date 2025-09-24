@@ -1,6 +1,4 @@
-import React, { useState } from 'react'
-import { supabase } from '../lib/supabase'
-import { extractLoadDocumentData, OCRResult } from '../lib/ocr'
+import { useState } from 'react'
 
 interface DriverSectionProps {
   onUploadComplete: () => void
@@ -13,8 +11,6 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
   const [driverName, setDriverName] = useState('')
   const [photos, setPhotos] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
-  const [ocrResult, setOcrResult] = useState<OCRResult | null>(null)
-  const [analyzing, setAnalyzing] = useState(false)
   const [visionLoading, setVisionLoading] = useState(false)
   const [visionError, setVisionError] = useState<string | null>(null)
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
@@ -103,7 +99,6 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       
       const data = await res.json()
       console.log('Raw AWS Textract response:', data)
-      setVisionResult(data)
       
       // Parse the response body if it's a string
       let textractData = data
@@ -131,7 +126,6 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       setDriverName('')
       setPhotos([])
       setOcrResult(null)
-      setVisionResult(null)
       setVisionError(null)
       alert(`Load #${mockLoadId} uploaded and analyzed! (Simulated - Supabase disabled)`)
       onUploadComplete()

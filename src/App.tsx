@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { supabase } from './lib/supabase'
+import { useState, useEffect } from 'react'
 import DriverSection from './components/DriverSection'
 import FirstApproverSection from './components/FirstApproverSection'
 import SecondApproverSection from './components/SecondApproverSection'
@@ -8,9 +7,6 @@ import FinalApproverSection from './components/FinalApproverSection'
 import RoleSelector from './components/RoleSelector'
 import './App.css'
 
-// Debug: Log env variables
-console.log('VITE_SUPABASE_URL', import.meta.env.VITE_SUPABASE_URL)
-console.log('VITE_SUPABASE_ANON_KEY', import.meta.env.VITE_SUPABASE_ANON_KEY)
 
 const DEMO_LOAD = {
   id: 999,
