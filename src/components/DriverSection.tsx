@@ -44,7 +44,6 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
   const handleRemovePhoto = (idx: number) => {
     const newPhotos = photos.filter((_, i) => i !== idx)
     setPhotos(newPhotos)
-    if (idx === 0) setOcrResult(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +124,6 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       
       setDriverName('')
       setPhotos([])
-      setOcrResult(null)
       setVisionError(null)
       alert(`Load #${mockLoadId} uploaded and analyzed! (Simulated - Supabase disabled)`)
       onUploadComplete()
