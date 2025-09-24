@@ -1,0 +1,205 @@
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.app-header {
+  background: linear-gradient(90deg, #4f8cff 0%, #38d39f 100%);
+  color: white;
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.main-container {
+  max-width: 480px;
+  margin: 2rem auto 0 auto;
+  padding: 0 1rem 2rem 1rem;
+}
+
+.workflow-section {
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  margin-bottom: 2rem;
+  padding: 1.5rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  animation: fadeIn 0.7s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: none; }
+}
+
+.workflow-section h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #4f8cff;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.5px;
+}
+
+.driver-section h2 {
+  color: #38d39f;
+}
+
+.approver-section h2 {
+  color: #ffb347;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.2rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"],
+textarea {
+  padding: 0.9rem 1rem;
+  border: 1.5px solid #e0e7ef;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #f7fafd;
+  transition: border 0.2s;
+}
+input:focus, textarea:focus {
+  border-color: #4f8cff;
+  outline: none;
+}
+
+.driver-btn, .approve-btn {
+  background: linear-gradient(90deg, #4f8cff 0%, #38d39f 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+  transition: background 0.2s, transform 0.1s;
+}
+.driver-btn:active, .approve-btn:active {
+  transform: scale(0.98);
+}
+.driver-btn:disabled, .approve-btn:disabled {
+  background: #b0b8c1;
+  color: #f7fafd;
+  cursor: not-allowed;
+}
+
+.photo-thumbnails {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+}
+.photo-thumb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  background: #f0f4f8;
+}
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.photo-thumb button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+.ocr-status {
+  background: #e3f6f5;
+  color: #38d39f;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+.ocr-results {
+  background: #f0f4ff;
+  border: 1.5px solid #4f8cff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #333;
+}
+.ocr-data {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.ocr-data span {
+  background: #e3f6f5;
+  color: #38d39f;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+.ocr-data .confidence {
+  background: #4f8cff;
+  color: white;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 4rem;
+  font-size: 1.2rem;
+  color: #888;
+}
+
+@media (max-width: 600px) {
+  .main-container {
+    max-width: 100vw;
+    padding: 0 0.2rem 2rem 0.2rem;
+  }
+  .workflow-section {
+    padding: 1rem 0.3rem 0.7rem 0.3rem;
+  }
+}
