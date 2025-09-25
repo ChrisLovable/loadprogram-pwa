@@ -19,9 +19,9 @@ const DEMO_LOAD = {
 function App() {
   const [loads, setLoads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [currentLoad, setCurrentLoad] = useState(DEMO_LOAD)
+  // const [currentLoad, setCurrentLoad] = useState(DEMO_LOAD)
   const [currentRole, setCurrentRole] = useState<string | null>(null)
-  const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
+  // const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
   const [searchInvoice, setSearchInvoice] = useState('');
   const [searchSender, setSearchSender] = useState('');
   const [searchReceiver, setSearchReceiver] = useState('');

@@ -12,7 +12,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
   const [finalComments, setFinalComments] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [invoiceData, setInvoiceData] = useState<any>(null)
-  const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
+  // const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
 
   // Load invoice data from localStorage
   React.useEffect(() => {
@@ -58,20 +58,20 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
   console.log('FinalApprover invoice data:', invoiceData)
 
   // Normalize invoiceDate to YYYY-MM-DD if present in invoiceData
-  let safeInvoiceDate = invoiceData?.invoiceDate;
-  if (invoiceData?.invoiceDate) {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(invoiceData.invoiceDate)) {
-      safeInvoiceDate = invoiceData.invoiceDate;
-    } else if (/^\d{2}-\d{2}-\d{2}$/.test(invoiceData.invoiceDate)) {
-      const [yy, mm, dd] = invoiceData.invoiceDate.split('-');
-      const yyyy = parseInt(yy, 10) < 50 ? '20' + yy : '19' + yy;
-      safeInvoiceDate = `${yyyy}-${mm}-${dd}`;
-    } else {
-      safeInvoiceDate = new Date().toISOString().slice(0, 10);
-    }
-  } else {
-    safeInvoiceDate = new Date().toISOString().slice(0, 10);
-  }
+  // let safeInvoiceDate = invoiceData?.invoiceDate;
+  // if (invoiceData?.invoiceDate) {
+  //   if (/^\d{4}-\d{2}-\d{2}$/.test(invoiceData.invoiceDate)) {
+  //     safeInvoiceDate = invoiceData.invoiceDate;
+  //   } else if (/^\d{2}-\d{2}-\d{2}$/.test(invoiceData.invoiceDate)) {
+  //     const [yy, mm, dd] = invoiceData.invoiceDate.split('-');
+  //     const yyyy = parseInt(yy, 10) < 50 ? '20' + yy : '19' + yy;
+  //     safeInvoiceDate = `${yyyy}-${mm}-${dd}`;
+  //   } else {
+  //     safeInvoiceDate = new Date().toISOString().slice(0, 10);
+  //   }
+  // } else {
+  //   safeInvoiceDate = new Date().toISOString().slice(0, 10);
+  // }
 
   // Helper to get a field from load.parsed_data, invoiceData, or firstApprovalData
   // const getField = (field: string, fallback: any = '-') => {
