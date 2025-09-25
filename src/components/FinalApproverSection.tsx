@@ -12,6 +12,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
   const [finalComments, setFinalComments] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [invoiceData, setInvoiceData] = useState<any>(null)
+  const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
 
   // Load invoice data from localStorage
   React.useEffect(() => {
@@ -21,25 +22,95 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
       setInvoiceData(data)
       console.log('FinalApprover loaded invoice data:', data)
     }
+    
+    const storedFirstApproval = localStorage.getItem('firstApprovalData')
+    if (storedFirstApproval) {
+      const data = JSON.parse(storedFirstApproval)
+      setFirstApprovalData(data)
+      console.log('FinalApprover loaded first approval data:', data)
+    }
+    
+    // Listen for real-time updates from First Approver
+    const handleFirstApprovalUpdate = (event: CustomEvent) => {
+      const updatedData = event.detail
+      setFirstApprovalData(updatedData)
+      console.log('FinalApprover received real-time update:', updatedData)
+    }
+    
+    // Listen for real-time updates from Invoicer
+    const handleInvoiceDataUpdate = (event: CustomEvent) => {
+      const updatedData = event.detail
+      setInvoiceData(updatedData)
+      console.log('FinalApprover received invoice update:', updatedData)
+    }
+    
+    window.addEventListener('firstApprovalUpdated', handleFirstApprovalUpdate as EventListener)
+    window.addEventListener('invoiceDataUpdated', handleInvoiceDataUpdate as EventListener)
+    
+    return () => {
+      window.removeEventListener('firstApprovalUpdated', handleFirstApprovalUpdate as EventListener)
+      window.removeEventListener('invoiceDataUpdated', handleInvoiceDataUpdate as EventListener)
+    }
   }, [])
 
   // Debug: Log the load data
   console.log('FinalApprover received load:', load)
   console.log('FinalApprover invoice data:', invoiceData)
 
+  // Normalize invoiceDate to YYYY-MM-DD if present in invoiceData
+  let safeInvoiceDate = invoiceData?.invoiceDate;
+  if (invoiceData?.invoiceDate) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(invoiceData.invoiceDate)) {
+      safeInvoiceDate = invoiceData.invoiceDate;
+    } else if (/^\d{2}-\d{2}-\d{2}$/.test(invoiceData.invoiceDate)) {
+      const [yy, mm, dd] = invoiceData.invoiceDate.split('-');
+      const yyyy = parseInt(yy, 10) < 50 ? '20' + yy : '19' + yy;
+      safeInvoiceDate = `${yyyy}-${mm}-${dd}`;
+    } else {
+      safeInvoiceDate = new Date().toISOString().slice(0, 10);
+    }
+  } else {
+    safeInvoiceDate = new Date().toISOString().slice(0, 10);
+  }
+
+  // Helper to get a field from load.parsed_data, invoiceData, or firstApprovalData
+  const getField = (field: string, fallback: any = '-') => {
+    return load?.parsed_data?.[field] || invoiceData?.[field] || firstApprovalData?.[field] || fallback;
+  };
+
+  // Get current user from localStorage
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('currentUser') || '{}');
+    } catch { return {}; }
+  })();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
     try {
-      // Temporarily disabled Supabase calls due to DNS/certificate issues
-      console.log('Final approval disabled - simulating success')
-      
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 800))
-      
-      setFinalComments('')
-      alert('Final approval completed! Load processing finished. (Simulated - Supabase disabled)')
-      onFinalApprovalComplete()
+      // Prepare updated parsed_data
+      const updatedParsedData = {
+        ...(load.parsed_data || {}),
+        finalApproverComments: finalComments,
+        final_approver: 'Final Approver',
+        approved_by_final: currentUser.role === 'final_approver' ? currentUser.name : undefined,
+        final_signed_off_at: new Date().toISOString(),
+      };
+      // Update the load in Supabase
+      const { error } = await import('../lib/supabase').then(({ supabase }) =>
+        supabase.from('loads').update({
+          status: 'final_signed_off',
+          parsed_data: updatedParsedData,
+        }).eq('id', load.id)
+      );
+      if (error) {
+        alert('Failed to update load: ' + error.message);
+      } else {
+        setFinalComments('');
+        alert('Final approval completed! Load processing finished.');
+        onFinalApprovalComplete();
+      }
     } catch (error) {
       console.error('FinalApproverSection approval failed:', error)
       alert('Failed to submit final approval. See console for details.')
@@ -50,18 +121,53 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
 
   return (
     <form onSubmit={handleSubmit} className="final-approver-form">
-      {/* Invoice Summary - Read Only */}
+      {currentUser.role === 'final_approver' && currentUser.name && (
+        <div style={{fontSize:'0.98rem',color:'#047857',fontWeight:600,marginBottom:'0.5rem'}}>Approved by: {currentUser.name}</div>
+      )}
+      {/* Load Calculation Summary */}
       <div style={{background:'#f7fafd',borderRadius:'10px',padding:'0.7rem',marginBottom:'1.2rem',boxShadow:'0 1px 4px rgba(79,140,255,0.07)'}}>
-        <div style={{fontWeight:700,marginBottom:'0.8rem',fontSize:'1.05rem',color:'#059669'}}>🧾 Invoice Summary</div>
-        
-        {/* Invoice Details - Read Only */}
-        <div style={{marginBottom:'0.7rem'}}>
-          <div style={labelStyle}>Invoice made out to:</div>
-          <div style={{...inputStyle,background:'#f8fafc',color:'#666',fontWeight:500,minHeight:'3rem',display:'flex',alignItems:'center',border:'1px solid #333',borderRadius:'6px'}}>
-            {invoiceData?.invoiceMadeOutTo || 'Not specified'}
+        <div style={{fontWeight:700,marginBottom:'0.8rem',fontSize:'1.05rem',color:'#059669'}}>📊 Load Calculation Summary</div>
+        <div style={{display:'flex',gap:'1rem',justifyContent:'flex-start',marginBottom:'0.7rem'}}>
+          <div style={{textAlign:'center'}}>
+            <div style={labelStyle}>Subtotal</div>
+            <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
+              {load?.parsed_data?.subtotal ? `R ${parseFloat(load.parsed_data.subtotal).toFixed(2)}` : '-'}
+            </div>
+          </div>
+          <div style={{textAlign:'center'}}>
+            <div style={labelStyle}>VAT (15%)</div>
+            <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
+              {load?.parsed_data?.vat ? `R ${parseFloat(load.parsed_data.vat).toFixed(2)}` : '-'}
+            </div>
           </div>
         </div>
+        <div style={{textAlign:'center',marginBottom:'0.7rem'}}>
+          <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>TOTAL</div>
+          <div style={{
+            background:'#f0fdf4',
+            color:'#16a34a',
+            fontWeight:700,
+            fontSize:'1.2rem',
+            padding:'0.8rem',
+            borderRadius:'8px',
+            border:'2px solid #16a34a',
+            textAlign:'center',
+            marginTop:'0.3rem'
+          }}>
+            {load?.parsed_data?.total ? `R ${parseFloat(load.parsed_data.total).toFixed(2)}` : 'R 0.00'}
+          </div>
+        </div>
+      </div>
 
+      {/* Invoice Details */}
+      <div style={{background:'#f7fafd',borderRadius:'10px',padding:'0.7rem',marginBottom:'1.2rem',boxShadow:'0 1px 4px rgba(79,140,255,0.07)'}}>
+        <div style={{fontWeight:700,marginBottom:'0.8rem',fontSize:'1.05rem',color:'#059669'}}>🧾 Invoice Details</div>
+        <div style={{marginBottom:'0.7rem'}}>
+          <div style={labelStyle}>Debtor</div>
+          <div style={{...inputStyle,background:'#f8fafc',color:'#666',fontWeight:500,minHeight:'2rem',display:'flex',alignItems:'center',border:'1px solid #333',borderRadius:'6px',width:'calc(100% - 20px)'}}>
+            {load?.parsed_data?.invoice?.invoiceMadeOutTo || invoiceData?.invoiceMadeOutTo || '-'}
+          </div>
+        </div>
         <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
           <div>
             <div style={labelStyle}>Invoice Date</div>
@@ -76,26 +182,22 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
             </div>
           </div>
         </div>
-
-        {/* Financial Summary */}
         <div style={{display:'flex',gap:'1rem',justifyContent:'flex-start',marginBottom:'0.7rem'}}>
           <div style={{textAlign:'center'}}>
-            <div style={labelStyle}>Subtotal</div>
+            <div style={labelStyle}>Invoice Subtotal</div>
             <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
               {invoiceData?.invoiceSubtotal ? `R ${parseFloat(invoiceData.invoiceSubtotal).toFixed(2)}` : '-'}
             </div>
           </div>
           <div style={{textAlign:'center'}}>
-            <div style={labelStyle}>VAT (15%)</div>
+            <div style={labelStyle}>Invoice VAT</div>
             <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {invoiceData?.invoiceVat ? `R ${invoiceData.invoiceVat}` : '-'}
+              {invoiceData?.invoiceVat ? `R ${parseFloat(invoiceData.invoiceVat).toFixed(2)}` : '-'}
             </div>
           </div>
         </div>
-
-        {/* Total - Own Line */}
         <div style={{textAlign:'center',marginBottom:'0.7rem'}}>
-          <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>TOTAL</div>
+          <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>INVOICE TOTAL</div>
           <div style={{
             background:'#f0fdf4',
             color:'#16a34a',
@@ -107,25 +209,8 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
             textAlign:'center',
             marginTop:'0.3rem'
           }}>
-            {invoiceData?.invoiceTotal ? `R ${invoiceData.invoiceTotal}` : 'R 0.00'}
+            {invoiceData?.invoiceTotal ? `R ${parseFloat(invoiceData.invoiceTotal).toFixed(2)}` : 'R 0.00'}
           </div>
-        </div>
-
-        {/* Invoice Status */}
-        <div style={{
-          background: invoiceData?.invoiceSentToDebtor ? '#f0fdf4' : '#fef2f2',
-          borderRadius:'8px',
-          padding:'0.5rem',
-          textAlign:'center',
-          border: `1px solid ${invoiceData?.invoiceSentToDebtor ? '#16a34a' : '#ef4444'}`
-        }}>
-          <span style={{
-            fontSize:'0.9rem',
-            fontWeight:700,
-            color: invoiceData?.invoiceSentToDebtor ? '#16a34a' : '#ef4444'
-          }}>
-            {invoiceData?.invoiceSentToDebtor ? '✅ Invoice sent to debtor' : '⏳ Invoice not yet sent'}
-          </span>
         </div>
       </div>
 

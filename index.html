@@ -4,9 +4,106 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Load Approval PWA</title>
+    <meta name="theme-color" content="#059669" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+      
+      // Enhanced PWA Installation
+      let deferredPrompt;
+      let installButtonVisible = false;
+      
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installButtonVisible = true;
+        
+        // Show install button automatically
+        showInstallButton();
+        
+        // Auto-prompt after 3 seconds if user hasn't interacted
+        setTimeout(() => {
+          if (installButtonVisible && deferredPrompt) {
+            showInstallPrompt();
+          }
+        }, 3000);
+      });
+      
+      function showInstallButton() {
+        const installBtn = document.createElement('button');
+        installBtn.innerHTML = '📱 Install App';
+        installBtn.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 10000;
+          background: #059669;
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: bold;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          animation: pulse 2s infinite;
+        `;
+        
+        installBtn.onclick = () => showInstallPrompt();
+        document.body.appendChild(installBtn);
+        
+        // Add pulse animation
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      function showInstallPrompt() {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('User accepted the install prompt');
+              // Hide install button
+              const installBtn = document.querySelector('button[style*="position: fixed"]');
+              if (installBtn) installBtn.remove();
+              installButtonVisible = false;
+            }
+            deferredPrompt = null;
+          });
+        }
+      }
+      
+      // Hide install button if app is already installed
+      window.addEventListener('appinstalled', () => {
+        console.log('PWA was installed');
+        const installBtn = document.querySelector('button[style*="position: fixed"]');
+        if (installBtn) installBtn.remove();
+        installButtonVisible = false;
+      });
+      
+      // Make function globally available
+      window.showInstallPrompt = showInstallPrompt;
+    </script>
+    <button onclick="console.log('Native HTML button clicked!')" style="position:fixed;top:10px;left:10px;z-index:9999;">Native Test</button>
   </body>
 </html>

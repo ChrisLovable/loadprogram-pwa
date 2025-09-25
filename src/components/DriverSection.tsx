@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { supabase } from '../lib/supabase';
+import React from 'react'; // Added for useEffect
 
 interface DriverSectionProps {
   onUploadComplete: () => void
@@ -8,21 +10,35 @@ interface DriverSectionProps {
 const MAX_PHOTOS = 5
 
 const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextractComplete }) => {
-  const [driverName, setDriverName] = useState('')
+  const [driverName, setDriverName] = useState('Driver 1')
   const [photos, setPhotos] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const [visionLoading, setVisionLoading] = useState(false)
   const [visionError, setVisionError] = useState<string | null>(null)
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
 
+  // Get current user from localStorage
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('currentUser') || '{}');
+    } catch { return {}; }
+  })();
+  // If current user is driver, auto-fill and lock driverName
+  React.useEffect(() => {
+    if (currentUser.role === 'driver' && currentUser.name) {
+      setDriverName(currentUser.name);
+    }
+  }, [currentUser.role, currentUser.name]);
+
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
-    if (photos.length >= MAX_PHOTOS) return
-    const newPhoto = files[0]
-    const newPhotos = [...photos, newPhoto].slice(0, MAX_PHOTOS)
-    setPhotos(newPhotos)
+    let newPhotos = [...photos]
+    for (let i = 0; i < files.length && newPhotos.length < MAX_PHOTOS; i++) {
+      newPhotos.push(files[i])
+    }
+    setPhotos(newPhotos.slice(0, MAX_PHOTOS))
     // No automatic OCR - will happen on submit
   }
 
@@ -60,8 +76,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
     try {
       // First, analyze the document with AWS Textract
       console.log('Starting AWS Textract analysis on submit...')
-      setVisionError(null)
-      
+      setVisionError(null as string | null);
       // Convert image to base64
       const reader = new FileReader()
       const base64Promise = new Promise<string>((resolve, reject) => {
@@ -74,7 +89,6 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       })
       reader.readAsDataURL(photos[0])
       const base64Image = await base64Promise
-
       // Call AWS Textract
       console.log('Calling AWS Textract API...')
       const res = await fetch('https://b5nahrxq89.execute-api.us-east-1.amazonaws.com/prod/', {
@@ -86,27 +100,21 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
           image: base64Image
         })
       })
-      
       console.log('AWS Textract response status:', res.status)
-      
       if (!res.ok) {
         const errorText = await res.text()
         console.error('AWS Textract API error:', res.status, errorText)
         setVisionError(`AWS Textract API error: ${res.status} ${errorText}`)
         throw new Error(`AWS Textract API error: ${res.status} ${errorText}`)
       }
-      
       const data = await res.json()
       console.log('Raw AWS Textract response:', data)
-      
       // Parse the response body if it's a string
       let textractData = data
       if (data.body && typeof data.body === 'string') {
         textractData = JSON.parse(data.body)
       }
-      
       console.log('Parsed Textract data on submit:', textractData)
-      
       // Pass Textract data to parent component for use in FirstApprover
       if (onTextractComplete) {
         console.log('DriverSection calling onTextractComplete from submit with:', textractData)
@@ -114,19 +122,87 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       } else {
         console.error('onTextractComplete callback not available!')
       }
-      
-      // Temporarily disabled Supabase calls due to DNS/certificate issues
-      console.log('Supabase upload disabled - simulating success')
-      const mockLoadId = Math.floor(Math.random() * 1000) + 1
-      
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      setDriverName('')
-      setPhotos([])
-      setVisionError(null)
-      alert(`Load #${mockLoadId} uploaded and analyzed! (Simulated - Supabase disabled)`)
-      onUploadComplete()
+      // Fix date format: convert '14-09-25' to '2014-09-25' if needed, or set to null if invalid
+      let safeDate: string | null = null;
+      if (textractData.date) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(textractData.date)) {
+          safeDate = textractData.date;
+        } else if (/^\d{2}-\d{2}-\d{2}$/.test(textractData.date)) {
+          const [yy, mm, dd] = textractData.date.split('-');
+          const yyyy = parseInt(yy, 10) < 50 ? '20' + yy : '19' + yy;
+          safeDate = `${yyyy}-${mm}-${dd}`;
+        } else {
+          safeDate = new Date().toISOString().slice(0, 10);
+        }
+      }
+      // --- Upload photos to Supabase Storage ---
+      const uploadedPhotoUrls: string[] = [];
+      const failedUploads: string[] = [];
+      for (let i = 0; i < photos.length; i++) {
+        const file = photos[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+        const filePath = `loads/${fileName}`; // Upload to loads folder inside loads bucket
+        console.log(`Uploading file: ${file.name} as ${filePath}`);
+        console.log('Uploading to bucket: loads, filePath:', filePath);
+        const { data: uploadData, error: uploadError } = await supabase.storage.from('loads').upload(filePath, file, { upsert: false });
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          alert('Upload error: ' + uploadError.message);
+          failedUploads.push(file.name);
+          continue;
+        }
+        // Use signed URL instead of public URL (works regardless of bucket policy)
+        const { data: signedUrlData, error: signedUrlError } = await supabase.storage.from('loads').createSignedUrl(filePath, 60 * 60 * 24 * 365); // 1 year expiry
+        if (signedUrlData && signedUrlData.signedUrl) {
+          uploadedPhotoUrls.push(signedUrlData.signedUrl);
+          console.log('Uploaded and got signed URL:', signedUrlData.signedUrl);
+          console.log('TESTING SIGNED URL IMMEDIATELY:', signedUrlData.signedUrl);
+          // Test the URL immediately
+          fetch(signedUrlData.signedUrl)
+            .then(response => console.log('SIGNED URL test result:', response.status, response.ok))
+            .catch(error => console.error('SIGNED URL test failed:', error));
+        } else {
+          console.error('No public URL for', file.name);
+          failedUploads.push(file.name);
+        }
+      }
+      if (failedUploads.length === photos.length) {
+        alert('All photo uploads failed. Please try again.');
+        setUploading(false);
+        setVisionLoading(false);
+        return;
+      }
+      if (failedUploads.length > 0) {
+        alert('Some photos failed to upload: ' + failedUploads.join(', '));
+      }
+      // --- Insert new load into Supabase ---
+      const { error } = await supabase.from('loads').insert([
+        {
+          driver_name: driverName,
+          submitted_by: currentUser.name || driverName,
+          status: 'uploaded',
+          date: safeDate,
+          sender: textractData.sender || null,
+          receiver: textractData.receiver || null,
+          truck_reg: textractData.truckReg || null,
+          trailer_reg: textractData.trailerReg || null,
+          parsed_table: textractData.tableData || null,
+          parsed_data: textractData || null,
+          photos: uploadedPhotoUrls,
+        }
+      ]);
+      if (error) {
+        alert('Error saving to DB: ' + error.message);
+      } else {
+        alert('Saved to DB!');
+        setDriverName('Driver 1');
+        setVisionError(null);
+        setPhotos([]);
+        const fileInput = document.getElementById('file-input') as HTMLInputElement | null;
+        if (fileInput) fileInput.value = '';
+        if (onUploadComplete) onUploadComplete();
+      }
     } catch (error) {
       console.error('DriverSection upload failed:', error)
       alert('Upload failed. See console for details.')
@@ -150,25 +226,31 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
             placeholder="Enter driver name"
             required
             className="driver-input"
+            readOnly={currentUser.role === 'driver'}
+            style={currentUser.role === 'driver' ? { background: '#f3f4f6', color: '#333', fontWeight: 600 } : {}}
           />
         </div>
+        {currentUser.role === 'driver' && currentUser.name && (
+          <div style={{fontSize:'0.98rem',color:'#2563eb',fontWeight:600,marginBottom:'0.5rem'}}>Submitted by: {currentUser.name}</div>
+        )}
         <div className="form-group">
           <label>Take/Upload Photos (up to 5):</label>
           <input
             type="file"
             accept="image/*"
+            multiple
             onChange={handlePhotoChange}
             disabled={photos.length >= MAX_PHOTOS}
             style={{display:'none'}}
             id="file-input"
           />
           <div style={{display:'flex',gap:'0.5rem',marginTop:'0.5rem'}}>
-            <button type="button" style={{flex:1,fontSize:'0.98rem',background:'#6b7280',color:'white',border:'none',borderRadius:'8px',padding:'0.7rem 1.2rem',fontWeight:700,cursor:'pointer',boxShadow:'0 2px 8px rgba(107,114,128,0.3)'}} onClick={handleOpenCamera}>
+            <button type="button" style={{flex:1,fontSize:'1rem',background:'#6b7280',color:'white',border:'none',borderRadius:'8px',padding:'0.7rem 1.2rem',fontWeight:700,cursor:'pointer',boxShadow:'0 2px 8px rgba(107,114,128,0.3)'}} onClick={handleOpenCamera}>
               📷 Open Camera
             </button>
-            <button type="button" style={{flex:1,fontSize:'0.98rem',background:'#6b7280',color:'white',border:'none',borderRadius:'8px',padding:'0.7rem 1.2rem',fontWeight:700,cursor:'pointer',boxShadow:'0 2px 8px rgba(107,114,128,0.3)'}} onClick={() => document.getElementById('file-input')?.click()}>
+            <button type="button" style={{flex:1,fontSize:'1rem',background:'#6b7280',color:'white',border:'none',borderRadius:'8px',padding:'0.7rem 1.2rem',fontWeight:700,cursor:'pointer',boxShadow:'0 2px 8px rgba(107,114,128,0.3)'}} onClick={() => document.getElementById('file-input')?.click()}>
               🖼️ Choose from Gallery
-            </button>
+          </button>
           </div>
           <div className="photo-thumbnails">
             {photos.map((file, idx) => (
@@ -211,7 +293,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
             borderRadius: '8px',
             padding: '1rem',
             fontWeight: 700,
-            fontSize: '1.1rem',
+            fontSize: '1rem',
             cursor: uploading || visionLoading ? 'not-allowed' : 'pointer',
             width: '100%',
             marginTop: '1rem'
