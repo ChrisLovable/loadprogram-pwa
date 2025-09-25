@@ -10,11 +10,11 @@ import './App.css'
 import { supabase } from './lib/supabase';
 
 
-const DEMO_LOAD = {
-  id: 999,
-  ocr_data: null, // No hardcoded values - let OCR populate them
-  textract_data: null // AWS Textract data will be stored here
-}
+// const DEMO_LOAD = {
+//   id: 999,
+//   ocr_data: null, // No hardcoded values - let OCR populate them
+//   textract_data: null // AWS Textract data will be stored here
+// }
 
 function App() {
   const [loads, setLoads] = useState<any[]>([])
@@ -48,10 +48,10 @@ function App() {
   useEffect(() => {
     loadData()
     // Load first approval data from localStorage
-    const storedFirstApproval = localStorage.getItem('firstApprovalData')
-    if (storedFirstApproval) {
-      setFirstApprovalData(JSON.parse(storedFirstApproval))
-    }
+    // const storedFirstApproval = localStorage.getItem('firstApprovalData')
+    // if (storedFirstApproval) {
+    //   setFirstApprovalData(JSON.parse(storedFirstApproval))
+    // }
     // Optionally add realtime subscription here
   }, [])
 
@@ -60,10 +60,10 @@ function App() {
   // Handle Textract completion
   const handleTextractComplete = (textractData: any) => {
     console.log('App received Textract data:', textractData)
-    setCurrentLoad(prev => ({
-      ...prev,
-      textract_data: textractData
-    }))
+    // setCurrentLoad(prev => ({
+    //   ...prev,
+    //   textract_data: textractData
+    // }))
   }
 
   // Add this handler to add a new load when the driver submits
