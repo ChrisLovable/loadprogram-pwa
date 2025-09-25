@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import DriverSection from './components/DriverSection'
 import FirstApproverSection from './components/FirstApproverSection'
 import SecondApproverSection from './components/SecondApproverSection'
@@ -72,15 +72,15 @@ function App() {
   }
 
   // Add this handler to delete a load
-  const handleDeleteLoad = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this load?')) {
-      await supabase.from('loads').delete().eq('id', id);
-      loadData();
-    }
-  };
+  // const handleDeleteLoad = async (id: number) => {
+  //   if (window.confirm('Are you sure you want to delete this load?')) {
+  //     await supabase.from('loads').delete().eq('id', id);
+  //     loadData();
+  //   }
+  // };
 
   // Helper for date filtering
-  const isDateInRange = (dateStr, filter, range) => {
+  const isDateInRange = (dateStr: string, filter: string, range: any) => {
     if (!dateStr) return false;
     const date = new Date(dateStr);
     const today = new Date();
@@ -138,13 +138,13 @@ function App() {
         );
       }
       // Trip Date filter
-      if (tripDateFilter !== 'all' || (tripDateFilter === 'custom' && (tripDateRange.from || tripDateRange.to))) {
+      if (tripDateFilter !== 'all' && (tripDateFilter === 'custom' ? (tripDateRange.from || tripDateRange.to) : true)) {
         results = results.filter(l =>
           isDateInRange(l.parsed_data?.date, tripDateFilter, tripDateRange)
         );
       }
       // Invoice Date filter
-      if (invoiceDateFilter !== 'all' || (invoiceDateFilter === 'custom' && (invoiceDateRange.from || invoiceDateRange.to))) {
+      if (invoiceDateFilter !== 'all' && (invoiceDateFilter === 'custom' ? (invoiceDateRange.from || invoiceDateRange.to) : true)) {
         results = results.filter(l =>
           isDateInRange(l.parsed_data?.invoice?.invoiceDate, invoiceDateFilter, invoiceDateRange)
         );
@@ -169,10 +169,10 @@ function App() {
   };
 
   // Find the first load in 'uploaded' status for First Approver
-  const firstLoad = loads.find(l => l.status === 'uploaded') || {
-    ...currentLoad,
-    first_approval: firstApprovalData
-  }
+  // const firstLoad = loads.find(l => l.status === 'uploaded') || {
+  //   ...currentLoad,
+  //   first_approval: firstApprovalData
+  // }
 
   return (
     <div style={{
@@ -395,8 +395,8 @@ function App() {
                 {searchReceiver && <span>Receiver: <b>{searchReceiver}</b> </span>}
                 {searchTruckReg && <span>Truck: <b>{searchTruckReg}</b> </span>}
                 {searchDriver && <span>Driver: <b>{searchDriver}</b> </span>}
-                {(tripDateFilter !== 'all' || (tripDateFilter === 'custom' && (tripDateRange.from || tripDateRange.to))) && <span>Trip Date: <b>{tripDateFilter === 'custom' ? `${tripDateRange.from} to ${tripDateRange.to}` : tripDateFilter}</b> </span>}
-                {(invoiceDateFilter !== 'all' || (invoiceDateFilter === 'custom' && (invoiceDateRange.from || invoiceDateRange.to))) && <span>Invoice Date: <b>{invoiceDateFilter === 'custom' ? `${invoiceDateRange.from} to ${invoiceDateRange.to}` : invoiceDateFilter}</b> </span>}
+                {(tripDateFilter !== 'all' && (tripDateFilter === 'custom' ? (tripDateRange.from || tripDateRange.to) : true)) && <span>Trip Date: <b>{tripDateFilter === 'custom' ? `${tripDateRange.from} to ${tripDateRange.to}` : tripDateFilter}</b> </span>}
+                {(invoiceDateFilter !== 'all' && (invoiceDateFilter === 'custom' ? (invoiceDateRange.from || invoiceDateRange.to) : true)) && <span>Invoice Date: <b>{invoiceDateFilter === 'custom' ? `${invoiceDateRange.from} to ${invoiceDateRange.to}` : invoiceDateFilter}</b> </span>}
               </div>
             )}
             {/* Search Results in modal */}
@@ -423,7 +423,7 @@ function App() {
                     {load.photos && load.photos.length > 0 && (
                       <div style={{marginBottom:'0.9rem',padding:'0.7rem',background:'#f1f5f9',borderRadius:'8px',border:'1px solid #cbd5e1',display:'flex',alignItems:'center',gap:'0.5rem',flexWrap:'wrap'}}>
                         <span style={{fontWeight:700,color:'#0284c7',fontSize:'1rem',marginRight:'0.5rem'}}>Documents</span>
-                        {load.photos.map((photoUrl, i) => (
+                        {load.photos.map((photoUrl: string, i: number) => (
                           <span key={i} style={{display:'inline-block',width:32,height:32,background:'#e0e7ef',borderRadius:'6px',overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.08)',border:'1px solid #cbd5e1',textAlign:'center',lineHeight:'32px',fontSize:'1.3rem',color:'#2563eb'}}>
                             <img src={photoUrl} alt={`Document ${i+1}`} style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px'}} onError={e => { if (!e.currentTarget.src.endsWith('/no-image.png')) e.currentTarget.src = '/no-image.png'; }} />
                           </span>

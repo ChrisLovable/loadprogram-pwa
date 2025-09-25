@@ -58,7 +58,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
   console.log('FinalApprover invoice data:', invoiceData)
 
   // Normalize invoiceDate to YYYY-MM-DD if present in invoiceData
-  // let safeInvoiceDate = invoiceData?.invoiceDate;
+  let safeInvoiceDate = invoiceData?.invoiceDate;
   if (invoiceData?.invoiceDate) {
     if (/^\d{4}-\d{2}-\d{2}$/.test(invoiceData.invoiceDate)) {
       safeInvoiceDate = invoiceData.invoiceDate;
@@ -74,9 +74,9 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
   }
 
   // Helper to get a field from load.parsed_data, invoiceData, or firstApprovalData
-  const getField = (field: string, fallback: any = '-') => {
-    return load?.parsed_data?.[field] || invoiceData?.[field] || firstApprovalData?.[field] || fallback;
-  };
+  // const getField = (field: string, fallback: any = '-') => {
+  //   return load?.parsed_data?.[field] || invoiceData?.[field] || firstApprovalData?.[field] || fallback;
+  // };
 
   // Get current user from localStorage
   const currentUser = (() => {

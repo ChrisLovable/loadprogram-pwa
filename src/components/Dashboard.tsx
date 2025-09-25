@@ -479,7 +479,7 @@ const Dashboard: React.FC<DashboardProps> = ({ loads, onClose }) => {
                   📅 Monthly Trip to Invoice Days
                 </h3>
                 <div style={{ height: '200px', display: 'flex', alignItems: 'end', gap: '8px', padding: '0.5rem 0', position: 'relative' }}>
-                  {monthlyTripToInvoiceAverages.slice(-6).map((data, i) => {
+                  {monthlyTripToInvoiceAverages.slice(-6).map((data) => {
                     const maxValue = Math.max(...monthlyTripToInvoiceAverages.map(d => d.average));
                     const height = maxValue > 0 ? (data.average / maxValue) * 160 : 20;
                     const barWidth = `${100 / Math.min(monthlyTripToInvoiceAverages.slice(-6).length, 6)}%`;
@@ -648,7 +648,7 @@ const Dashboard: React.FC<DashboardProps> = ({ loads, onClose }) => {
                   💰 Monthly Rate per Loaded KM
                 </h3>
                 <div style={{ height: '200px', display: 'flex', alignItems: 'end', gap: '8px', padding: '0.5rem 0', position: 'relative' }}>
-                  {monthlyRateAverages.slice(-6).map((data, i) => {
+                  {monthlyRateAverages.slice(-6).map((data) => {
                     const maxValue = Math.max(...monthlyRateAverages.map(d => d.average));
                     const height = maxValue > 0 ? (data.average / maxValue) * 160 : 20;
                     const barWidth = `${100 / Math.min(monthlyRateAverages.slice(-6).length, 6)}%`;
