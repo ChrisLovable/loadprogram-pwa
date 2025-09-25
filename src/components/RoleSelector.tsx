@@ -8,13 +8,13 @@ interface RoleSelectorProps {
   onSummariesClick: () => void
 }
 
-const ROLE_PINS = {
-  'driver': '1111',
-  'first_approver': '2222',
-  'second_approver': '3333',
-  'invoicer': '4444',
-  'final_approver': '5555'
-}
+// const ROLE_PINS = {
+//   'driver': '1111',
+//   'first_approver': '2222',
+//   'second_approver': '3333',
+//   'invoicer': '4444',
+//   'final_approver': '5555'
+// }
 
 const ROLE_NAMES = {
   'driver': 'Driver',
@@ -98,12 +98,12 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
     }
   }
 
-  const handleLogout = () => {
-    onRoleChange('')
-    setShowPinEntry(false)
-    setPin('')
-    setPinError('')
-  }
+  // const handleLogout = () => {
+  //   onRoleChange('')
+  //   setShowPinEntry(false)
+  //   setPin('')
+  //   setPinError('')
+  // }
 
   return (
     <div style={{

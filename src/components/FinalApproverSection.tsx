@@ -58,7 +58,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
   console.log('FinalApprover invoice data:', invoiceData)
 
   // Normalize invoiceDate to YYYY-MM-DD if present in invoiceData
-  let safeInvoiceDate = invoiceData?.invoiceDate;
+  // let safeInvoiceDate = invoiceData?.invoiceDate;
   if (invoiceData?.invoiceDate) {
     if (/^\d{4}-\d{2}-\d{2}$/.test(invoiceData.invoiceDate)) {
       safeInvoiceDate = invoiceData.invoiceDate;

@@ -146,6 +146,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         console.log(`Uploading file: ${file.name} as ${filePath}`);
         console.log('Uploading to bucket: loads, filePath:', filePath);
         const { data: uploadData, error: uploadError } = await supabase.storage.from('loads').upload(filePath, file, { upsert: false });
+        console.log('Upload result:', uploadData, uploadError);
         if (uploadError) {
           console.error('Upload error:', uploadError);
           alert('Upload error: ' + uploadError.message);
@@ -154,6 +155,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         }
         // Use signed URL instead of public URL (works regardless of bucket policy)
         const { data: signedUrlData, error: signedUrlError } = await supabase.storage.from('loads').createSignedUrl(filePath, 60 * 60 * 24 * 365); // 1 year expiry
+        console.log('Signed URL result:', signedUrlData, signedUrlError);
         if (signedUrlData && signedUrlData.signedUrl) {
           uploadedPhotoUrls.push(signedUrlData.signedUrl);
           console.log('Uploaded and got signed URL:', signedUrlData.signedUrl);

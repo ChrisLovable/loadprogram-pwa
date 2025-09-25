@@ -100,7 +100,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
 
   const costPerLoadedKm = rateNum && tripKmNum ? rateNum * tripKmNum : 0;
   // Calculate totalAnimals from the table
-  const totalAnimals = table.reduce((sum, row) => {
+  const totalAnimals = table.reduce((sum: number, row: any) => {
     const packages = parseInt(row.packages) || 0;
     return sum + packages;
   }, 0);
@@ -316,7 +316,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
             </tr>
           </thead>
           <tbody>
-            {table.filter(row => Object.values(row).some(val => val && val.toString().trim() !== '')).map((row, i) => (
+            {table.filter((row: any) => Object.values(row).some((val: any) => val && val.toString().trim() !== '')).map((row: any, i: number) => (
               <tr key={i} style={{textAlign:'center',fontWeight:600,color:'#333'}}>
                 <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>
                   <input
@@ -421,7 +421,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
           background: '#ffffff'
         }}>
           Total # of Animals: <b style={{marginLeft:'0.3rem',color:'#0ea5e9'}}>
-            {table.reduce((sum, row) => {
+            {table.reduce((sum: number, row: any) => {
               const packages = parseInt(row.packages) || 0
               return sum + packages
             }, 0)}

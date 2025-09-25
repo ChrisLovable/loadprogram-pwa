@@ -93,9 +93,9 @@ const Dashboard: React.FC<DashboardProps> = ({ loads, onClose }) => {
       routeData[route].count += 1;
     }
   });
-  const topRoute = Object.entries(routeData)
-    .map(([route, data]) => ({ route, avg: data.total / data.count, count: data.count }))
-    .sort((a, b) => b.avg - a.avg)[0];
+  // const topRoute = Object.entries(routeData)
+  //   .map(([route, data]) => ({ route, avg: data.total / data.count, count: data.count }))
+  //   .sort((a, b) => b.avg - a.avg)[0];
 
   // Metric 4: Driver performance
   const driverData: {[key: string]: {total: number, count: number}} = {};
@@ -384,7 +384,7 @@ const Dashboard: React.FC<DashboardProps> = ({ loads, onClose }) => {
                   📈 Monthly Revenue
                 </h3>
                 <div style={{ height: '150px', display: 'flex', alignItems: 'end', gap: '4px', padding: '0.5rem 0' }}>
-                  {Object.entries(monthlyData).slice(-6).map(([month, data], i) => {
+                  {Object.entries(monthlyData).slice(-6).map(([month, data]) => {
                     const maxValue = Math.max(...Object.values(monthlyData).map(d => d.total));
                     const height = maxValue > 0 ? (data.total / maxValue) * 120 : 15;
                     return (

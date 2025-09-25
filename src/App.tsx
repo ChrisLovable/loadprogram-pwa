@@ -464,7 +464,7 @@ function App() {
                       {/* Image thumbnails at the bottom of Load Info */}
                       {load.photos && load.photos.length > 0 && (
                         <div style={{marginTop:'0.7rem',display:'flex',gap:'0.5rem',flexWrap:'wrap',justifyContent:'flex-start'}}>
-                          {load.photos.map((photoUrl, i) => (
+                          {load.photos.map((photoUrl: string, i: number) => (
                             <img
                               key={i}
                               src={photoUrl}
@@ -541,7 +541,7 @@ function App() {
             alignItems: 'center',
             justifyContent: 'center',
           }} onClick={e => e.stopPropagation()}>
-            {console.log('Preview modal image:', previewImage)}
+            {/* Preview modal image: {previewImage} */}
             <img src={previewImage} alt="Preview" style={{
               maxWidth: '98vw',
               maxHeight: '88vh',

@@ -64,22 +64,22 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
         approved_by_2nd: currentUser.role === 'second_approver' ? currentUser.name : undefined,
         second_approved_at: new Date().toISOString(),
         // Ensure all fields from First Approver are carried forward as numbers
-        date: getField('date', null),
-        sender: getField('sender', null),
-        receiver: getField('receiver', null),
-        truckReg: getField('truckReg', null),
-        trailerReg: getField('trailerReg', null),
-        startKm: Number(getField('startKm', 0)),
-        endKm: Number(getField('endKm', 0)),
-        tripKm: Number(getField('tripKm', 0)),
-        rate: Number(getField('rate', 0)),
-        ratePerAnimal: Number(getField('ratePerAnimal', 0)),
-        runningKms: Number(getField('runningKms', 0)),
-        runningKmRate: Number(getField('runningKmRate', 0)),
-        subtotal: Number(getField('subtotal', 0)),
-        vat: Number(getField('vat', 0)),
-        total: Number(getField('total', 0)),
-        totalAnimals: Number(getField('totalAnimals', 0)),
+        date: getField('date', undefined),
+        sender: getField('sender', undefined),
+        receiver: getField('receiver', undefined),
+        truckReg: getField('truckReg', undefined),
+        trailerReg: getField('trailerReg', undefined),
+        startKm: Number(getField('startKm', '0')),
+        endKm: Number(getField('endKm', '0')),
+        tripKm: Number(getField('tripKm', '0')),
+        rate: Number(getField('rate', '0')),
+        ratePerAnimal: Number(getField('ratePerAnimal', '0')),
+        runningKms: Number(getField('runningKms', '0')),
+        runningKmRate: Number(getField('runningKmRate', '0')),
+        subtotal: Number(getField('subtotal', '0')),
+        vat: Number(getField('vat', '0')),
+        total: Number(getField('total', '0')),
+        totalAnimals: Number(getField('totalAnimals', '0')),
       };
       // Update the load in Supabase
       const { error } = await import('../lib/supabase').then(({ supabase }) =>
@@ -124,7 +124,7 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
         </div>
       </div>
       {/* Descriptions Table */}
-      {Array.isArray(load?.parsed_table) && load.parsed_table.filter(row => Object.values(row).some(v => v && v !== '')).length > 0 && (
+      {Array.isArray(load?.parsed_table) && load.parsed_table.filter((row: any) => Object.values(row).some((v: any) => v && v !== '')).length > 0 && (
         <div style={{marginBottom:'0.7rem'}}>
           <div style={labelStyle}>Descriptions Table</div>
           <table style={{width:'100%',borderCollapse:'collapse',background:'#f7fafd',borderRadius:'8px',overflow:'hidden',boxShadow:'0 1px 4px rgba(79,140,255,0.07)',fontSize:'0.75rem'}}>
@@ -139,7 +139,7 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
               </tr>
             </thead>
             <tbody>
-              {load.parsed_table.filter(row => Object.values(row).some(v => v && v !== '')).map((row, i) => (
+              {load.parsed_table.filter((row: any) => Object.values(row).some((v: any) => v && v !== '')).map((row: any, i: number) => (
                 <tr key={i} style={{textAlign:'center',fontWeight:600,color:'#333'}}>
                   <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>{row.packages}</td>
                   <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>{row.description}</td>
