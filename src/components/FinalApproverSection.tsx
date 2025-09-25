@@ -44,11 +44,11 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
       console.log('FinalApprover received invoice update:', updatedData)
     }
     
-    window.addEventListener('firstApprovalUpdated', handleFirstApprovalUpdate as EventListener)
+    // window.addEventListener('firstApprovalUpdated', handleFirstApprovalUpdate as EventListener)
     window.addEventListener('invoiceDataUpdated', handleInvoiceDataUpdate as EventListener)
     
     return () => {
-      window.removeEventListener('firstApprovalUpdated', handleFirstApprovalUpdate as EventListener)
+      // window.removeEventListener('firstApprovalUpdated', handleFirstApprovalUpdate as EventListener)
       window.removeEventListener('invoiceDataUpdated', handleInvoiceDataUpdate as EventListener)
     }
   }, [])
