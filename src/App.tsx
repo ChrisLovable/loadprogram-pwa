@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import DriverSection from './components/DriverSection'
 import FirstApproverSection from './components/FirstApproverSection'
 import SecondApproverSection from './components/SecondApproverSection'
