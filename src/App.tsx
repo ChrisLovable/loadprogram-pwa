@@ -270,9 +270,6 @@ function App() {
   //   first_approval: firstApprovalData
   // }
 
-  console.log('🔴 App - Rendering main component, currentRole:', currentRole, 'loading:', loading);
-  console.log('🔴 App - loads array length:', loads.length);
-  console.log('🔴 App - About to render phone-container');
   
   return (
     <div className="phone-container">
@@ -288,17 +285,6 @@ function App() {
           overflowY: 'auto',
           overflowX: 'hidden',
         }}>
-          {/* Debug: Test element to ensure rendering works */}
-          <div style={{
-            background: '#059669',
-            color: 'white',
-            padding: '10px',
-            textAlign: 'center',
-            fontSize: '14px',
-            fontWeight: 'bold'
-          }}>
-            🚀 App Loading - Debug Mode
-          </div>
       {/* Search Modal */}
       {showSearch && (
         <div style={{
