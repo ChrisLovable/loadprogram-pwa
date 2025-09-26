@@ -435,7 +435,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           type="button"
           onClick={onSummaryClick}
           style={{
-            marginTop: '20px',
+            marginTop: '0px',
             width: '50%',
             background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
             color: '#222',
