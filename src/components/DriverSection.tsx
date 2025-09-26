@@ -663,7 +663,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
               }}
             >
               🖼️ Choose from Phone Gallery
-give            </button>
+            </button>
           </div>
           <div style={{display:'flex',gap:'0.5rem',marginTop:'0.8rem',flexWrap:'wrap'}}>
             {photos.map((file, idx) => (
