@@ -426,11 +426,11 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
         }}>
           <div style={{
             background: 'rgba(255,255,255,0.85)',
-            borderRadius: '22px',
+            borderRadius: '16px',
             border: '1.5px solid #e0e7ef',
             boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-            padding: '2.2rem 1.5rem 1.5rem 1.5rem',
-            width: '340px',
+            padding: '1.2rem 1rem 1rem 1rem',
+            width: '200px',
             maxWidth: '95vw',
             display: 'flex',
             flexDirection: 'column',
@@ -440,28 +440,28 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             <form onSubmit={handlePinSubmit} style={{width:'100%'}}>
               <div style={{
                 textAlign: 'center',
-                marginBottom: '1.7rem',
+                marginBottom: '1rem',
               }}>
                 <div style={{
-                  fontSize: '1.18rem',
+                  fontSize: '1rem',
                   fontWeight: 800,
                   color: '#fff',
                   background: `linear-gradient(90deg, ${ROLE_COLORS[selectedRole as keyof typeof ROLE_COLORS]} 0%, #047857 100%)`,
-                  borderRadius: '12px',
-                  padding: '0.7rem 0',
-                  marginBottom: '0.5rem',
+                  borderRadius: '8px',
+                  padding: '0.5rem 0',
+                  marginBottom: '0.3rem',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
-                  letterSpacing: '0.5px',
+                  letterSpacing: '0.3px',
                   textShadow: '0 1px 2px rgba(0,0,0,0.10)'
                 }}>
                   {ROLE_NAMES[selectedRole as keyof typeof ROLE_NAMES]}
                 </div>
                 <div style={{
-                  fontSize: '1.05rem',
+                  fontSize: '0.9rem',
                   color: '#334155',
                   fontWeight: 600,
                   letterSpacing: '0.1px',
-                  marginTop: '0.2rem',
+                  marginTop: '0.1rem',
                 }}>
                   Enter your PIN to access this role
                 </div>
@@ -470,17 +470,17 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 type="password"
                 value={pin}
                 onChange={e => setPin(e.target.value)}
-                placeholder="Enter 4-digit PIN"
+                placeholder=""
                 maxLength={4}
                 style={{
-                  width: '80px',
-                  padding: '1.1rem',
-                  fontSize: '1.7rem',
+                  width: '60px',
+                  padding: '0.8rem',
+                  fontSize: '1.4rem',
                   textAlign: 'center',
-                  border: `2.5px solid ${ROLE_COLORS[selectedRole as keyof typeof ROLE_COLORS]}`,
-                  borderRadius: '12px',
-                  marginBottom: '1.2rem',
-                  letterSpacing: '0.6rem',
+                  border: `2px solid ${ROLE_COLORS[selectedRole as keyof typeof ROLE_COLORS]}`,
+                  borderRadius: '8px',
+                  marginBottom: '0.8rem',
+                  letterSpacing: '0.4rem',
                   background: 'rgba(255,255,255,0.7)',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
                   color: '#222',

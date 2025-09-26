@@ -185,7 +185,8 @@ function App() {
           padding: 0,
           boxSizing: 'border-box',
           fontFamily: 'system-ui, sans-serif',
-          overflow: 'hidden',
+          overflowY: 'auto',
+          overflowX: 'hidden',
         }}>
       {/* Search Modal */}
       {showSearch && (

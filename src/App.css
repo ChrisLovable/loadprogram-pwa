@@ -13,17 +13,14 @@ body {
   box-sizing: border-box;
 }
 
-/* Mobile Phone Frame */
+/* Content Container - Same dimensions as phone but without frame styling */
 .phone-container {
   width: 375px;
   height: 812px;
-  background: #1a1a1a;
-  border-radius: 40px;
-  padding: 8px;
-  box-shadow: 
-    0 0 0 3px #333,
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border-radius: 0px;
+  padding: 0px;
+  box-shadow: none;
   position: relative;
   overflow: hidden;
 }
@@ -32,38 +29,13 @@ body {
   width: 100%;
   height: 100%;
   background: #000000;
-  border-radius: 32px;
-  overflow: hidden;
+  border-radius: 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
 }
 
-/* Phone notch */
-.phone-container::before {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 150px;
-  height: 30px;
-  background: #1a1a1a;
-  border-radius: 0 0 20px 20px;
-  z-index: 10;
-}
-
-/* Home indicator */
-.phone-container::after {
-  content: '';
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 134px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
-  z-index: 10;
-}
+/* Removed phone notch and home indicator - no longer needed without phone frame */
 
 .app-header {
   background: linear-gradient(90deg, #4f8cff 0%, #38d39f 100%);
