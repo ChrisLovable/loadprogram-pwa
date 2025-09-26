@@ -91,9 +91,14 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('🔴 PIN Submit - Selected role:', selectedRole, 'PIN entered:', pin);
+    
     // Find user for selectedRole and pin
     const user = USERS[selectedRole as keyof typeof USERS]?.find(u => u.pin === pin);
+    console.log('🔴 Found user:', user);
+    
     if (user) {
+      console.log('🔴 PIN correct! Changing role to:', selectedRole);
       onRoleChange(selectedRole)
       setShowPinEntry(false)
       setPin('')
@@ -112,6 +117,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
         }
       }, 300); // Small delay to ensure cards are rendered
     } else {
+      console.log('🔴 PIN incorrect! Available users for', selectedRole, ':', USERS[selectedRole as keyof typeof USERS]);
       setPinError('Incorrect PIN. Please try again.')
       setPin('')
     }

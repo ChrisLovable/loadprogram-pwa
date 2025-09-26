@@ -21,6 +21,15 @@ function App() {
   const [loading, setLoading] = useState(true)
   // const [currentLoad, setCurrentLoad] = useState(DEMO_LOAD)
   const [currentRole, setCurrentRole] = useState<string | null>(null)
+  
+  // Debug: Monitor currentRole changes
+  useEffect(() => {
+    console.log('🔴 App - currentRole changed to:', currentRole);
+    if (currentRole === 'driver') {
+      console.log('🔴 App - Rendering Driver section...');
+      console.log('🔴 App - Driver section should be visible now');
+    }
+  }, [currentRole]);
   // const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
   const [searchInvoice, setSearchInvoice] = useState('');
   const [searchSender, setSearchSender] = useState('');
@@ -43,7 +52,7 @@ function App() {
     const { data, error } = await supabase.from('loads').select('*').order('created_at', { ascending: false });
     if (!error && data) setLoads(data);
     setLoading(false);
-  }
+  };
 
   useEffect(() => {
     loadData()
@@ -422,17 +431,6 @@ function App() {
                     color:'#222',
                     position:'relative',
                   }}>
-                    {/* Documents Section */}
-                    {load.photos && load.photos.length > 0 && (
-                      <div style={{marginBottom:'0.9rem',padding:'0.7rem',background:'#f1f5f9',borderRadius:'8px',border:'1px solid #cbd5e1',display:'flex',alignItems:'center',gap:'0.5rem',flexWrap:'wrap'}}>
-                        <span style={{fontWeight:700,color:'#0284c7',fontSize:'1rem',marginRight:'0.5rem'}}>Documents</span>
-                        {load.photos.map((photoUrl: string, i: number) => (
-                          <span key={i} style={{display:'inline-block',width:32,height:32,background:'#e0e7ef',borderRadius:'6px',overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.08)',border:'1px solid #cbd5e1',textAlign:'center',lineHeight:'32px',fontSize:'1.3rem',color:'#2563eb'}}>
-                            <img src={photoUrl} alt={`Document ${i+1}`} style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px'}} onError={e => { if (!e.currentTarget.src.endsWith('/no-image.png')) e.currentTarget.src = '/no-image.png'; }} />
-                          </span>
-                        ))}
-                      </div>
-                    )}
                     {/* Role Players */}
                     <div style={{marginBottom:'0.7rem',padding:'0.7rem',background:'#e0f2fe',borderRadius:'8px',border:'1.5px solid #38bdf8'}}>
                       <div style={{fontWeight:700,color:'#2563eb',fontSize:'1rem',marginBottom:'0.2rem',letterSpacing:'0.5px'}}>Role Players</div>
@@ -469,7 +467,7 @@ function App() {
                         <div style={{marginTop:'0.7rem',display:'flex',gap:'0.5rem',flexWrap:'wrap',justifyContent:'flex-start'}}>
                           {load.photos.map((photoUrl: string, i: number) => (
                             <img
-                              key={i}
+                              key={`${load.id}-photo-${i}`}
                               src={photoUrl}
                               alt={`Document ${i+1}`}
                               style={{
@@ -634,7 +632,6 @@ function App() {
           {loads.filter(l => l.status === 'uploaded').length > 0 && (
             loads.filter(l => l.status === 'uploaded').map(load => (
               <section key={load.id} style={{
-                marginBottom: '1.2rem',
                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 borderRadius: '12px',
                 padding: '3px',
@@ -676,7 +673,6 @@ function App() {
           {loads.filter(l => l.status === 'first_approved').length > 0 && (
             loads.filter(l => l.status === 'first_approved').map(load => (
               <section key={load.id} style={{
-                marginBottom: '1.2rem',
                 background: 'linear-gradient(135deg, #a78bfa 0%, #6366f1 100%)',
                 borderRadius: '12px',
                 padding: '3px',
@@ -721,7 +717,6 @@ function App() {
       {/* INVOICER ROLE CARD */}
       {currentRole === 'invoicer' && (
         <section style={{
-          marginBottom: '1.2rem',
           background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
           borderRadius: '12px',
           padding: '3px',
@@ -769,7 +764,6 @@ function App() {
                 padding: '3px',
                 border: '1px solid #047857',
                 boxShadow: '0 4px 12px rgba(5, 150, 105, 0.13)',
-                marginBottom: '1.2rem',
                 maxWidth: '90%',
                 margin: '0 auto 1.2rem auto'
               }}>
@@ -808,7 +802,7 @@ function App() {
           left: 0,
           width: '100vw',
           height: '100vh',
-          background: 'rgba(0,0,0,0.45)',
+          background: 'rgba(0,0,0,0.8)', // Made darker for better visibility
           zIndex: 3000,
           display: 'flex',
           alignItems: 'center',
@@ -822,6 +816,7 @@ function App() {
             maxWidth: 320,
             width: '95vw',
             position: 'relative',
+            minHeight: '400px', // Ensure minimum height
           }}>
             <button onClick={() => setCurrentRole(null)} style={{
               position: 'absolute',
@@ -847,12 +842,14 @@ function App() {
             >
               ×
             </button>
-            <DriverSection onUploadComplete={() => { setCurrentRole(null); handleDriverSubmit(); }} onTextractComplete={handleTextractComplete} />
-      </div>
+            <div style={{ padding: '1rem', background: '#f0f0f0', borderRadius: '8px', margin: '1rem 0' }}>
+              <h3 style={{ margin: '0 0 1rem 0', color: '#333' }}>🚛 Driver Upload Section</h3>
+              <DriverSection onUploadComplete={() => { setCurrentRole(null); handleDriverSubmit(); }} onTextractComplete={handleTextractComplete} />
+            </div>
+          </div>
         </div>
       )}
-      
-        </div>
+      </div>
       </div>
     </div>
   )

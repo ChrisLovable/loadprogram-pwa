@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-// HARDCODED for testing - using your new project values
+// HARDCODED for testing - using your working project values
 const supabaseUrl = 'https://rdzjowqopmdlbkfuafxr.supabase.co';
 const supabaseKey = 'sb_publishable_Zfc7tBpl0ho1GuF2HLjKxQ_BlU_A24w';
 

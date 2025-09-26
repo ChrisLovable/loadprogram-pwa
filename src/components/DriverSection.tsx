@@ -16,6 +16,15 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
   const [visionLoading, setVisionLoading] = useState(false)
   const [visionError, setVisionError] = useState<string | null>(null)
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
+  const [showSuccess, setShowSuccess] = useState(false)
+  
+  // Debug: Monitor showSuccess state changes
+  useEffect(() => {
+    console.log('🎉 showSuccess state changed to:', showSuccess);
+    if (showSuccess) {
+      console.log('🎉 Rendering success message...');
+    }
+  }, [showSuccess]);
 
   // Get current user from localStorage
   const currentUser = (() => {
@@ -71,11 +80,42 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       return
     }
     console.log('Validation passed, starting submit process...')
+    console.log('🚀 STEP 1: Starting upload process...');
     setUploading(true)
     setVisionLoading(true)
     try {
+      // Test basic network connectivity first
+      console.log('Testing network connectivity...');
+      try {
+        const networkTest = await fetch('https://httpbin.org/get', { 
+          method: 'GET',
+          signal: AbortSignal.timeout(5000)
+        });
+        if (!networkTest.ok) {
+          throw new Error('Network test failed');
+        }
+        console.log('Network connectivity test passed');
+      } catch (error) {
+        console.error('Network connectivity test failed:', error);
+        alert('No internet connection detected. Please check your network and try again.');
+        setUploading(false);
+        setVisionLoading(false);
+        return;
+      }
+
+      // Test Supabase connection
+      console.log('Testing Supabase connection...');
+      const { data: testData, error: testError } = await supabase.from('loads').select('count').limit(1);
+      if (testError) {
+        console.error('Supabase connection test failed:', testError);
+        alert('Database connection failed. Please check your internet connection and try again.');
+        setUploading(false);
+        setVisionLoading(false);
+        return;
+      }
+      console.log('Supabase connection test passed');
       // First, analyze the document with AWS Textract
-      console.log('Starting AWS Textract analysis on submit...')
+      console.log('🚀 STEP 2: Starting AWS Textract analysis on submit...')
       setVisionError(null as string | null);
       // Convert image to base64
       const reader = new FileReader()
@@ -89,30 +129,84 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       })
       reader.readAsDataURL(photos[0])
       const base64Image = await base64Promise
-      // Call AWS Textract
+      // Call AWS Textract with retry logic
       console.log('Calling AWS Textract API...')
-      const res = await fetch('https://b5nahrxq89.execute-api.us-east-1.amazonaws.com/prod/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: base64Image
-        })
-      })
-      console.log('AWS Textract response status:', res.status)
-      if (!res.ok) {
-        const errorText = await res.text()
-        console.error('AWS Textract API error:', res.status, errorText)
-        setVisionError(`AWS Textract API error: ${res.status} ${errorText}`)
-        throw new Error(`AWS Textract API error: ${res.status} ${errorText}`)
+      const lambdaEndpoint = 'https://b5nahrxq89.execute-api.us-east-1.amazonaws.com/prod/';
+      
+      let textractData = null;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries && !textractData) {
+        try {
+          const res = await fetch(lambdaEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              image: base64Image
+            }),
+            signal: AbortSignal.timeout(30000) // 30 second timeout
+          })
+          
+          console.log('AWS Textract response status:', res.status)
+          
+          if (!res.ok) {
+            const errorText = await res.text()
+            console.error(`AWS Textract API error (attempt ${retryCount + 1}):`, res.status, errorText)
+            
+            if (retryCount === maxRetries - 1) {
+              // Final attempt failed, try fallback
+              console.log('AWS Textract failed, trying fallback OCR...')
+              const { fallbackOCR } = await import('../utils/ocrFallback')
+              textractData = await fallbackOCR(photos[0])
+              console.log('Fallback OCR result:', textractData)
+              break
+            }
+            
+            // Wait before retry (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000))
+            retryCount++
+            continue
+          }
+          
+          const data = await res.json()
+          textractData = data
+          console.log('AWS Textract success on attempt:', retryCount + 1)
+          console.log('🚀 STEP 2.5: AWS Textract completed, processing response...')
+          break
+          
+    } catch (error) {
+          console.error(`AWS Textract network error (attempt ${retryCount + 1}):`, error)
+          
+          if (retryCount === maxRetries - 1) {
+            // Final attempt failed, try fallback
+            console.log('AWS Textract network failed, trying fallback OCR...')
+            try {
+              const { fallbackOCR } = await import('../utils/ocrFallback')
+              textractData = await fallbackOCR(photos[0])
+              console.log('Fallback OCR result:', textractData)
+            } catch (fallbackError) {
+              console.error('Fallback OCR also failed:', fallbackError)
+              setVisionError('OCR processing failed. Please try again or contact support.')
+              throw fallbackError
+            }
+            break
+          }
+          
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000))
+          retryCount++
+        }
       }
-      const data = await res.json()
-      console.log('Raw AWS Textract response:', data)
+      
+      // Process the textractData that was already parsed above
+      console.log('🚀 STEP 2.6: Processing parsed Textract data...')
+      console.log('Raw AWS Textract response:', textractData)
       // Parse the response body if it's a string
-      let textractData = data
-      if (data.body && typeof data.body === 'string') {
-        textractData = JSON.parse(data.body)
+      if (textractData.body && typeof textractData.body === 'string') {
+        textractData = JSON.parse(textractData.body)
       }
       console.log('Parsed Textract data on submit:', textractData)
       // Pass Textract data to parent component for use in FirstApprover
@@ -135,7 +229,10 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
           safeDate = new Date().toISOString().slice(0, 10);
         }
       }
+      console.log('🚀 STEP 3: AWS Textract completed, starting photo upload...');
       // --- Upload photos to Supabase Storage ---
+      console.log('Starting photo upload to Supabase Storage...');
+      console.log('Photos to upload:', photos.length);
       const uploadedPhotoUrls: string[] = [];
       const failedUploads: string[] = [];
       for (let i = 0; i < photos.length; i++) {
@@ -149,7 +246,18 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         console.log('Upload result:', uploadData, uploadError);
         if (uploadError) {
           console.error('Upload error:', uploadError);
-          alert('Upload error: ' + uploadError.message);
+          console.error('Error details:', {
+            message: uploadError.message,
+            statusCode: uploadError.statusCode,
+            error: uploadError.error
+          });
+          
+          // Check if it's a network error
+          if (uploadError.message.includes('Failed to fetch') || uploadError.message.includes('NetworkError')) {
+            alert('Network error: Unable to connect to storage. Please check your internet connection and try again.');
+          } else {
+            alert('Upload error: ' + uploadError.message);
+          }
           failedUploads.push(file.name);
           continue;
         }
@@ -169,17 +277,39 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
           failedUploads.push(file.name);
         }
       }
+      console.log('Photo upload completed. Success:', uploadedPhotoUrls.length, 'Failed:', failedUploads.length);
+      console.log('Uploaded URLs:', uploadedPhotoUrls);
+      console.log('Failed uploads:', failedUploads);
+      
       if (failedUploads.length === photos.length) {
+        console.error('All photo uploads failed');
         alert('All photo uploads failed. Please try again.');
         setUploading(false);
         setVisionLoading(false);
         return;
       }
       if (failedUploads.length > 0) {
+        console.warn('Some photos failed to upload:', failedUploads);
         alert('Some photos failed to upload: ' + failedUploads.join(', '));
       }
       // --- Insert new load into Supabase ---
-      const { error } = await supabase.from('loads').insert([
+      console.log('Inserting load data into Supabase...');
+      console.log('Load data:', {
+        driver_name: driverName,
+        submitted_by: currentUser.name || driverName,
+        status: 'uploaded',
+        date: safeDate,
+        sender: textractData.sender || null,
+        receiver: textractData.receiver || null,
+        truck_reg: textractData.truckReg || null,
+        trailer_reg: textractData.trailerReg || null,
+        parsed_table: textractData.tableData || null,
+        parsed_data: textractData || null,
+        photos: uploadedPhotoUrls,
+      });
+      
+      console.log('🚀 STEP 4: Photo upload completed, saving to database...');
+      const { data: insertData, error } = await supabase.from('loads').insert([
         {
           driver_name: driverName,
           submitted_by: currentUser.name || driverName,
@@ -194,20 +324,70 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
           photos: uploadedPhotoUrls,
         }
       ]);
+      
+      console.log('Supabase insert result:', { insertData, error });
+      
       if (error) {
+        console.error('Supabase insert error:', error);
         alert('Error saving to DB: ' + error.message);
       } else {
-        alert('Saved to DB!');
+        console.log('🚀 STEP 5: SUCCESS! Upload completed successfully!');
+        console.log('🎉 Setting showSuccess to true...');
+        // Show success message
+        setShowSuccess(true);
         setDriverName('Driver 1');
         setVisionError(null);
         setPhotos([]);
         const fileInput = document.getElementById('file-input') as HTMLInputElement | null;
         if (fileInput) fileInput.value = '';
         if (onUploadComplete) onUploadComplete();
+        
+        // Auto-hide success message after 3 seconds
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 3000);
       }
     } catch (error) {
-      console.error('DriverSection upload failed:', error)
-      alert('Upload failed. See console for details.')
+      console.error('🚨 CRITICAL ERROR - DriverSection upload failed:', error);
+      console.error('🚨 Error type:', typeof error);
+      console.error('🚨 Error constructor:', error?.constructor?.name);
+      console.error('🚨 Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+        name: error instanceof Error ? error.name : 'Unknown',
+        cause: error instanceof Error ? error.cause : 'No cause',
+        toString: error?.toString?.()
+      });
+      
+      // Log the current state
+      console.error('🚨 Current state at error:', {
+        driverName,
+        photosCount: photos.length,
+        uploading,
+        visionLoading,
+        showSuccess,
+        visionError: visionError?.message
+      });
+      
+      // More specific error handling
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          console.error('🚨 Network error - check internet connection');
+          alert('Network error. Please check your internet connection and try again.');
+        } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          console.error('🚨 Authentication error - check Supabase credentials');
+          alert('Authentication error. Please check your credentials.');
+        } else if (error.message.includes('404')) {
+          console.error('🚨 Resource not found - check Supabase URL and bucket');
+          alert('Resource not found. Please check your configuration.');
+        } else {
+          console.error('🚨 Unknown error:', error.message);
+          alert('Upload failed: ' + error.message);
+        }
+      } else {
+        console.error('🚨 Non-Error object thrown:', error);
+        alert('Upload failed. See console for details.');
+      }
     } finally {
       setUploading(false)
       setVisionLoading(false)
@@ -217,26 +397,205 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
 
 
   return (
-    <div className="driver-section-content">
-      <form onSubmit={handleSubmit} className="driver-form">
-        <div className="form-group">
-          <label>Driver Name:</label>
+    <div style={{
+      background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%)',
+      borderRadius: '24px',
+      padding: '2rem',
+      marginBottom: '1rem',
+      boxShadow: `
+        0 20px 60px rgba(0,0,0,0.15),
+        0 8px 32px rgba(0,0,0,0.1),
+        0 4px 16px rgba(0,0,0,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.4),
+        inset 0 -1px 0 rgba(0,0,0,0.1)
+      `,
+      border: '2px solid rgba(255,255,255,0.3)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      position: 'relative',
+      overflow: 'hidden',
+      transform: 'perspective(1000px) rotateX(2deg)',
+      transition: 'all 0.3s ease'
+    }}>
+      {/* Watery Glass Overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: `
+          radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%),
+          radial-gradient(circle at 40% 60%, rgba(255,255,255,0.08) 0%, transparent 50%)
+        `,
+        borderRadius: '24px',
+        pointerEvents: 'none',
+        zIndex: 1
+      }}></div>
+
+      {/* 3D Watery Header */}
+      <div style={{
+        background: `
+          linear-gradient(135deg, 
+            rgba(255,107,107,0.9) 0%, 
+            rgba(238,90,82,0.8) 25%,
+            rgba(255,107,107,0.9) 50%,
+            rgba(238,90,82,0.8) 75%,
+            rgba(255,107,107,0.9) 100%
+          )
+        `,
+        color: 'white',
+        borderRadius: '16px',
+        padding: '1rem 1.5rem',
+        textAlign: 'center',
+        fontWeight: 700,
+        fontSize: '1.3rem',
+        letterSpacing: '0.8px',
+        marginBottom: '2rem',
+        boxShadow: `
+          0 8px 32px rgba(255,107,107,0.4),
+          0 4px 16px rgba(255,107,107,0.2),
+          inset 0 2px 0 rgba(255,255,255,0.3),
+          inset 0 -2px 0 rgba(0,0,0,0.1)
+        `,
+        textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+        position: 'relative',
+        transform: 'perspective(1000px) rotateX(-1deg)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.2)',
+        zIndex: 2
+      }}>
+        🚛 Driver Upload
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '60%',
+          background: `
+            linear-gradient(to bottom, 
+              rgba(255,255,255,0.2) 0%, 
+              rgba(255,255,255,0.1) 50%,
+              transparent 100%
+            )
+          `,
+          borderRadius: '16px 16px 0 0',
+          animation: 'waterShimmer 3s ease-in-out infinite'
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '40%',
+          background: `
+            linear-gradient(to top, 
+              rgba(0,0,0,0.1) 0%, 
+              transparent 100%
+            )
+          `,
+          borderRadius: '0 0 16px 16px'
+        }}></div>
+      </div>
+
+      <form onSubmit={handleSubmit} style={{position: 'relative', zIndex: 3}}>
+        <div style={{marginBottom: '1.5rem'}}>
+          <label style={{
+            fontSize: '1.1rem',
+            fontWeight: 700,
+            color: '#1f2937',
+            marginBottom: '0.8rem',
+            display: 'block',
+            textShadow: '0 1px 2px rgba(255,255,255,0.5)'
+          }}>Driver Name:</label>
+          <div style={{position: 'relative'}}>
           <input
             type="text"
             value={driverName}
             onChange={e => setDriverName(e.target.value)}
-            placeholder="Enter driver name"
+              placeholder="Enter driver name"
             required
-            className="driver-input"
-            readOnly={currentUser.role === 'driver'}
-            style={currentUser.role === 'driver' ? { background: '#f3f4f6', color: '#333', fontWeight: 600 } : {}}
-          />
+              readOnly={currentUser.role === 'driver'}
+              style={{
+                width: '100%',
+                padding: '1rem 1.2rem',
+                borderRadius: '16px',
+                border: '2px solid rgba(255,255,255,0.3)',
+                fontSize: '1.1rem',
+                background: currentUser.role === 'driver' 
+                  ? 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.05) 100%)'
+                  : 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%)',
+                color: '#1f2937',
+                fontWeight: currentUser.role === 'driver' ? 600 : 500,
+                boxShadow: `
+                  0 8px 32px rgba(0,0,0,0.1),
+                  0 4px 16px rgba(0,0,0,0.05),
+                  inset 0 2px 0 rgba(255,255,255,0.4),
+                  inset 0 -1px 0 rgba(0,0,0,0.05)
+                `,
+                backdropFilter: 'blur(15px) saturate(150%)',
+                transition: 'all 0.3s ease',
+                outline: 'none',
+                transform: 'perspective(1000px) rotateX(1deg)'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'rgba(59,130,246,0.6)';
+                e.target.style.transform = 'perspective(1000px) rotateX(0deg) scale(1.02)';
+                e.target.style.boxShadow = `
+                  0 12px 40px rgba(59,130,246,0.2),
+                  0 6px 20px rgba(59,130,246,0.1),
+                  inset 0 2px 0 rgba(255,255,255,0.5),
+                  inset 0 -1px 0 rgba(0,0,0,0.05)
+                `;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(255,255,255,0.3)';
+                e.target.style.transform = 'perspective(1000px) rotateX(1deg) scale(1)';
+                e.target.style.boxShadow = `
+                  0 8px 32px rgba(0,0,0,0.1),
+                  0 4px 16px rgba(0,0,0,0.05),
+                  inset 0 2px 0 rgba(255,255,255,0.4),
+                  inset 0 -1px 0 rgba(0,0,0,0.05)
+                `;
+              }}
+            />
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `
+                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(255,255,255,0.05) 0%, transparent 50%)
+              `,
+              borderRadius: '16px',
+              pointerEvents: 'none',
+              zIndex: 1
+            }}></div>
+          </div>
         </div>
         {currentUser.role === 'driver' && currentUser.name && (
-          <div style={{fontSize:'0.98rem',color:'#2563eb',fontWeight:600,marginBottom:'0.5rem'}}>Submitted by: {currentUser.name}</div>
+          <div style={{
+            fontSize:'0.98rem',
+            color:'#3b82f6',
+            fontWeight:600,
+            marginBottom:'1rem',
+            padding:'0.5rem 1rem',
+            background:'rgba(59,130,246,0.1)',
+            borderRadius:'8px',
+            border:'1px solid rgba(59,130,246,0.2)'
+          }}>Submitted by: {currentUser.name}</div>
         )}
-        <div className="form-group">
-          <label>Take/Upload Photos (up to 5):</label>
+        
+        <div style={{marginBottom: '1.2rem'}}>
+          <label style={{
+            fontSize: '1.05rem',
+            fontWeight: 700,
+            color: '#333',
+            marginBottom: '0.5rem',
+            display: 'block'
+          }}>Take/Upload Photos (up to 5):</label>
           <input
             type="file"
             accept="image/*"
@@ -246,33 +605,144 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
             style={{display:'none'}}
             id="file-input"
           />
-          <div style={{display:'flex',gap:'0.5rem',marginTop:'0.5rem'}}>
-            <button type="button" style={{flex:1,fontSize:'1rem',background:'#6b7280',color:'white',border:'none',borderRadius:'8px',padding:'0.7rem 1.2rem',fontWeight:700,cursor:'pointer',boxShadow:'0 2px 8px rgba(107,114,128,0.3)'}} onClick={handleOpenCamera}>
+          <div style={{display:'flex',gap:'0.8rem',marginTop:'0.8rem'}}>
+            <button 
+              type="button" 
+              onClick={handleOpenCamera}
+              style={{
+                flex: 1,
+                fontSize: '1rem',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '0.8rem 1.2rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(59,130,246,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(59,130,246,0.3), inset 0 1px 0 rgba(255,255,255,0.2)';
+              }}
+            >
               📷 Open Camera
-            </button>
-            <button type="button" style={{flex:1,fontSize:'1rem',background:'#6b7280',color:'white',border:'none',borderRadius:'8px',padding:'0.7rem 1.2rem',fontWeight:700,cursor:'pointer',boxShadow:'0 2px 8px rgba(107,114,128,0.3)'}} onClick={() => document.getElementById('file-input')?.click()}>
-              🖼️ Choose from Gallery
           </button>
+            <button 
+              type="button" 
+              onClick={() => document.getElementById('file-input')?.click()}
+              style={{
+                flex: 1,
+                fontSize: '1rem',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '0.8rem 1.2rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(16,185,129,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)';
+              }}
+            >
+              🖼️ Choose from Phone Gallery
+give            </button>
           </div>
-          <div className="photo-thumbnails">
+          <div style={{display:'flex',gap:'0.5rem',marginTop:'0.8rem',flexWrap:'wrap'}}>
             {photos.map((file, idx) => (
-              <div key={idx} className="photo-thumb">
+              <div key={idx} style={{
+                position: 'relative',
+                width: 60,
+                height: 60,
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.9)',
+                border: '2px solid rgba(59,130,246,0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)';
+              }}
+              >
                 <img 
                   src={URL.createObjectURL(file)} 
                   alt={`photo-${idx+1}`} 
                   onClick={() => setEnlargedImage(URL.createObjectURL(file))}
-                  style={{cursor: 'pointer'}}
+                  style={{
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'cover',
+                    borderRadius: '10px'
+                  }}
                 />
-                <button type="button" onClick={() => handleRemovePhoto(idx)}>&times;</button>
+                <button 
+                  type="button" 
+                  onClick={() => handleRemovePhoto(idx)}
+                  style={{
+                    position: 'absolute',
+                    top: 2,
+                    right: 2,
+                    background: 'rgba(239,68,68,0.9)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: 20,
+                    height: 20,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  ×
+                </button>
               </div>
             ))}
           </div>
         </div>
         {visionError && (
-          <div style={{color:'#c00',background:'#fff0f0',padding:'0.7rem',borderRadius:'8px',marginTop:'0.5rem'}}>
+          <div style={{
+            color:'#dc2626',
+            background:'rgba(239,68,68,0.1)',
+            padding:'0.8rem 1rem',
+            borderRadius:'12px',
+            marginTop:'1rem',
+            border:'1px solid rgba(239,68,68,0.2)',
+            boxShadow:'0 2px 8px rgba(239,68,68,0.1)'
+          }}>
             <strong>AWS Textract Error:</strong> {visionError}
           </div>
         )}
+        
         <button 
           type="button" 
           onClick={async () => {
@@ -289,21 +759,99 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
           }}
           disabled={uploading || visionLoading}
           style={{
-            background: visionLoading ? '#94a3b8' : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+            background: uploading || visionLoading 
+              ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' 
+              : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
             color: 'white',
             border: 'none',
-            borderRadius: '8px',
-            padding: '1rem',
+            borderRadius: '16px',
+            padding: '1.2rem 1.5rem',
             fontWeight: 700,
-            fontSize: '1rem',
+            fontSize: '1.1rem',
             cursor: uploading || visionLoading ? 'not-allowed' : 'pointer',
             width: '100%',
-            marginTop: '1rem'
+            marginTop: '1.5rem',
+            boxShadow: uploading || visionLoading 
+              ? '0 4px 16px rgba(156,163,175,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+              : '0 6px 24px rgba(245,158,11,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+            textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseEnter={(e) => {
+            if (!uploading && !visionLoading) {
+              e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 8px 28px rgba(245,158,11,0.5), inset 0 1px 0 rgba(255,255,255,0.2)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!uploading && !visionLoading) {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 6px 24px rgba(245,158,11,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
+            }
           }}
         >
           {uploading ? '📤 Uploading & Analyzing...' : visionLoading ? '🔎 Analyzing Document...' : '📸 Submit Load'}
         </button>
       </form>
+
+      {/* Success Message */}
+      {showSuccess && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 100%)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '20px',
+          padding: '2rem 2.5rem',
+          boxShadow: '0 20px 60px rgba(16,185,129,0.4), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
+          border: '2px solid rgba(255,255,255,0.2)',
+          color: 'white',
+          textAlign: 'center',
+          zIndex: 1000,
+          animation: 'successPulse 0.6s ease-out',
+          maxWidth: '320px',
+          width: '90%'
+        }}>
+          <div style={{
+            fontSize: '3rem',
+            marginBottom: '1rem',
+            animation: 'successBounce 0.8s ease-out'
+          }}>
+            ✅
+          </div>
+          <div style={{
+            fontSize: '1.4rem',
+            fontWeight: 700,
+            marginBottom: '0.5rem',
+            textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+            letterSpacing: '0.5px'
+          }}>
+            Load Submitted Successfully!
+          </div>
+          <div style={{
+            fontSize: '1rem',
+            opacity: 0.9,
+            fontWeight: 500,
+            lineHeight: '1.4'
+          }}>
+            Your load has been uploaded and is ready for review by the 1st Approver.
+          </div>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '50%',
+            background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)',
+            borderRadius: '20px 20px 0 0',
+            pointerEvents: 'none'
+          }}></div>
+        </div>
+      )}
 
       {/* Image Enlargement - Top Positioned */}
       {enlargedImage && (
@@ -336,7 +884,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
                 display: 'block'
               }}
             />
-            <button
+        <button 
               onClick={() => setEnlargedImage(null)}
               style={{
                 position: 'absolute',
@@ -358,7 +906,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
               }}
             >
               ×
-            </button>
+        </button>
           </div>
         </div>
       )}

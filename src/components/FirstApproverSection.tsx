@@ -270,13 +270,66 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
           background: 'none'
         }}>
           📋 Load Details
-        </div>
+          </div>
+        
+        {/* Document Thumbnails */}
+        {load.photos && load.photos.length > 0 && (
+          <div style={{marginBottom:'0.7rem',paddingLeft:'0.5rem',paddingRight:'0.5rem'}}>
+            <div style={labelStyle}>Documents</div>
+            <div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap',marginTop:'0.3rem'}}>
+              {load.photos.map((photoUrl: string, i: number) => (
+                <div key={i} style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  border: '2px solid #2563eb',
+                  boxShadow: '0 2px 6px rgba(37,99,235,0.2)',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease'
+                }}
+                onClick={() => {
+                  // Open image in full screen
+                  const newWindow = window.open('', '_blank');
+                  if (newWindow) {
+                    newWindow.document.write(`
+                      <html>
+                        <head><title>Document ${i+1}</title></head>
+                        <body style="margin:0;padding:20px;background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;">
+                          <img src="${photoUrl}" style="max-width:90%;max-height:90%;object-fit:contain;border-radius:8px;" />
+                        </body>
+                      </html>
+                    `);
+                  }
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <img 
+                    src={photoUrl} 
+                    alt={`Document ${i+1}`} 
+                    style={{
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover'
+                    }} 
+                    onError={(e) => {
+                      if (!e.currentTarget.src.endsWith('/no-image.png')) {
+                        e.currentTarget.src = '/no-image.png';
+                      }
+                    }} 
+                  />
+          </div>
+              ))}
+          </div>
+          </div>
+        )}
         
         {/* Date - Left Aligned */}
         <div style={{marginBottom:'0.7rem',paddingLeft:'0.5rem',paddingRight:'0.5rem'}}>
           <div style={labelStyle}>Date</div>
           <input type="text" value={date} onChange={e => setDate(e.target.value)} style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f7fafd',width:'120px'}} />
-        </div>
+          </div>
         
         {/* Sender - Left Aligned */}
         <div style={{marginBottom:'0.7rem',paddingLeft:'0.5rem',paddingRight:'0.5rem'}}>
