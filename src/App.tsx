@@ -604,6 +604,10 @@ function App() {
             objectFit: 'contain',
             margin: '0 auto'
           }}
+          onError={(e) => {
+            console.log('Banner image failed to load');
+            e.currentTarget.style.display = 'none';
+          }}
         />
       </div>
       
