@@ -100,6 +100,17 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       setPinError('')
       // Store current user info in localStorage
       localStorage.setItem('currentUser', JSON.stringify({ role: selectedRole, name: user.name }))
+      
+      // Scroll to show the first approval card after a short delay
+      setTimeout(() => {
+        const phoneScreen = document.querySelector('.phone-screen');
+        if (phoneScreen) {
+          phoneScreen.scrollTo({
+            top: 200, // Scroll down to show cards below buttons
+            behavior: 'smooth'
+          });
+        }
+      }, 300); // Small delay to ensure cards are rendered
     } else {
       setPinError('Incorrect PIN. Please try again.')
       setPin('')
