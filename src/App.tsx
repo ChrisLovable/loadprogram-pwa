@@ -1232,7 +1232,7 @@ function App() {
           left: 0,
           width: '100vw',
           height: '100vh',
-          background: 'rgba(0,0,0,0.9)',
+          background: '#000000',
           zIndex: 6000,
           display: 'flex',
           alignItems: 'center',
@@ -1289,7 +1289,7 @@ function App() {
               borderBottom: '1px solid #e5e7eb'
             }}>
               <div style={{
-                fontSize: '1.5rem',
+                fontSize: '1.2rem',
                 fontWeight: 700,
                 marginBottom: '1rem',
                 textAlign: 'center',
@@ -1308,7 +1308,7 @@ function App() {
                 flexWrap: 'wrap'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>From:</label>
+                  <label style={{ fontWeight: 600, fontSize: '0.8rem' }}>From:</label>
                   <input
                     type="date"
                     value={summaryDateRange.from}
@@ -1319,12 +1319,12 @@ function App() {
                       border: '1px solid rgba(255,255,255,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: 'white',
-                      fontSize: '0.9rem'
+                      fontSize: '0.8rem'
                     }}
                   />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>To:</label>
+                  <label style={{ fontWeight: 600, fontSize: '0.8rem' }}>To:</label>
                   <input
                     type="date"
                     value={summaryDateRange.to}
@@ -1335,7 +1335,7 @@ function App() {
                       border: '1px solid rgba(255,255,255,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: 'white',
-                      fontSize: '0.9rem'
+                      fontSize: '0.8rem'
                     }}
                   />
                 </div>
@@ -1347,7 +1347,7 @@ function App() {
                     border: '1px solid rgba(255,255,255,0.3)',
                     background: 'rgba(255,255,255,0.1)',
                     color: 'white',
-                    fontSize: '0.9rem',
+                    fontSize: '0.8rem',
                     cursor: 'pointer',
                     fontWeight: 600
                   }}
@@ -1366,7 +1366,7 @@ function App() {
               <table style={{
                 width: '100%',
                 borderCollapse: 'collapse',
-                fontSize: '0.9rem'
+                fontSize: '0.75rem'
               }}>
                 <thead style={{
                   background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
@@ -1429,6 +1429,22 @@ function App() {
                     }}>
                       Trip KMs
                     </th>
+                    <th style={{
+                      padding: '1rem 0.8rem',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      cursor: 'default'
+                    }}>
+                      # Animals
+                    </th>
+                    <th style={{
+                      padding: '1rem 0.8rem',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      cursor: 'default'
+                    }}>
+                      Description
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1481,6 +1497,24 @@ function App() {
                       }}>
                         {load?.parsed_data?.tripKm || '-'}
                       </td>
+                      <td style={{
+                        padding: '0.8rem',
+                        fontWeight: 600,
+                        color: '#059669',
+                        textAlign: 'right'
+                      }}>
+                        {load?.parsed_data?.totalAnimals || '-'}
+                      </td>
+                      <td style={{
+                        padding: '0.8rem',
+                        fontWeight: 500,
+                        color: '#374151',
+                        maxWidth: '200px',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {load?.parsed_data?.description || '-'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -1493,7 +1527,7 @@ function App() {
               padding: '1rem 2rem',
               borderTop: '1px solid #e5e7eb',
               textAlign: 'center',
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               color: '#6b7280',
               fontWeight: 500
             }}>
