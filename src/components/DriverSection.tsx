@@ -632,7 +632,10 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
                 e.currentTarget.style.boxShadow = '0 4px 16px rgba(59,130,246,0.3), inset 0 1px 0 rgba(255,255,255,0.2)';
               }}
             >
-              📷 Open Camera
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}>
+                <div style={{ fontSize: '1.5rem' }}>📷</div>
+                <div>Open Camera</div>
+              </div>
           </button>
             <button 
               type="button" 
