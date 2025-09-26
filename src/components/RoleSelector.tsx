@@ -266,7 +266,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           type="button"
           onClick={onSummariesClick}
           style={{
-            marginTop: '20px', // Move Summaries button down by 20px
+            marginTop: '0px', // Put Dashboard and Search on same level
             background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
             color: '#222',
             border: '2.5px solid #60a5fa',
@@ -346,7 +346,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           type="button"
           onClick={onDashboardClick}
           style={{
-            marginTop: '-5px', // Move Search button up by 5px
+            marginTop: '0px', // Put Dashboard and Search on same level
             background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
             color: '#222',
             border: '1.5px solid #111',
@@ -427,14 +427,19 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummaryClick}
           style={{
             marginTop: '20px',
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
             color: '#222',
-            border: '2.5px solid #34d399',
+            border: '1.5px solid #111',
             borderRadius: '16px',
             padding: '0.8rem 1.2rem',
-            fontSize: '1rem',
-            fontWeight: 700,
+            fontWeight: 900,
+            fontSize: '1.45rem',
+            fontFamily: 'inherit',
             cursor: 'pointer',
+            boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            backgroundBlendMode: 'overlay',
             position: 'relative',
             overflow: 'hidden',
             transition: 'box-shadow 0.2s, transform 0.1s',
