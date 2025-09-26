@@ -50,6 +50,7 @@ function App() {
   const [showSummary, setShowSummary] = useState(false);
   const [summarySortBy, setSummarySortBy] = useState<'truckReg' | 'sender' | 'receiver' | null>(null);
   const [summarySortOrder, setSummarySortOrder] = useState<'asc' | 'desc'>('asc');
+  const [summaryDateRange, setSummaryDateRange] = useState({ from: '', to: '' });
 
   const loadData = async () => {
     // Fetch loads from Supabase
@@ -128,12 +129,30 @@ function App() {
     }
   };
 
-  // Get sorted summary data
+  // Get sorted and filtered summary data
   const getSortedSummaryData = () => {
-    let sortedLoads = [...loads];
+    let filteredLoads = [...loads];
     
+    // Apply date range filter
+    if (summaryDateRange.from || summaryDateRange.to) {
+      filteredLoads = filteredLoads.filter(load => {
+        const loadDate = load?.parsed_data?.date;
+        if (!loadDate) return false;
+        
+        const date = new Date(loadDate);
+        const fromDate = summaryDateRange.from ? new Date(summaryDateRange.from) : null;
+        const toDate = summaryDateRange.to ? new Date(summaryDateRange.to) : null;
+        
+        if (fromDate && date < fromDate) return false;
+        if (toDate && date > toDate) return false;
+        
+        return true;
+      });
+    }
+    
+    // Apply sorting
     if (summarySortBy) {
-      sortedLoads.sort((a, b) => {
+      filteredLoads.sort((a, b) => {
         const aValue = a?.parsed_data?.[summarySortBy] || '';
         const bValue = b?.parsed_data?.[summarySortBy] || '';
         
@@ -145,7 +164,7 @@ function App() {
       });
     }
     
-    return sortedLoads;
+    return filteredLoads;
   };
 
   // Helper for date filtering
@@ -1213,23 +1232,26 @@ function App() {
           left: 0,
           width: '100vw',
           height: '100vh',
-          background: 'rgba(0,0,0,0.8)',
+          background: 'rgba(0,0,0,0.9)',
           zIndex: 6000,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          padding: '20px',
         }} onClick={() => setShowSummary(false)}>
           <div style={{
-            background: 'linear-gradient(135deg, #fff 0%, #f8fafc 100%)',
-            borderRadius: '20px',
-            padding: '2rem',
-            maxWidth: '95vw',
-            width: '1200px',
+            background: '#ffffff',
+            borderRadius: '12px',
+            padding: '0',
+            width: '100%',
+            maxWidth: '1400px',
             maxHeight: '90vh',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.3), 0 8px 32px rgba(0,0,0,0.2)',
-            border: '2px solid rgba(16, 185, 129, 0.2)',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+            border: '1px solid #e5e7eb',
             position: 'relative',
             overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }} onClick={e => e.stopPropagation()}>
             {/* Close Button */}
             <button
@@ -1259,25 +1281,86 @@ function App() {
               ×
             </button>
 
-            {/* Header */}
+            {/* Header with Date Filter */}
             <div style={{
-              fontSize: '1.8rem',
-              fontWeight: 700,
-              color: '#059669',
-              marginBottom: '1.5rem',
-              textAlign: 'center',
-              textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              letterSpacing: '0.5px'
+              background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+              color: 'white',
+              padding: '1.5rem 2rem',
+              borderBottom: '1px solid #e5e7eb'
             }}>
-              📊 Load Summary Table
+              <div style={{
+                fontSize: '1.5rem',
+                fontWeight: 700,
+                marginBottom: '1rem',
+                textAlign: 'center',
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                letterSpacing: '0.5px'
+              }}>
+                📊 Load Summary Table
+              </div>
+              
+              {/* Date Range Filter */}
+              <div style={{
+                display: 'flex',
+                gap: '1rem',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexWrap: 'wrap'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>From:</label>
+                  <input
+                    type="date"
+                    value={summaryDateRange.from}
+                    onChange={(e) => setSummaryDateRange(prev => ({ ...prev, from: e.target.value }))}
+                    style={{
+                      padding: '0.5rem',
+                      borderRadius: '6px',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      background: 'rgba(255,255,255,0.1)',
+                      color: 'white',
+                      fontSize: '0.9rem'
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontWeight: 600, fontSize: '0.9rem' }}>To:</label>
+                  <input
+                    type="date"
+                    value={summaryDateRange.to}
+                    onChange={(e) => setSummaryDateRange(prev => ({ ...prev, to: e.target.value }))}
+                    style={{
+                      padding: '0.5rem',
+                      borderRadius: '6px',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      background: 'rgba(255,255,255,0.1)',
+                      color: 'white',
+                      fontSize: '0.9rem'
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() => setSummaryDateRange({ from: '', to: '' })}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    background: 'rgba(255,255,255,0.1)',
+                    color: 'white',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    fontWeight: 600
+                  }}
+                >
+                  Clear Filter
+                </button>
+              </div>
             </div>
 
             {/* Table Container */}
             <div style={{
-              maxHeight: '60vh',
-              overflowY: 'auto',
-              border: '2px solid #e5e7eb',
-              borderRadius: '12px',
+              flex: 1,
+              overflow: 'auto',
               background: '#fff'
             }}>
               <table style={{
@@ -1406,13 +1489,15 @@ function App() {
 
             {/* Footer */}
             <div style={{
-              marginTop: '1rem',
+              background: '#f8fafc',
+              padding: '1rem 2rem',
+              borderTop: '1px solid #e5e7eb',
               textAlign: 'center',
               fontSize: '0.9rem',
               color: '#6b7280',
               fontWeight: 500
             }}>
-              Total Records: {loads.length} | Click column headers to sort
+              Showing {getSortedSummaryData().length} of {loads.length} records | Click column headers to sort
             </div>
           </div>
         </div>
