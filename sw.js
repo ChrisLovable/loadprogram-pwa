@@ -1,4 +1,4 @@
-const CACHE_NAME = 'load-approval-pwa-v1';
+const CACHE_NAME = 'load-approval-pwa-v2';
 const urlsToCache = [
   '/',
   '/index.html',
