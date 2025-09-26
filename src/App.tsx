@@ -919,6 +919,41 @@ function App() {
               <h3 style={{ margin: '0 0 1rem 0', color: '#333' }}>🚛 Driver Upload Section</h3>
               <DriverSection onUploadComplete={() => { setCurrentRole(null); handleDriverSubmit(); }} onTextractComplete={handleTextractComplete} />
             </div>
+            
+            {/* Cancel Button */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              marginTop: '1rem',
+              padding: '0 1rem'
+            }}>
+              <button
+                onClick={() => setCurrentRole(null)}
+                style={{
+                  background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '0.8rem 2rem',
+                  color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(107, 114, 128, 0.3)',
+                  transition: 'all 0.2s ease',
+                  minWidth: '120px',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(107, 114, 128, 0.4)';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(107, 114, 128, 0.3)';
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
