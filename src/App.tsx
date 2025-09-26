@@ -1277,6 +1277,7 @@ function App() {
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
+            marginLeft: '-20px'
           }} onClick={e => e.stopPropagation()}>
             {/* Close Button */}
             <button
@@ -1332,35 +1333,37 @@ function App() {
                 justifyContent: 'center',
                 flexWrap: 'nowrap'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <label style={{ fontWeight: 600, fontSize: '0.8rem' }}>From:</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <label style={{ fontWeight: 600, fontSize: '0.7rem' }}>From:</label>
                   <input
                     type="date"
                     value={summaryDateRange.from}
                     onChange={(e) => setSummaryDateRange(prev => ({ ...prev, from: e.target.value }))}
                     style={{
-                      padding: '0.5rem',
+                      padding: '0.4rem',
                       borderRadius: '6px',
                       border: '1px solid rgba(255,255,255,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: 'white',
-                      fontSize: '0.8rem'
+                      fontSize: '0.7rem',
+                      width: '120px'
                     }}
                   />
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <label style={{ fontWeight: 600, fontSize: '0.8rem' }}>To:</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <label style={{ fontWeight: 600, fontSize: '0.7rem' }}>To:</label>
                   <input
                     type="date"
                     value={summaryDateRange.to}
                     onChange={(e) => setSummaryDateRange(prev => ({ ...prev, to: e.target.value }))}
                     style={{
-                      padding: '0.5rem',
+                      padding: '0.4rem',
                       borderRadius: '6px',
                       border: '1px solid rgba(255,255,255,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: 'white',
-                      fontSize: '0.8rem'
+                      fontSize: '0.7rem',
+                      width: '120px'
                     }}
                   />
                 </div>
