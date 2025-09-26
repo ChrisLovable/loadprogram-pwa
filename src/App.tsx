@@ -714,8 +714,7 @@ function App() {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         background: '#000000'
       }}>
-        {/* Temporarily commented out banner image to fix black screen issue */}
-        {/* <img 
+        <img 
           src="/goliatskraal-banner.jpg" 
           alt="Goliatskraal Banner" 
           style={{
@@ -729,7 +728,7 @@ function App() {
             console.log('Banner image failed to load');
             e.currentTarget.style.display = 'none';
           }}
-        /> */}
+        />
       </div>
       
       {/* Main Content Container with Black Background */}
@@ -1383,7 +1382,7 @@ function App() {
                   width: '100%',
                   minWidth: '600px',
                   borderCollapse: 'collapse',
-                  fontSize: '0.7rem',
+                  fontSize: '0.6rem',
                   tableLayout: 'fixed'
                 }}>
                 <thead style={{
