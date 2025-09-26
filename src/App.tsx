@@ -175,16 +175,18 @@ function App() {
   // }
 
   return (
-    <div style={{
-      width: '100vw',
-      minHeight: '100vh',
-      background: '#f5f7fa',
-      margin: 0,
-      padding: 0,
-      boxSizing: 'border-box',
-      fontFamily: 'system-ui, sans-serif',
-      maxWidth: '100vw',
-    }}>
+    <div className="phone-container">
+      <div className="phone-screen">
+        <div style={{
+          width: '100%',
+          height: '100%',
+          background: '#000000',
+          margin: 0,
+          padding: 0,
+          boxSizing: 'border-box',
+          fontFamily: 'system-ui, sans-serif',
+          overflow: 'hidden',
+        }}>
       {/* Search Modal */}
       {showSearch && (
         <div style={{
@@ -581,13 +583,45 @@ function App() {
       {/* Results */}
       {/* Remove the block at/after line 520 that renders dashboardResults on the main screen. */}
       
-      <RoleSelector
-        currentRole={currentRole}
-        onRoleChange={setCurrentRole}
-        loads={loads}
-        onDashboardClick={() => setShowSearch(true)}
-        onSummariesClick={() => setShowDashboard(true)}
-      />
+      {/* Goliatskraal Banner */}
+      <div style={{
+        width: '100%',
+        marginTop: '30px',
+        marginBottom: '1rem',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        background: '#000000'
+      }}>
+        <img 
+          src="/goliatskraal-banner.jpg" 
+          alt="Goliatskraal Banner" 
+          style={{
+            width: '60%',
+            height: 'auto',
+            display: 'block',
+            objectFit: 'contain',
+            margin: '0 auto'
+          }}
+        />
+      </div>
+      
+      {/* Main Content Container with Black Background */}
+      <div style={{
+        background: '#000000',
+        borderRadius: '12px',
+        padding: '1rem',
+        marginTop: '-30px',
+        marginBottom: '1rem'
+      }}>
+        <RoleSelector
+          currentRole={currentRole}
+          onRoleChange={setCurrentRole}
+          loads={loads}
+          onDashboardClick={() => setShowSearch(true)}
+          onSummariesClick={() => setShowDashboard(true)}
+        />
+      </div>
       
       {/* FIRST APPROVER ROLE CARD */}
       {currentRole === 'first_approver' && (
@@ -813,6 +847,8 @@ function App() {
         </div>
       )}
       
+        </div>
+      </div>
     </div>
   )
 }

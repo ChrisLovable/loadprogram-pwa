@@ -24,6 +24,14 @@ const ROLE_NAMES = {
   'final_approver': 'Final Approver'
 }
 
+const ROLE_ICONS = {
+  'driver': '🚛',
+  'first_approver': '✅',
+  'second_approver': '🔍',
+  'invoicer': '💰',
+  'final_approver': '📋'
+}
+
 const ROLE_COLORS: { [key: string]: string } = {
   'driver': '#ff0000',
   'first_approver': '#2563eb',
@@ -141,7 +149,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 color: '#222',
                 border: '1.5px solid #111',
                 borderRadius: '32px',
-                padding: '1.1rem 1.2rem',
+                padding: '0.8rem 1.2rem',
                 fontWeight: 900,
                 fontSize: '1.45rem',
                 fontFamily: 'inherit',
@@ -216,7 +224,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 backgroundSize: '200% 100%',
                 backgroundPosition: '200% 0',
               }} />
-              <span style={{flex:1,textAlign:'left',fontWeight:900,fontSize:'1.45rem',color:'#222',letterSpacing:'0.5px',fontFamily:'inherit',position:'relative',zIndex:4}}>{name}</span>
+              <span style={{flex:1,textAlign:'left',fontWeight:900,fontSize:'1.45rem',color:'#222',letterSpacing:'0.5px',fontFamily:'inherit',position:'relative',zIndex:4}}>{ROLE_ICONS[role as keyof typeof ROLE_ICONS]} {name}</span>
               <span style={{
                 marginLeft: '0.5rem',
                 background: '#f43f5e',
@@ -240,12 +248,12 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           type="button"
           onClick={onSummariesClick}
           style={{
-            marginTop: '50px', // Move Summaries button down by 50px
+            marginTop: '20px', // Move Summaries button down by 20px
             background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
             color: '#222',
             border: '2.5px solid #60a5fa',
             borderRadius: '16px',
-            padding: '1.1rem 1.2rem',
+            padding: '0.8rem 1.2rem',
             fontWeight: 900,
             fontSize: '1.45rem',
             fontFamily: 'inherit',
@@ -320,12 +328,12 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           type="button"
           onClick={onDashboardClick}
           style={{
-            marginTop: '5px', // Move Search button up by 5px
+            marginTop: '-5px', // Move Search button up by 5px
             background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
             color: '#222',
             border: '1.5px solid #111',
             borderRadius: '16px',
-            padding: '1.1rem 1.2rem',
+            padding: '0.8rem 1.2rem',
             fontWeight: 900,
             fontSize: '1.45rem',
             fontFamily: 'inherit',
