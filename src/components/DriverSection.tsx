@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase';
-import React from 'react'; // Added for useEffect
 
 interface DriverSectionProps {
   onUploadComplete: () => void
@@ -33,7 +32,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
     } catch { return {}; }
   })();
   // If current user is driver, auto-fill and lock driverName
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentUser.role === 'driver' && currentUser.name) {
       setDriverName(currentUser.name);
     }
@@ -105,7 +104,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
 
       // Test Supabase connection
       console.log('Testing Supabase connection...');
-      const { data: testData, error: testError } = await supabase.from('loads').select('count').limit(1);
+        const { error: testError } = await supabase.from('loads').select('count').limit(1);
       if (testError) {
         console.error('Supabase connection test failed:', testError);
         alert('Database connection failed. Please check your internet connection and try again.');
@@ -248,8 +247,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
           console.error('Upload error:', uploadError);
           console.error('Error details:', {
             message: uploadError.message,
-            statusCode: uploadError.statusCode,
-            error: uploadError.error
+            name: uploadError.name
           });
           
           // Check if it's a network error
@@ -355,7 +353,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : 'No stack trace',
         name: error instanceof Error ? error.name : 'Unknown',
-        cause: error instanceof Error ? error.cause : 'No cause',
+        // cause: error instanceof Error ? error.cause : 'No cause',
         toString: error?.toString?.()
       });
       
@@ -366,7 +364,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         uploading,
         visionLoading,
         showSuccess,
-        visionError: visionError?.message
+        visionError: visionError
       });
       
       // More specific error handling
