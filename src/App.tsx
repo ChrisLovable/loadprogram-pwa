@@ -47,6 +47,9 @@ function App() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; loadId: number | null }>({ show: false, loadId: null });
+  const [showSummary, setShowSummary] = useState(false);
+  const [summarySortBy, setSummarySortBy] = useState<'truckReg' | 'sender' | 'receiver' | null>(null);
+  const [summarySortOrder, setSummarySortOrder] = useState<'asc' | 'desc'>('asc');
 
   const loadData = async () => {
     // Fetch loads from Supabase
@@ -113,6 +116,36 @@ function App() {
       console.error('Error deleting load:', error);
       alert('Error deleting load: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
+  };
+
+  // Summary table sorting function
+  const handleSummarySort = (column: 'truckReg' | 'sender' | 'receiver') => {
+    if (summarySortBy === column) {
+      setSummarySortOrder(summarySortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSummarySortBy(column);
+      setSummarySortOrder('asc');
+    }
+  };
+
+  // Get sorted summary data
+  const getSortedSummaryData = () => {
+    let sortedLoads = [...loads];
+    
+    if (summarySortBy) {
+      sortedLoads.sort((a, b) => {
+        const aValue = a?.parsed_data?.[summarySortBy] || '';
+        const bValue = b?.parsed_data?.[summarySortBy] || '';
+        
+        if (summarySortOrder === 'asc') {
+          return aValue.localeCompare(bValue);
+        } else {
+          return bValue.localeCompare(aValue);
+        }
+      });
+    }
+    
+    return sortedLoads;
   };
 
   // Helper for date filtering
@@ -684,6 +717,7 @@ function App() {
           loads={loads}
           onDashboardClick={() => setShowSearch(true)}
           onSummariesClick={() => setShowDashboard(true)}
+          onSummaryClick={() => setShowSummary(true)}
         />
       </div>
       
@@ -1167,6 +1201,219 @@ function App() {
               borderRadius: '20px 20px 0 0',
               pointerEvents: 'none'
             }}></div>
+          </div>
+        </div>
+      )}
+
+      {/* Summary Modal */}
+      {showSummary && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.8)',
+          zIndex: 6000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }} onClick={() => setShowSummary(false)}>
+          <div style={{
+            background: 'linear-gradient(135deg, #fff 0%, #f8fafc 100%)',
+            borderRadius: '20px',
+            padding: '2rem',
+            maxWidth: '95vw',
+            width: '1200px',
+            maxHeight: '90vh',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3), 0 8px 32px rgba(0,0,0,0.2)',
+            border: '2px solid rgba(16, 185, 129, 0.2)',
+            position: 'relative',
+            overflow: 'hidden',
+          }} onClick={e => e.stopPropagation()}>
+            {/* Close Button */}
+            <button
+              onClick={() => setShowSummary(false)}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                background: 'rgba(255,255,255,0.7)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.35rem',
+                color: '#059669',
+                boxShadow: '0 2px 8px 0 rgba(5, 150, 105, 0.10)',
+                cursor: 'pointer',
+                transition: 'background 0.18s, color 0.18s, box-shadow 0.18s',
+                outline: 'none',
+                zIndex: 10,
+              }}
+              aria-label="Close summary modal"
+            >
+              ×
+            </button>
+
+            {/* Header */}
+            <div style={{
+              fontSize: '1.8rem',
+              fontWeight: 700,
+              color: '#059669',
+              marginBottom: '1.5rem',
+              textAlign: 'center',
+              textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              letterSpacing: '0.5px'
+            }}>
+              📊 Load Summary Table
+            </div>
+
+            {/* Table Container */}
+            <div style={{
+              maxHeight: '60vh',
+              overflowY: 'auto',
+              border: '2px solid #e5e7eb',
+              borderRadius: '12px',
+              background: '#fff'
+            }}>
+              <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                fontSize: '0.9rem'
+              }}>
+                <thead style={{
+                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                  color: 'white',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 5
+                }}>
+                  <tr>
+                    <th style={{
+                      padding: '1rem 0.8rem',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      borderRight: '1px solid rgba(255,255,255,0.2)',
+                      cursor: 'default'
+                    }}>
+                      Date
+                    </th>
+                    <th style={{
+                      padding: '1rem 0.8rem',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      borderRight: '1px solid rgba(255,255,255,0.2)',
+                      cursor: 'pointer',
+                      userSelect: 'none'
+                    }}
+                      onClick={() => handleSummarySort('truckReg')}
+                    >
+                      Truck Reg {summarySortBy === 'truckReg' && (summarySortOrder === 'asc' ? '↑' : '↓')}
+                    </th>
+                    <th style={{
+                      padding: '1rem 0.8rem',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      borderRight: '1px solid rgba(255,255,255,0.2)',
+                      cursor: 'pointer',
+                      userSelect: 'none'
+                    }}
+                      onClick={() => handleSummarySort('sender')}
+                    >
+                      Sender {summarySortBy === 'sender' && (summarySortOrder === 'asc' ? '↑' : '↓')}
+                    </th>
+                    <th style={{
+                      padding: '1rem 0.8rem',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      borderRight: '1px solid rgba(255,255,255,0.2)',
+                      cursor: 'pointer',
+                      userSelect: 'none'
+                    }}
+                      onClick={() => handleSummarySort('receiver')}
+                    >
+                      Receiver {summarySortBy === 'receiver' && (summarySortOrder === 'asc' ? '↑' : '↓')}
+                    </th>
+                    <th style={{
+                      padding: '1rem 0.8rem',
+                      textAlign: 'left',
+                      fontWeight: 700,
+                      cursor: 'default'
+                    }}>
+                      Trip KMs
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {getSortedSummaryData().map((load, index) => (
+                    <tr key={load.id} style={{
+                      background: index % 2 === 0 ? '#fff' : '#f9fafb',
+                      borderBottom: '1px solid #e5e7eb',
+                      transition: 'background-color 0.2s'
+                    }}
+                      onMouseOver={e => e.currentTarget.style.background = '#f0fdf4'}
+                      onMouseOut={e => e.currentTarget.style.background = index % 2 === 0 ? '#fff' : '#f9fafb'}
+                    >
+                      <td style={{
+                        padding: '0.8rem',
+                        borderRight: '1px solid #e5e7eb',
+                        fontWeight: 500,
+                        color: '#374151'
+                      }}>
+                        {load?.parsed_data?.date || '-'}
+                      </td>
+                      <td style={{
+                        padding: '0.8rem',
+                        borderRight: '1px solid #e5e7eb',
+                        fontWeight: 600,
+                        color: '#1f2937'
+                      }}>
+                        {load?.parsed_data?.truckReg || '-'}
+                      </td>
+                      <td style={{
+                        padding: '0.8rem',
+                        borderRight: '1px solid #e5e7eb',
+                        fontWeight: 500,
+                        color: '#374151'
+                      }}>
+                        {load?.parsed_data?.sender || '-'}
+                      </td>
+                      <td style={{
+                        padding: '0.8rem',
+                        borderRight: '1px solid #e5e7eb',
+                        fontWeight: 500,
+                        color: '#374151'
+                      }}>
+                        {load?.parsed_data?.receiver || '-'}
+                      </td>
+                      <td style={{
+                        padding: '0.8rem',
+                        fontWeight: 600,
+                        color: '#059669',
+                        textAlign: 'right'
+                      }}>
+                        {load?.parsed_data?.tripKm || '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer */}
+            <div style={{
+              marginTop: '1rem',
+              textAlign: 'center',
+              fontSize: '0.9rem',
+              color: '#6b7280',
+              fontWeight: 500
+            }}>
+              Total Records: {loads.length} | Click column headers to sort
+            </div>
           </div>
         </div>
       )}
