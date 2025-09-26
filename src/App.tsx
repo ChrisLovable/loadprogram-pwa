@@ -1314,59 +1314,60 @@ function App() {
               {/* Date Range Filter */}
               <div style={{
                 display: 'flex',
-                gap: '1rem',
+                gap: '0.5rem',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flexWrap: 'nowrap'
+                flexWrap: 'wrap',
+                padding: '0 1rem'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <label style={{ fontWeight: 600, fontSize: '0.7rem' }}>From:</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  <label style={{ fontWeight: 600, fontSize: '0.6rem' }}>From:</label>
                   <input
                     type="date"
                     value={summaryDateRange.from}
                     onChange={(e) => setSummaryDateRange(prev => ({ ...prev, from: e.target.value }))}
                     style={{
-                      padding: '0.4rem',
-                      borderRadius: '6px',
+                      padding: '0.3rem',
+                      borderRadius: '4px',
                       border: '1px solid rgba(255,255,255,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: 'white',
-                      fontSize: '0.7rem',
-                      width: '120px'
+                      fontSize: '0.6rem',
+                      width: '90px'
                     }}
                   />
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <label style={{ fontWeight: 600, fontSize: '0.7rem' }}>To:</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  <label style={{ fontWeight: 600, fontSize: '0.6rem' }}>To:</label>
                   <input
                     type="date"
                     value={summaryDateRange.to}
                     onChange={(e) => setSummaryDateRange(prev => ({ ...prev, to: e.target.value }))}
                     style={{
-                      padding: '0.4rem',
-                      borderRadius: '6px',
+                      padding: '0.3rem',
+                      borderRadius: '4px',
                       border: '1px solid rgba(255,255,255,0.3)',
                       background: 'rgba(255,255,255,0.1)',
                       color: 'white',
-                      fontSize: '0.7rem',
-                      width: '120px'
+                      fontSize: '0.6rem',
+                      width: '90px'
                     }}
                   />
                 </div>
                 <button
                   onClick={() => setSummaryDateRange({ from: '', to: '' })}
                   style={{
-                    padding: '0.5rem 1rem',
-                    borderRadius: '6px',
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
                     border: '1px solid rgba(255,255,255,0.3)',
                     background: 'rgba(255,255,255,0.1)',
                     color: 'white',
-                    fontSize: '0.8rem',
+                    fontSize: '0.6rem',
                     cursor: 'pointer',
                     fontWeight: 600
                   }}
                 >
-                  Clear Filter
+                  Clear
                 </button>
               </div>
             </div>
