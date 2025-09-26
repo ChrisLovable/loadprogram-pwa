@@ -850,8 +850,8 @@ give            </button>
             borderRadius: '20px 20px 0 0',
             pointerEvents: 'none'
           }}></div>
-        </div>
-      )}
+          </div>
+        )}
 
       {/* Image Enlargement - Top Positioned */}
       {enlargedImage && (
