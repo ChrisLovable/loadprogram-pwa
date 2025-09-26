@@ -262,33 +262,39 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             </button>
           )
         })}
-        <button
-          type="button"
-          onClick={onSummariesClick}
-          style={{
-            marginTop: '0px', // Put Dashboard and Search on same level
-            background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
-            color: '#222',
-            border: '2.5px solid #60a5fa',
-            borderRadius: '16px',
-            padding: '0.8rem 1.2rem',
-            fontWeight: 900,
-            fontSize: '1.45rem',
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-            boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            backgroundBlendMode: 'overlay',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'box-shadow 0.2s, transform 0.1s',
-            transform: 'translateY(0)',
-            outline: 'none',
-          }}
-          onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-          onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
-        >
+        {/* Dashboard and Search in 2-column layout */}
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+          marginTop: '0px'
+        }}>
+          <button
+            type="button"
+            onClick={onSummariesClick}
+            style={{
+              flex: 1,
+              background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
+              color: '#222',
+              border: '2.5px solid #60a5fa',
+              borderRadius: '16px',
+              padding: '0.8rem 1.2rem',
+              fontWeight: 900,
+              fontSize: '1.45rem',
+              fontFamily: 'inherit',
+              cursor: 'pointer',
+              boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              backgroundBlendMode: 'overlay',
+              position: 'relative',
+              overflow: 'hidden',
+              transition: 'box-shadow 0.2s, transform 0.1s',
+              transform: 'translateY(0)',
+              outline: 'none',
+            }}
+            onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
           <span style={{
             position: 'absolute',
             top: 0,
@@ -341,34 +347,34 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             backgroundPosition: '200% 0',
           }} />
           <span style={{position:'relative',zIndex:4}}>📈 Dashboard</span>
-        </button>
-        <button
-          type="button"
-          onClick={onDashboardClick}
-          style={{
-            marginTop: '0px', // Put Dashboard and Search on same level
-            background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
-            color: '#222',
-            border: '1.5px solid #111',
-            borderRadius: '16px',
-            padding: '0.8rem 1.2rem',
-            fontWeight: 900,
-            fontSize: '1.45rem',
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-            boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            backgroundBlendMode: 'overlay',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'box-shadow 0.2s, transform 0.1s',
-            transform: 'translateY(0)',
-            outline: 'none',
-          }}
-          onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-          onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
-        >
+          </button>
+          <button
+            type="button"
+            onClick={onDashboardClick}
+            style={{
+              flex: 1,
+              background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
+              color: '#222',
+              border: '1.5px solid #111',
+              borderRadius: '16px',
+              padding: '0.8rem 1.2rem',
+              fontWeight: 900,
+              fontSize: '1.45rem',
+              fontFamily: 'inherit',
+              cursor: 'pointer',
+              boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              backgroundBlendMode: 'overlay',
+              position: 'relative',
+              overflow: 'hidden',
+              transition: 'box-shadow 0.2s, transform 0.1s',
+              transform: 'translateY(0)',
+              outline: 'none',
+            }}
+            onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
           <span style={{
             position: 'absolute',
             top: 0,
@@ -421,12 +427,16 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             backgroundPosition: '200% 0',
           }} />
           <span style={{position:'relative',zIndex:4}}>🔍 Search</span>
-        </button>
+          </button>
+        </div>
+        
+        {/* Summary button below Dashboard */}
         <button
           type="button"
           onClick={onSummaryClick}
           style={{
             marginTop: '20px',
+            width: '50%',
             background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
             color: '#222',
             border: '1.5px solid #111',

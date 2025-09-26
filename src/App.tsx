@@ -1277,7 +1277,7 @@ function App() {
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            marginLeft: '-20px'
+            marginLeft: '-40px'
           }} onClick={e => e.stopPropagation()}>
             {/* Close Button */}
             <button
