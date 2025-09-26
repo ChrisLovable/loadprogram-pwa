@@ -46,6 +46,7 @@ function App() {
   const [minimizedSearch, setMinimizedSearch] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; loadId: number | null }>({ show: false, loadId: null });
 
   const loadData = async () => {
     // Fetch loads from Supabase
@@ -81,12 +82,50 @@ function App() {
   }
 
   // Add this handler to delete a load
-  // const handleDeleteLoad = async (id: number) => {
-  //   if (window.confirm('Are you sure you want to delete this load?')) {
-  //     await supabase.from('loads').delete().eq('id', id);
-  //     loadData();
-  //   }
-  // };
+  const handleDeleteLoad = async (loadId: number) => {
+    try {
+      console.log('🗑️ Deleting load:', loadId);
+      
+      // First delete all photos associated with this load
+      const { error: photosError } = await supabase
+        .from('photos')
+        .delete()
+        .eq('load_id', loadId);
+      
+      if (photosError) {
+        console.error('Error deleting photos:', photosError);
+        alert('Error deleting photos: ' + photosError.message);
+        return;
+      }
+      
+      // Then delete the load record
+      const { error: loadError } = await supabase
+        .from('loads')
+        .delete()
+        .eq('id', loadId);
+      
+      if (loadError) {
+        console.error('Error deleting load:', loadError);
+        alert('Error deleting load: ' + loadError.message);
+        return;
+      }
+      
+      console.log('✅ Load deleted successfully');
+      
+      // Remove from local state
+      setLoads(prevLoads => prevLoads.filter(load => load.id !== loadId));
+      setDashboardResults(prevResults => prevResults.filter(load => load.id !== loadId));
+      
+      // Close confirmation dialog
+      setDeleteConfirm({ show: false, loadId: null });
+      
+      alert('Load deleted successfully!');
+      
+    } catch (error) {
+      console.error('Error deleting load:', error);
+      alert('Error deleting load: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  };
 
   // Helper for date filtering
   const isDateInRange = (dateStr: string, filter: string, range: any) => {
@@ -431,6 +470,40 @@ function App() {
                     color:'#222',
                     position:'relative',
                   }}>
+                    {/* Delete Button */}
+                    <button
+                      onClick={() => setDeleteConfirm({ show: true, loadId: load.id })}
+                      style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '32px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '16px',
+                        color: 'white',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+                        transition: 'all 0.2s ease',
+                        zIndex: 10,
+                      }}
+                      onMouseOver={e => {
+                        e.currentTarget.style.transform = 'scale(1.1)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+                      }}
+                      onMouseOut={e => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
+                      }}
+                      aria-label="Delete load"
+                    >
+                      🗑️
+                    </button>
                     {/* Role Players */}
                     <div style={{marginBottom:'0.7rem',padding:'0.7rem',background:'#e0f2fe',borderRadius:'8px',border:'1.5px solid #38bdf8'}}>
                       <div style={{fontWeight:700,color:'#2563eb',fontSize:'1rem',marginBottom:'0.2rem',letterSpacing:'0.5px'}}>Role Players</div>
@@ -846,6 +919,126 @@ function App() {
               <h3 style={{ margin: '0 0 1rem 0', color: '#333' }}>🚛 Driver Upload Section</h3>
               <DriverSection onUploadComplete={() => { setCurrentRole(null); handleDriverSubmit(); }} onTextractComplete={handleTextractComplete} />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.8)',
+          zIndex: 5000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }} onClick={() => setDeleteConfirm({ show: false, loadId: null })}>
+          <div style={{
+            background: 'linear-gradient(135deg, #fff 0%, #f8fafc 100%)',
+            borderRadius: '20px',
+            padding: '2rem',
+            maxWidth: '320px',
+            width: '90vw',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3), 0 8px 32px rgba(0,0,0,0.2)',
+            border: '2px solid rgba(239, 68, 68, 0.2)',
+            textAlign: 'center',
+            position: 'relative',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{
+              fontSize: '3rem',
+              marginBottom: '1rem',
+              animation: 'successPulse 0.6s ease-out'
+            }}>
+              ⚠️
+            </div>
+            <div style={{
+              fontSize: '1.3rem',
+              fontWeight: 700,
+              marginBottom: '1rem',
+              color: '#dc2626',
+              textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              letterSpacing: '0.5px'
+            }}>
+              Delete Load?
+            </div>
+            <div style={{
+              fontSize: '1rem',
+              color: '#666',
+              marginBottom: '2rem',
+              lineHeight: '1.5'
+            }}>
+              This action cannot be undone. All photos and data for this load will be permanently deleted.
+            </div>
+            <div style={{
+              display: 'flex',
+              gap: '1rem',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={() => setDeleteConfirm({ show: false, loadId: null })}
+                style={{
+                  background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '0.8rem 1.5rem',
+                  color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(107, 114, 128, 0.3)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(107, 114, 128, 0.4)';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(107, 114, 128, 0.3)';
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteConfirm.loadId && handleDeleteLoad(deleteConfirm.loadId)}
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '0.8rem 1.5rem',
+                  color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+                }}
+              >
+                Delete
+              </button>
+            </div>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '50%',
+              background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)',
+              borderRadius: '20px 20px 0 0',
+              pointerEvents: 'none'
+            }}></div>
           </div>
         </div>
       )}
