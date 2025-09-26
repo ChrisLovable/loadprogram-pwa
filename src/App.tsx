@@ -270,6 +270,8 @@ function App() {
   //   first_approval: firstApprovalData
   // }
 
+  console.log('🔴 App - Rendering main component, currentRole:', currentRole, 'loading:', loading);
+  
   return (
     <div className="phone-container">
       <div className="phone-screen">
@@ -713,7 +715,8 @@ function App() {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         background: '#000000'
       }}>
-        <img 
+        {/* Temporarily commented out banner image to fix black screen issue */}
+        {/* <img 
           src="/goliatskraal-banner.jpg" 
           alt="Goliatskraal Banner" 
           style={{
@@ -727,7 +730,7 @@ function App() {
             console.log('Banner image failed to load');
             e.currentTarget.style.display = 'none';
           }}
-        />
+        /> */}
       </div>
       
       {/* Main Content Container with Black Background */}
