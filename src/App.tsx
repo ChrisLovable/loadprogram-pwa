@@ -86,19 +86,7 @@ function App() {
     try {
       console.log('🗑️ Deleting load:', loadId);
       
-      // First delete all photos associated with this load
-      const { error: photosError } = await supabase
-        .from('photos')
-        .delete()
-        .eq('load_id', loadId);
-      
-      if (photosError) {
-        console.error('Error deleting photos:', photosError);
-        alert('Error deleting photos: ' + photosError.message);
-        return;
-      }
-      
-      // Then delete the load record
+      // Delete the load record (photos are stored in the loads table)
       const { error: loadError } = await supabase
         .from('loads')
         .delete()
@@ -711,8 +699,43 @@ function App() {
                 border: '1px solid #2563eb',
                 boxShadow: '0 4px 12px rgba(37, 99, 235, 0.13)',
                 maxWidth: '90%',
-                margin: '0 auto 1.2rem auto'
+                margin: '0 auto 1.2rem auto',
+                position: 'relative'
               }}>
+                {/* Delete Button */}
+                <button
+                  onClick={() => setDeleteConfirm({ show: true, loadId: load.id })}
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+                    transition: 'all 0.2s ease',
+                    zIndex: 10,
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
+                  }}
+                  aria-label="Delete load"
+                >
+                  🗑️
+                </button>
                 <h2 style={{
                   fontSize: '1.05rem',
                   fontWeight: 700,
@@ -752,8 +775,43 @@ function App() {
                 border: '1.5px solid #7c3aed',
                 boxShadow: '0 4px 16px rgba(124, 58, 237, 0.10)',
                 maxWidth: '90%',
-                margin: '0 auto 1.2rem auto'
+                margin: '0 auto 1.2rem auto',
+                position: 'relative'
               }}>
+                {/* Delete Button */}
+                <button
+                  onClick={() => setDeleteConfirm({ show: true, loadId: load.id })}
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+                    transition: 'all 0.2s ease',
+                    zIndex: 10,
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
+                  }}
+                  aria-label="Delete load"
+                >
+                  🗑️
+                </button>
                 <div style={{
                   background: 'linear-gradient(135deg, #a78bfa 0%, #6366f1 100%)',
                   borderRadius: '10px',
@@ -819,7 +877,7 @@ function App() {
           }}>
             {loads.filter(l => l.status === 'second_approved').length > 0 && (
               loads.filter(l => l.status === 'second_approved').map(load => (
-                <InvoicerSection key={load.id} load={load} onInvoiceComplete={loadData} />
+                <InvoicerSection key={load.id} load={load} onInvoiceComplete={loadData} onDeleteLoad={(loadId) => setDeleteConfirm({ show: true, loadId })} />
               ))
             )}
           </div>
@@ -838,8 +896,43 @@ function App() {
                 border: '1px solid #047857',
                 boxShadow: '0 4px 12px rgba(5, 150, 105, 0.13)',
                 maxWidth: '90%',
-                margin: '0 auto 1.2rem auto'
+                margin: '0 auto 1.2rem auto',
+                position: 'relative'
               }}>
+                {/* Delete Button */}
+                <button
+                  onClick={() => setDeleteConfirm({ show: true, loadId: load.id })}
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+                    transition: 'all 0.2s ease',
+                    zIndex: 10,
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
+                  }}
+                  aria-label="Delete load"
+                >
+                  🗑️
+                </button>
                 <h2 style={{
                   fontSize: '1.05rem',
                   fontWeight: 700,

@@ -3,12 +3,13 @@ import React, { useState } from 'react'
 interface InvoicerSectionProps {
   load: any // expects load with textract_data, ocr_data, and approval data
   onInvoiceComplete: () => void
+  onDeleteLoad?: (loadId: number) => void
 }
 
 const labelStyle = { fontSize: '1.05rem', fontWeight: 700, color: '#333', marginBottom: '0.1rem' }
 const inputStyle = { width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid #e0e7ef', fontSize: '1rem', background: '#f7fafd' }
 
-const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComplete }) => {
+const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComplete, onDeleteLoad }) => {
   const [invoiceMadeOutTo, setInvoiceMadeOutTo] = useState('')
   const [invoiceDate, setInvoiceDate] = useState('')
   const [invoiceNumber, setInvoiceNumber] = useState('')
@@ -455,6 +456,38 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       >
         {submitting ? '⏳ Processing Invoice...' : '🧾 Complete Invoice Processing'}
       </button>
+      
+      {/* Delete Button */}
+      {onDeleteLoad && (
+        <button
+          type="button"
+          onClick={() => onDeleteLoad(load.id)}
+          style={{
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            border: 'none',
+            borderRadius: '12px',
+            padding: '0.8rem 1.5rem',
+            color: 'white',
+            fontSize: '1rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+            transition: 'all 0.2s ease',
+            width: '100%',
+            marginTop: '0.8rem'
+          }}
+          onMouseOver={e => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
+          }}
+          onMouseOut={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+          }}
+        >
+          🗑️ Delete Load
+        </button>
+      )}
     </form>
   )
 }
