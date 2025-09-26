@@ -1356,14 +1356,16 @@ function App() {
                 <button
                   onClick={() => setSummaryDateRange({ from: '', to: '' })}
                   style={{
-                    padding: '0.3rem 0.6rem',
-                    borderRadius: '4px',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '6px',
                     border: '1px solid rgba(255,255,255,0.3)',
                     background: 'rgba(255,255,255,0.1)',
                     color: 'white',
-                    fontSize: '0.6rem',
+                    fontSize: '0.7rem',
                     cursor: 'pointer',
-                    fontWeight: 600
+                    fontWeight: 600,
+                    width: '120px',
+                    height: '40px'
                   }}
                 >
                   Clear
