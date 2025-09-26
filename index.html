@@ -42,54 +42,50 @@
       let installButtonVisible = false;
       
       window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
+        // Don't prevent default - let browser show its own install banner
         deferredPrompt = e;
         installButtonVisible = true;
         
-        // Show install button automatically
+        // Show custom install button as alternative
         showInstallButton();
-        
-        // Auto-prompt after 3 seconds if user hasn't interacted
-        setTimeout(() => {
-          if (installButtonVisible && deferredPrompt) {
-            showInstallPrompt();
-          }
-        }, 3000);
       });
       
       function showInstallButton() {
-        const installBtn = document.createElement('button');
-        installBtn.innerHTML = '📱 Install App';
-        installBtn.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          z-index: 10000;
-          background: #059669;
-          color: white;
-          border: none;
-          padding: 12px 20px;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: bold;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-          animation: pulse 2s infinite;
-        `;
-        
-        installBtn.onclick = () => showInstallPrompt();
-        document.body.appendChild(installBtn);
-        
-        // Add pulse animation
-        const style = document.createElement('style');
-        style.textContent = `
-          @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        // Only show if browser doesn't show its own install banner
+        setTimeout(() => {
+          if (installButtonVisible && deferredPrompt) {
+            const installBtn = document.createElement('button');
+            installBtn.innerHTML = '📱 Install App';
+            installBtn.style.cssText = `
+              position: fixed;
+              bottom: 20px;
+              right: 20px;
+              z-index: 10000;
+              background: linear-gradient(135deg, #059669 0%, #047857 100%);
+              color: white;
+              border: none;
+              padding: 10px 16px;
+              border-radius: 12px;
+              font-size: 13px;
+              font-weight: 600;
+              cursor: pointer;
+              box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+              transition: all 0.2s ease;
+            `;
+            
+            installBtn.onclick = () => showInstallPrompt();
+            installBtn.onmouseover = () => {
+              installBtn.style.transform = 'translateY(-2px)';
+              installBtn.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
+            };
+            installBtn.onmouseout = () => {
+              installBtn.style.transform = 'translateY(0)';
+              installBtn.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.3)';
+            };
+            
+            document.body.appendChild(installBtn);
           }
-        `;
-        document.head.appendChild(style);
+        }, 2000); // Wait 2 seconds to see if browser shows its own banner
       }
       
       function showInstallPrompt() {
