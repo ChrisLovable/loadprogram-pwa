@@ -1379,12 +1379,13 @@ function App() {
               background: '#fff',
               minHeight: 0
             }}>
-              <table style={{
-                width: '100%',
-                minWidth: '800px',
-                borderCollapse: 'collapse',
-                fontSize: '0.75rem'
-              }}>
+                <table style={{
+                  width: '100%',
+                  minWidth: '600px',
+                  borderCollapse: 'collapse',
+                  fontSize: '0.7rem',
+                  tableLayout: 'fixed'
+                }}>
                 <thead style={{
                   background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                   color: 'white',
@@ -1393,82 +1394,82 @@ function App() {
                   zIndex: 5
                 }}>
                   <tr>
-                    <th style={{
-                      padding: '0.8rem 0.6rem',
-                      textAlign: 'left',
-                      fontWeight: 700,
-                      borderRight: '1px solid rgba(255,255,255,0.2)',
-                      cursor: 'default',
-                      minWidth: '80px'
-                    }}>
-                      Date
-                    </th>
-                    <th style={{
-                      padding: '0.8rem 0.6rem',
-                      textAlign: 'left',
-                      fontWeight: 700,
-                      borderRight: '1px solid rgba(255,255,255,0.2)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      minWidth: '100px'
-                    }}
-                      onClick={() => handleSummarySort('truckReg')}
-                    >
-                      Truck Reg {summarySortBy === 'truckReg' && (summarySortOrder === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th style={{
-                      padding: '0.8rem 0.6rem',
-                      textAlign: 'left',
-                      fontWeight: 700,
-                      borderRight: '1px solid rgba(255,255,255,0.2)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      minWidth: '120px'
-                    }}
-                      onClick={() => handleSummarySort('sender')}
-                    >
-                      Sender {summarySortBy === 'sender' && (summarySortOrder === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th style={{
-                      padding: '0.8rem 0.6rem',
-                      textAlign: 'left',
-                      fontWeight: 700,
-                      borderRight: '1px solid rgba(255,255,255,0.2)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      minWidth: '120px'
-                    }}
-                      onClick={() => handleSummarySort('receiver')}
-                    >
-                      Receiver {summarySortBy === 'receiver' && (summarySortOrder === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th style={{
-                      padding: '0.8rem 0.6rem',
-                      textAlign: 'left',
-                      fontWeight: 700,
-                      cursor: 'default',
-                      minWidth: '80px'
-                    }}>
-                      Trip KMs
-                    </th>
-                    <th style={{
-                      padding: '0.8rem 0.6rem',
-                      textAlign: 'left',
-                      fontWeight: 700,
-                      cursor: 'default',
-                      minWidth: '80px'
-                    }}>
-                      # Animals
-                    </th>
-                    <th style={{
-                      padding: '0.8rem 0.6rem',
-                      textAlign: 'left',
-                      fontWeight: 700,
-                      cursor: 'default',
-                      minWidth: '150px'
-                    }}>
-                      Description
-                    </th>
+                      <th style={{
+                        padding: '0.4rem 0.3rem',
+                        textAlign: 'left',
+                        fontWeight: 700,
+                        borderRight: '1px solid rgba(255,255,255,0.2)',
+                        cursor: 'default',
+                        width: '12%'
+                      }}>
+                        Date
+                      </th>
+                      <th style={{
+                        padding: '0.4rem 0.3rem',
+                        textAlign: 'left',
+                        fontWeight: 700,
+                        borderRight: '1px solid rgba(255,255,255,0.2)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        width: '15%'
+                      }}
+                        onClick={() => handleSummarySort('truckReg')}
+                      >
+                        Truck Reg {summarySortBy === 'truckReg' && (summarySortOrder === 'asc' ? '↑' : '↓')}
+                      </th>
+                      <th style={{
+                        padding: '0.4rem 0.3rem',
+                        textAlign: 'left',
+                        fontWeight: 700,
+                        borderRight: '1px solid rgba(255,255,255,0.2)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        width: '18%'
+                      }}
+                        onClick={() => handleSummarySort('sender')}
+                      >
+                        Sender {summarySortBy === 'sender' && (summarySortOrder === 'asc' ? '↑' : '↓')}
+                      </th>
+                      <th style={{
+                        padding: '0.4rem 0.3rem',
+                        textAlign: 'left',
+                        fontWeight: 700,
+                        borderRight: '1px solid rgba(255,255,255,0.2)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        width: '18%'
+                      }}
+                        onClick={() => handleSummarySort('receiver')}
+                      >
+                        Receiver {summarySortBy === 'receiver' && (summarySortOrder === 'asc' ? '↑' : '↓')}
+                      </th>
+                      <th style={{
+                        padding: '0.4rem 0.3rem',
+                        textAlign: 'left',
+                        fontWeight: 700,
+                        cursor: 'default',
+                        width: '10%'
+                      }}>
+                        Trip KMs
+                      </th>
+                      <th style={{
+                        padding: '0.4rem 0.3rem',
+                        textAlign: 'left',
+                        fontWeight: 700,
+                        cursor: 'default',
+                        width: '10%'
+                      }}>
+                        # Animals
+                      </th>
+                      <th style={{
+                        padding: '0.4rem 0.3rem',
+                        textAlign: 'left',
+                        fontWeight: 700,
+                        cursor: 'default',
+                        width: '17%'
+                      }}>
+                        Description
+                      </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1482,7 +1483,7 @@ function App() {
                       onMouseOut={e => e.currentTarget.style.background = index % 2 === 0 ? '#fff' : '#f9fafb'}
                     >
                       <td style={{
-                        padding: '0.6rem',
+                        padding: '0.3rem 0.2rem',
                         borderRight: '1px solid #e5e7eb',
                         fontWeight: 500,
                         color: '#374151'
@@ -1490,7 +1491,7 @@ function App() {
                         {load?.parsed_data?.date || '-'}
                       </td>
                       <td style={{
-                        padding: '0.6rem',
+                        padding: '0.3rem 0.2rem',
                         borderRight: '1px solid #e5e7eb',
                         fontWeight: 600,
                         color: '#1f2937'
@@ -1498,7 +1499,7 @@ function App() {
                         {load?.parsed_data?.truckReg || load?.truck_reg || '-'}
                       </td>
                       <td style={{
-                        padding: '0.6rem',
+                        padding: '0.3rem 0.2rem',
                         borderRight: '1px solid #e5e7eb',
                         fontWeight: 500,
                         color: '#374151'
@@ -1506,7 +1507,7 @@ function App() {
                         {load?.parsed_data?.sender || '-'}
                       </td>
                       <td style={{
-                        padding: '0.6rem',
+                        padding: '0.3rem 0.2rem',
                         borderRight: '1px solid #e5e7eb',
                         fontWeight: 500,
                         color: '#374151'
@@ -1514,7 +1515,7 @@ function App() {
                         {load?.parsed_data?.receiver || '-'}
                       </td>
                       <td style={{
-                        padding: '0.6rem',
+                        padding: '0.3rem 0.2rem',
                         fontWeight: 600,
                         color: '#059669',
                         textAlign: 'right'
@@ -1522,7 +1523,7 @@ function App() {
                         {load?.parsed_data?.tripKm || '-'}
                       </td>
                       <td style={{
-                        padding: '0.6rem',
+                        padding: '0.3rem 0.2rem',
                         fontWeight: 600,
                         color: '#059669',
                         textAlign: 'right'
@@ -1533,7 +1534,7 @@ function App() {
                           '-')}
                       </td>
                       <td style={{
-                        padding: '0.6rem',
+                        padding: '0.3rem 0.2rem',
                         fontWeight: 500,
                         color: '#374151',
                         maxWidth: '200px',
