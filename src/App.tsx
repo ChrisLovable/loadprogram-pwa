@@ -6,6 +6,7 @@ import InvoicerSection from './components/InvoicerSection'
 import FinalApproverSection from './components/FinalApproverSection'
 import RoleSelector from './components/RoleSelector'
 import Dashboard from './components/Dashboard'
+import InvoiceManager from './components/InvoiceManager'
 import './App.css'
 import { supabase } from './lib/supabase';
 
@@ -48,6 +49,7 @@ function App() {
   const [showDashboard, setShowDashboard] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; loadId: number | null }>({ show: false, loadId: null });
   const [showSummary, setShowSummary] = useState(false);
+  const [showInvoices, setShowInvoices] = useState(false);
   const [summarySortBy, setSummarySortBy] = useState<'truckReg' | 'sender' | 'receiver' | null>(null);
   const [summarySortOrder, setSummarySortOrder] = useState<'asc' | 'desc'>('asc');
   const [summaryDateRange, setSummaryDateRange] = useState({ from: '', to: '' });
@@ -746,6 +748,7 @@ function App() {
           onDashboardClick={() => setShowSearch(true)}
           onSummariesClick={() => setShowDashboard(true)}
           onSummaryClick={() => setShowSummary(true)}
+          onInvoicesClick={() => setShowInvoices(true)}
         />
       </div>
       
@@ -1567,6 +1570,11 @@ function App() {
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Invoice Manager Modal */}
+      {showInvoices && (
+        <InvoiceManager onClose={() => setShowInvoices(false)} />
       )}
       </div>
       </div>

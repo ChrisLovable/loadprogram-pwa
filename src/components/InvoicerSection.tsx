@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { generatePDFInvoice } from '../utils/pdfGenerator'
 
 interface InvoicerSectionProps {
   load: any // expects load with textract_data, ocr_data, and approval data
@@ -455,6 +456,36 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
         }}
       >
         {submitting ? '⏳ Processing Invoice...' : '🧾 Complete Invoice Processing'}
+      </button>
+      
+      {/* Generate PDF Invoice Button */}
+      <button 
+        type="button"
+        onClick={() => generatePDFInvoice(load)}
+        style={{
+          background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          padding: '1rem',
+          fontWeight: 700,
+          fontSize: '1.1rem',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
+          marginTop: '0.5rem',
+          width: '100%'
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.3)';
+        }}
+      >
+        📄 Generate PDF Invoice
       </button>
       
       {/* Delete Button */}
