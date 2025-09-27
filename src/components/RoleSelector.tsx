@@ -431,171 +431,174 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           </button>
         </div>
         
-        {/* Summary button below Dashboard */}
-        <button
-          type="button"
-          onClick={onSummaryClick}
-          style={{
-            marginTop: '0px',
-            width: '50%',
-            background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
-            color: '#222',
-            border: '1.5px solid #111',
-            borderRadius: '16px',
-            padding: '0.5rem 1.2rem',
-            fontWeight: 900,
-            fontSize: '1.05rem',
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-            boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            backgroundBlendMode: 'overlay',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'box-shadow 0.2s, transform 0.1s',
-            transform: 'translateY(0)',
-            outline: 'none',
-          }}
-          onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-          onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          <span style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(120deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 100%)',
-            borderRadius: '16px',
-            pointerEvents: 'none',
-            zIndex: 1
-          }} />
-          <span style={{
-            position: 'absolute',
-            top: '8px',
-            left: '18px',
-            width: '60%',
-            height: '18px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 100%)',
-            borderRadius: '12px',
-            filter: 'blur(1.5px)',
-            opacity: 0.7,
-            pointerEvents: 'none',
-            zIndex: 2
-          }} />
-          <span style={{
-            position: 'absolute',
-            bottom: '8px',
-            right: '18px',
-            width: '40%',
-            height: '10px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.01) 100%)',
-            borderRadius: '8px',
-            filter: 'blur(1.5px)',
-            opacity: 0.5,
-            pointerEvents: 'none',
-            zIndex: 2
-          }} />
-          <span style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(120deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
-            borderRadius: '16px',
-            pointerEvents: 'none',
-            zIndex: 3,
-            animation: 'shine 2.5s linear infinite',
-            backgroundSize: '200% 100%',
-            backgroundPosition: '200% 0',
-          }} />
-          <span style={{position:'relative',zIndex:4}}>📊 Summary</span>
-        </button>
-        
-        {/* Invoices button */}
-        <button
-          type="button"
-          onClick={onInvoicesClick}
-          style={{
-            marginTop: '20px',
-            width: '50%',
-            background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
-            color: '#222',
-            border: '1.5px solid #111',
-            borderRadius: '16px',
-            padding: '0.5rem 1.2rem',
-            fontWeight: 900,
-            fontSize: '1.05rem',
-            fontFamily: 'inherit',
-            cursor: 'pointer',
-            boxShadow: '0 8px 32px 0 rgba(124, 58, 237, 0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            backgroundBlendMode: 'overlay',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'box-shadow 0.2s, transform 0.1s',
-            transform: 'translateY(0)',
-            outline: 'none',
-          }}
-          onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-          onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          <span style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(120deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 100%)',
-            borderRadius: '16px',
-            pointerEvents: 'none',
-            zIndex: 1
-          }} />
-          <span style={{
-            position: 'absolute',
-            top: '8px',
-            left: '18px',
-            width: '60%',
-            height: '18px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 100%)',
-            borderRadius: '12px',
-            filter: 'blur(1.5px)',
-            opacity: 0.7,
-            pointerEvents: 'none',
-            zIndex: 2
-          }} />
-          <span style={{
-            position: 'absolute',
-            bottom: '8px',
-            right: '18px',
-            width: '40%',
-            height: '10px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.01) 100%)',
-            borderRadius: '8px',
-            filter: 'blur(1.5px)',
-            opacity: 0.5,
-            pointerEvents: 'none',
-            zIndex: 2
-          }} />
-          <span style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(120deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
-            borderRadius: '16px',
-            pointerEvents: 'none',
-            zIndex: 3,
-            animation: 'shine 2.5s linear infinite',
-            backgroundSize: '200% 100%',
-            backgroundPosition: '200% 0',
-          }} />
-          <span style={{position:'relative',zIndex:4}}>📋 Invoices</span>
-        </button>
+        {/* Summary and Invoices in 2-column layout */}
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+          marginTop: '20px'
+        }}>
+          <button
+            type="button"
+            onClick={onSummaryClick}
+            style={{
+              flex: 1,
+              background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
+              color: '#222',
+              border: '1.5px solid #111',
+              borderRadius: '16px',
+              padding: '0.5rem 1.2rem',
+              fontWeight: 900,
+              fontSize: '1.05rem',
+              fontFamily: 'inherit',
+              cursor: 'pointer',
+              boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              backgroundBlendMode: 'overlay',
+              position: 'relative',
+              overflow: 'hidden',
+              transition: 'box-shadow 0.2s, transform 0.1s',
+              transform: 'translateY(0)',
+              outline: 'none',
+            }}
+            onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <span style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(120deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 100%)',
+              borderRadius: '16px',
+              pointerEvents: 'none',
+              zIndex: 1
+            }} />
+            <span style={{
+              position: 'absolute',
+              top: '8px',
+              left: '18px',
+              width: '60%',
+              height: '18px',
+              background: 'linear-gradient(90deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 100%)',
+              borderRadius: '12px',
+              filter: 'blur(1.5px)',
+              opacity: 0.7,
+              pointerEvents: 'none',
+              zIndex: 2
+            }} />
+            <span style={{
+              position: 'absolute',
+              bottom: '8px',
+              right: '18px',
+              width: '40%',
+              height: '10px',
+              background: 'linear-gradient(90deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.01) 100%)',
+              borderRadius: '8px',
+              filter: 'blur(1.5px)',
+              opacity: 0.5,
+              pointerEvents: 'none',
+              zIndex: 2
+            }} />
+            <span style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(120deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
+              borderRadius: '16px',
+              pointerEvents: 'none',
+              zIndex: 3,
+              animation: 'shine 2.5s linear infinite',
+              backgroundSize: '200% 100%',
+              backgroundPosition: '200% 0',
+            }} />
+            <span style={{position:'relative',zIndex:4}}>📊 Summary</span>
+          </button>
+          
+          <button
+            type="button"
+            onClick={onInvoicesClick}
+            style={{
+              flex: 1,
+              background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
+              color: '#222',
+              border: '1.5px solid #111',
+              borderRadius: '16px',
+              padding: '0.5rem 1.2rem',
+              fontWeight: 900,
+              fontSize: '1.05rem',
+              fontFamily: 'inherit',
+              cursor: 'pointer',
+              boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              backgroundBlendMode: 'overlay',
+              position: 'relative',
+              overflow: 'hidden',
+              transition: 'box-shadow 0.2s, transform 0.1s',
+              transform: 'translateY(0)',
+              outline: 'none',
+            }}
+            onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <span style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(120deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 100%)',
+              borderRadius: '16px',
+              pointerEvents: 'none',
+              zIndex: 1
+            }} />
+            <span style={{
+              position: 'absolute',
+              top: '8px',
+              left: '18px',
+              width: '60%',
+              height: '18px',
+              background: 'linear-gradient(90deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 100%)',
+              borderRadius: '12px',
+              filter: 'blur(1.5px)',
+              opacity: 0.7,
+              pointerEvents: 'none',
+              zIndex: 2
+            }} />
+            <span style={{
+              position: 'absolute',
+              bottom: '8px',
+              right: '18px',
+              width: '40%',
+              height: '10px',
+              background: 'linear-gradient(90deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.01) 100%)',
+              borderRadius: '8px',
+              filter: 'blur(1.5px)',
+              opacity: 0.5,
+              pointerEvents: 'none',
+              zIndex: 2
+            }} />
+            <span style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(120deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
+              borderRadius: '16px',
+              pointerEvents: 'none',
+              zIndex: 3,
+              animation: 'shine 2.5s linear infinite',
+              backgroundSize: '200% 100%',
+              backgroundPosition: '200% 0',
+            }} />
+            <span style={{position:'relative',zIndex:4}}>📋 Invoices</span>
+          </button>
+        </div>
       </div>
 
       {/* Logout Button */}
