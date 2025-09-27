@@ -573,22 +573,10 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
             }}></div>
           </div>
         </div>
-        {currentUser.role === 'driver' && currentUser.name && (
-          <div style={{
-            fontSize:'0.98rem',
-            color:'#3b82f6',
-            fontWeight:600,
-            marginBottom:'1rem',
-            padding:'0.5rem 1rem',
-            background:'rgba(59,130,246,0.1)',
-            borderRadius:'8px',
-            border:'1px solid rgba(59,130,246,0.2)'
-          }}>Submitted by: {currentUser.name}</div>
-        )}
         
         <div style={{marginBottom: '1.2rem'}}>
           <label style={{
-            fontSize: '1.05rem',
+            fontSize: '0.95rem',
             fontWeight: 700,
             color: '#333',
             marginBottom: '0.5rem',
@@ -793,7 +781,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
             }
           }}
         >
-          {uploading ? '📤 Uploading & Analyzing...' : visionLoading ? '🔎 Analyzing Document...' : '📸 Submit Load'}
+          {uploading ? '📤 Uploading & Analyzing...' : visionLoading ? '🔎 Analyzing Document...' : '📸 Submit Photos'}
         </button>
       </form>
 
