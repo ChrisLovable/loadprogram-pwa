@@ -9,10 +9,9 @@ interface RoleSelectorProps {
   onSummaryClick: () => void
   onInvoicesClick: () => void
   currentUser: {name: string, type: 'driver' | 'admin', role: string} | null
-  onLogout: () => void
 }
 
-const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, currentUser, onLogout }) => {
+const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, currentUser }) => {
 
   // Calculate queue counts for each role
   const queueCounts: { [key: string]: number } = {
@@ -91,42 +90,6 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       marginTop: '-30px',
       marginBottom: '1rem'
     }}>
-      {/* User Info and Logout */}
-      {currentUser && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1rem',
-          padding: '0.5rem',
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: '8px'
-        }}>
-          <div style={{
-            color: 'white',
-            fontSize: '0.9rem',
-            fontWeight: 600
-          }}>
-            👤 {currentUser.name} ({currentUser.type === 'driver' ? 'Driver' : 'Admin'})
-          </div>
-          <button
-            onClick={onLogout}
-            style={{
-              background: 'rgba(239, 68, 68, 0.2)',
-              border: '1px solid #ef4444',
-              borderRadius: '6px',
-              padding: '0.25rem 0.5rem',
-              color: '#ef4444',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              fontWeight: 600
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      )}
-
       {/* Role Buttons */}
       <div style={{
         display: 'grid',

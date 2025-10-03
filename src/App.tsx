@@ -83,13 +83,6 @@ function App() {
     }
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setCurrentRole(null);
-    localStorage.removeItem('currentUser');
-    setShowLoginModal(true);
-  };
-
   // Debug: Monitor currentRole changes
   useEffect(() => {
     console.log('🔴 App - currentRole changed to:', currentRole);
@@ -1067,7 +1060,6 @@ function App() {
           onSummaryClick={() => setShowSummary(true)}
           onInvoicesClick={() => setShowInvoices(true)}
           currentUser={currentUser}
-          onLogout={handleLogout}
         />
       </div>
       
