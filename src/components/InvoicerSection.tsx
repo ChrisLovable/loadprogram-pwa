@@ -70,11 +70,27 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
   // Auto-calculate VAT and total when subtotal changes
   React.useEffect(() => {
     if (invoiceSubtotal) {
-      const subtotal = parseFloat(invoiceSubtotal) || 0
-      const vat = subtotal * 0.15
-      const total = subtotal + vat
-      setInvoiceVat(formatCurrency(vat))
-      setInvoiceTotal(formatCurrency(total))
+      // Remove currency formatting and parse as number
+      const cleanSubtotal = invoiceSubtotal.replace(/[R,\s]/g, '');
+      const subtotal = parseFloat(cleanSubtotal) || 0
+      
+      console.log('🔍 InvoicerSection VAT Calculation:');
+      console.log('  Raw invoiceSubtotal:', invoiceSubtotal);
+      console.log('  Clean subtotal:', cleanSubtotal);
+      console.log('  Parsed subtotal:', subtotal);
+      
+      if (subtotal > 0) {
+        const vat = subtotal * 0.15
+        const total = subtotal + vat
+        setInvoiceVat(formatCurrency(vat))
+        setInvoiceTotal(formatCurrency(total))
+        
+        console.log('  Calculated VAT:', vat);
+        console.log('  Calculated Total:', total);
+      } else {
+        setInvoiceVat('')
+        setInvoiceTotal('')
+      }
     } else {
       setInvoiceVat('')
       setInvoiceTotal('')
@@ -95,10 +111,21 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       console.log('  Discount Amount:', discountAmount);
       console.log('  Discounted Subtotal:', discountedSubtotal);
       
-      setInvoiceSubtotal(formatCurrency(discountedSubtotal));
+      if (discountedSubtotal > 0) {
+        setInvoiceSubtotal(formatCurrency(discountedSubtotal));
+      } else {
+        setInvoiceSubtotal('0.00');
+      }
     } else if (invoiceDiscount === '0' && load?.parsed_data?.subtotal) {
-      // If discount is 0, show original subtotal
-      setInvoiceSubtotal(formatCurrency(Number(load.parsed_data.subtotal)));
+      const originalSubtotal = Number(load.parsed_data.subtotal);
+      if (originalSubtotal > 0) {
+        setInvoiceSubtotal(formatCurrency(originalSubtotal));
+      } else {
+        setInvoiceSubtotal('0.00');
+      }
+    } else if (!load?.parsed_data?.subtotal) {
+      // If no subtotal data, clear the field
+      setInvoiceSubtotal('');
     }
   }, [invoiceDiscount, load?.parsed_data?.subtotal])
 
