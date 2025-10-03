@@ -123,12 +123,11 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                   : isDisabled 
                     ? 'linear-gradient(135deg, #000000 0%, #4b5563 100%)'
                     : role.color,
-                color: currentRole === role.key ? '#222' : '#0066ff',
+                color: currentRole === role.key ? '#222' : '#000000',
                 borderRadius: '20px',
                 padding: '0.4rem 0.8rem',
                 fontWeight: 900,
                 fontSize: '1rem',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.5), 1px 1px 2px rgba(0,0,0,0.3), 0 0 8px rgba(0,0,0,0.2)',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 opacity: isDisabled ? 0.5 : 1,
@@ -166,7 +165,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               {role.key !== 'driver' && (
                 <span style={{
                   background: currentRole === role.key ? '#fff' : '#ef4444',
-                  color: currentRole === role.key ? '#222' : '#0066ff',
+                  color: currentRole === role.key ? '#222' : '#ffffff',
                   borderRadius: '50%',
                   width: '24px',
                   height: '24px',
@@ -194,7 +193,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           style={{
             flex: 1,
             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(34, 197, 94, 0.8) 50%, rgba(22, 163, 74, 0.9) 100%)',
-            color: '#0066ff',
+            color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
             padding: '0.3rem 0.5rem',
@@ -235,7 +234,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           style={{
             flex: 1,
             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(236, 72, 153, 0.8) 50%, rgba(190, 24, 93, 0.9) 100%)',
-            color: '#0066ff',
+            color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
             padding: '0.3rem 0.5rem',
@@ -283,7 +282,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           style={{
             flex: 1,
             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(168, 85, 247, 0.8) 50%, rgba(124, 58, 237, 0.9) 100%)',
-            color: '#0066ff',
+            color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
             padding: '0.3rem 0.5rem',
@@ -324,7 +323,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           style={{
             flex: 1,
             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(251, 191, 36, 0.8) 50%, rgba(217, 119, 6, 0.9) 100%)',
-            color: '#0066ff',
+            color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
             padding: '0.3rem 0.5rem',
@@ -364,7 +363,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       {/* Logout Button - Below the 2x2 grid */}
       <div style={{
         display: 'flex',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         marginTop: '0.4rem'
       }}>
         <button
@@ -372,7 +371,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onLogout}
           style={{
             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(239, 68, 68, 0.8) 50%, rgba(220, 38, 38, 0.9) 100%)',
-            color: '#0066ff',
+            color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
             padding: '0.3rem 1rem',

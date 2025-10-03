@@ -25,7 +25,7 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+  const [isDesktop] = useState(window.innerWidth >= 1024);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   // Function to create a visual representation of PDF data
@@ -306,35 +306,6 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
         flexDirection: 'column',
       }} onClick={e => e.stopPropagation()}>
         
-        {/* Layout Toggle Button */}
-        <button
-          onClick={() => setIsDesktop(!isDesktop)}
-          style={{
-            position: 'absolute',
-            top: '15px',
-            left: '15px',
-            background: 'rgba(255,255,255,0.9)',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            padding: '0.5rem 1rem',
-            fontSize: '0.8rem',
-            cursor: 'pointer',
-            zIndex: 10,
-            fontWeight: 600,
-            color: '#374151',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,1)';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.9)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          {isDesktop ? '📱 Mobile' : '💻 Desktop'}
-        </button>
 
         {/* Close Button */}
         <button
@@ -448,8 +419,7 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
               display: 'flex',
               flexDirection: 'column',
               gap: '2rem',
-              maxWidth: '100%',
-              marginTop: '500px'
+              maxWidth: '100%'
             }}>
               {filteredInvoices.map((invoice, index) => (
                 <div key={invoice.id} style={{
