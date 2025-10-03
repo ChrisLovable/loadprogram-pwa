@@ -10,6 +10,7 @@ import RoleSelector from './components/RoleSelector'
 import Dashboard from './components/Dashboard'
 import InvoiceManager from './components/InvoiceManager'
 import WelcomeScreen from './components/WelcomeScreen'
+import { ToastProvider } from './components/Toast'
 import './App.css'
 
 
@@ -472,8 +473,8 @@ function App() {
 
 
   return (
-
-    <div className="phone-container">
+    <ToastProvider>
+      <div className="phone-container">
       <div className="phone-screen">
         <div style={{
           width: '100%',
@@ -2015,6 +2016,7 @@ function App() {
         </div>
       )}
     </div>
+    </ToastProvider>
   )
 }
 

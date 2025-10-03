@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useToast } from './Toast'
 
 interface SecondApproverSectionProps {
   load: any // expects load with textract_data, ocr_data, and approval data
@@ -12,6 +13,7 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
   const [comments, setComments] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [debugInfo, setDebugInfo] = useState<string[]>([])
+  const { showToast } = useToast()
 
   // Add debug info to visual display
   const addDebugInfo = (message: string) => {
@@ -163,16 +165,16 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
       
       if (error) {
         addDebugInfo(`Supabase error: ${error.message}`)
-        alert('Failed to update load: ' + error.message);
+        showToast('Failed to update load: ' + error.message, 'error')
       } else {
         addDebugInfo('Success! Submission completed.')
+        showToast('🎉 Second approval submitted and promoted to Invoicer!', 'success')
         setComments('');
-        alert('Second approval submitted and promoted to Invoicer!');
         onApprovalComplete();
       }
     } catch (error) {
       addDebugInfo(`Error: ${(error as Error).message}`)
-      alert('Failed to submit second approval: ' + (error as Error).message)
+      showToast('Failed to submit second approval: ' + (error as Error).message, 'error')
     } finally {
       setSubmitting(false)
     }
