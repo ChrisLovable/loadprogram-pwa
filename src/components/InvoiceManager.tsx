@@ -26,6 +26,106 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+  const [pdfImages, setPdfImages] = useState<{[key: number]: string}>({});
+
+  // Function to create a visual representation of PDF data
+  const createPdfPreview = async (invoice: Invoice): Promise<string> => {
+    try {
+      // Create a canvas element
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas dimensions to 90% of screen width
+      const screenWidth = window.innerWidth;
+      const targetWidth = Math.floor(screenWidth * 0.9);
+      const targetHeight = Math.floor(targetWidth * 1.4); // A4 aspect ratio
+      
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      
+      if (!ctx) throw new Error('Could not get canvas context');
+      
+      // Create a PDF preview with invoice information
+      const padding = 20;
+      const contentWidth = targetWidth - (padding * 2);
+      
+      // Background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, targetWidth, targetHeight);
+      
+      // Border
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, targetWidth - 2, targetHeight - 2);
+      
+      // Header
+      ctx.fillStyle = '#7c3aed';
+      ctx.fillRect(padding, padding, contentWidth, 60);
+      
+      // Header text
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('INVOICE', targetWidth / 2, padding + 35);
+      
+      // Invoice details
+      ctx.fillStyle = '#1f2937';
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'left';
+      
+      let yPos = padding + 100;
+      const lineHeight = 25;
+      
+      // Invoice number
+      ctx.fillText(`Invoice #: ${invoice.invoice_number}`, padding, yPos);
+      yPos += lineHeight;
+      
+      // Date
+      ctx.fillText(`Date: ${new Date(invoice.pdf_invoice_generated_at).toLocaleDateString()}`, padding, yPos);
+      yPos += lineHeight;
+      
+      // Truck registration
+      if (invoice.truck_reg) {
+        ctx.fillText(`Truck: ${invoice.truck_reg}`, padding, yPos);
+        yPos += lineHeight;
+      }
+      
+      // Debtor
+      if (invoice.debtor_name) {
+        ctx.fillText(`Debtor: ${invoice.debtor_name}`, padding, yPos);
+        yPos += lineHeight;
+      }
+      
+      // Sender/Receiver
+      if (invoice.sender) {
+        ctx.fillText(`From: ${invoice.sender}`, padding, yPos);
+        yPos += lineHeight;
+      }
+      
+      if (invoice.receiver) {
+        ctx.fillText(`To: ${invoice.receiver}`, padding, yPos);
+        yPos += lineHeight;
+      }
+      
+      // Total
+      if (invoice.total) {
+        ctx.font = 'bold 18px Arial';
+        ctx.fillText(`Total: R${invoice.total.toLocaleString()}`, padding, yPos + 20);
+      }
+      
+      // PDF icon overlay
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.font = 'bold 48px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('📄', targetWidth / 2, targetHeight - 50);
+      
+      // Convert canvas to data URL
+      return canvas.toDataURL('image/png', 0.8);
+    } catch (error) {
+      console.error('Error creating PDF preview:', error);
+      throw error;
+    }
+  };
 
   // Load invoices from database
   useEffect(() => {
@@ -36,65 +136,104 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
           .select('*')
           .not('pdf_invoice', 'is', null)
           .order('pdf_invoice_generated_at', { ascending: false });
-        
+
         if (error) {
           console.error('Error loading invoices:', error);
           return;
         }
-        
-        // Transform data to match Invoice interface
-        const transformedInvoices = data?.map(load => ({
-          id: load.id,
-          invoice_number: load.invoice_number || `INV-${load.id}`,
-          pdf_invoice_generated_at: load.pdf_invoice_generated_at,
-          truck_reg: load.truck_reg || load.parsed_data?.truckReg,
-          sender: load.sender || load.parsed_data?.sender,
-          receiver: load.receiver || load.parsed_data?.receiver,
-          total: load.parsed_data?.total || load.first_approval?.total_invoice,
-          status: 'Generated',
-          debtor_name: load.debtor_name,
-          pdf_invoice: load.pdf_invoice,
-          pdf_invoice_filename: load.pdf_invoice_filename,
-          loadData: load
-        })) || [];
-        
-        setInvoices(transformedInvoices);
+
+        if (data) {
+          const transformedInvoices: Invoice[] = data.map((load: any) => ({
+            id: load.id,
+            invoice_number: load.invoice_number || `INV-${load.id}`,
+            pdf_invoice_generated_at: load.pdf_invoice_generated_at || load.created_at,
+            truck_reg: load.truck_reg,
+            sender: load.sender,
+            receiver: load.receiver,
+            total: load.parsed_data?.total || 0,
+            status: load.status,
+            debtor_name: load.debtor_name,
+            pdf_invoice: load.pdf_invoice,
+            pdf_invoice_filename: load.pdf_invoice_filename,
+            loadData: load
+          }));
+
+          setInvoices(transformedInvoices);
+          setFilteredInvoices(transformedInvoices);
+
+          // Convert PDFs to images
+          const imagePromises = transformedInvoices.map(async (invoice) => {
+            if (invoice.pdf_invoice) {
+              try {
+                const imageData = await createPdfPreview(invoice);
+                return { invoiceId: invoice.id, imageData };
+              } catch (error) {
+                console.error(`Failed to create PDF preview for invoice ${invoice.id}:`, error);
+                return null;
+              }
+            }
+            return null;
+          });
+
+          const imageResults = await Promise.all(imagePromises);
+          const imagesMap: {[key: number]: string} = {};
+          
+          imageResults.forEach(result => {
+            if (result) {
+              imagesMap[result.invoiceId] = result.imageData;
+            }
+          });
+
+          setPdfImages(imagesMap);
+        }
       } catch (error) {
         console.error('Error loading invoices:', error);
       }
     };
-    
+
     loadInvoices();
   }, []);
 
   // Filter invoices based on search term
   useEffect(() => {
-    if (searchTerm.trim() === '') {
+    if (!searchTerm.trim()) {
       setFilteredInvoices(invoices);
-    } else {
-      const filtered = invoices.filter(invoice =>
-        invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (invoice.debtor_name && invoice.debtor_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (invoice.truck_reg && invoice.truck_reg.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (invoice.sender && invoice.sender.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (invoice.receiver && invoice.receiver.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-      setFilteredInvoices(filtered);
+      return;
     }
-  }, [invoices, searchTerm]);
+
+    const filtered = invoices.filter(invoice =>
+      invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (invoice.debtor_name && invoice.debtor_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (invoice.truck_reg && invoice.truck_reg.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (invoice.sender && invoice.sender.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (invoice.receiver && invoice.receiver.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    setFilteredInvoices(filtered);
+  }, [searchTerm, invoices]);
 
   const handleGenerateInvoice = async (invoice: Invoice) => {
-    if (invoice.pdf_invoice) {
-      // Download existing PDF
-      const link = document.createElement('a');
-      link.href = invoice.pdf_invoice;
-      link.download = invoice.pdf_invoice_filename || `invoice_${invoice.invoice_number}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else if (invoice.loadData) {
-      // Generate new PDF
-      await generatePDFInvoice(invoice.loadData);
+    try {
+      if (invoice.pdf_invoice) {
+        // Download existing PDF
+        const link = document.createElement('a');
+        link.href = `data:application/pdf;base64,${invoice.pdf_invoice}`;
+        link.download = invoice.pdf_invoice_filename || `invoice-${invoice.invoice_number}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // Generate new PDF
+        const { pdfData, filename } = await generatePDFInvoice(invoice.loadData);
+        const link = document.createElement('a');
+        link.href = pdfData;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error('Error generating/downloading invoice:', error);
     }
   };
 
@@ -110,17 +249,17 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
           debtor_name: null
         })
         .eq('id', invoiceId);
-      
+
       if (error) {
-        console.error('Error deleting invoice:', error);
+        console.error('Error removing invoice:', error);
         return;
       }
-      
-      // Update local state
-      const updatedInvoices = invoices.filter(inv => inv.id !== invoiceId);
-      setInvoices(updatedInvoices);
+
+      // Remove from local state
+      setInvoices(prev => prev.filter(inv => inv.id !== invoiceId));
+      setFilteredInvoices(prev => prev.filter(inv => inv.id !== invoiceId));
     } catch (error) {
-      console.error('Error deleting invoice:', error);
+      console.error('Error removing invoice:', error);
     }
   };
 
@@ -181,7 +320,7 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          {isDesktop ? '📱 Mobile View' : '🖥️ Desktop View'}
+          {isDesktop ? '📱 Mobile' : '💻 Desktop'}
         </button>
 
         {/* Close Button */}
@@ -191,11 +330,11 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
             position: 'absolute',
             top: '15px',
             right: '15px',
-            background: 'rgba(255,255,255,0.7)',
-            border: 'none',
+            background: 'rgba(255,255,255,0.9)',
+            border: '1px solid #e5e7eb',
             borderRadius: '50%',
-            width: '32px',
-            height: '32px',
+            width: '40px',
+            height: '40px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -247,82 +386,78 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
               style={{
                 flex: 1,
                 minWidth: isDesktop ? '400px' : '300px',
-                maxWidth: isDesktop ? '600px' : '400px',
-                padding: isDesktop ? '0.75rem' : '0.5rem',
-                borderRadius: '6px',
+                padding: '0.75rem 1rem',
+                borderRadius: '8px',
                 border: '1px solid rgba(255,255,255,0.3)',
                 background: 'rgba(255,255,255,0.1)',
-                color: '#374151',
-                fontSize: isDesktop ? '1rem' : '0.8rem'
+                color: 'white',
+                fontSize: '1rem',
+                outline: 'none',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
               }}
             />
           </div>
         </div>
 
-        {/* Invoice List */}
+        {/* Content */}
         <div style={{
           flex: 1,
           overflow: 'auto',
-          background: '#fff',
-          minHeight: 0,
-          padding: isDesktop ? '2rem' : '1rem'
+          padding: isDesktop ? '2rem 3rem' : '1rem',
+          background: '#f8fafc'
         }}>
           {filteredInvoices.length === 0 ? (
             <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              color: '#6b7280',
-              fontSize: isDesktop ? '1.2rem' : '1rem'
+              textAlign: 'center',
+              padding: '3rem 1rem',
+              color: '#6b7280'
             }}>
-              <div style={{ fontSize: isDesktop ? '4rem' : '3rem', marginBottom: '1rem' }}>📄</div>
-              <div>No invoices found</div>
-              <div style={{ fontSize: isDesktop ? '1rem' : '0.8rem', marginTop: '0.5rem' }}>
-                {searchTerm ? 'Try adjusting your search terms' : 'Generate invoices from the invoicer section'}
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                No invoices found
+              </div>
+              <div style={{ fontSize: '1rem' }}>
+                {searchTerm ? 'Try adjusting your search terms' : 'No invoices have been generated yet'}
               </div>
             </div>
           ) : (
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: isDesktop ? 'repeat(auto-fill, minmax(300px, 1fr))' : '1fr',
-              gap: isDesktop ? '2rem' : '1rem',
-              maxWidth: isDesktop ? 'none' : '100%'
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '2rem',
+              maxWidth: '100%'
             }}>
               {filteredInvoices.map((invoice) => (
                 <div key={invoice.id} style={{
-                  background: '#f8fafc',
-                  borderRadius: '8px',
-                  padding: isDesktop ? '1.5rem' : '1rem',
+                  background: '#ffffff',
+                  borderRadius: '12px',
+                  padding: '1.5rem',
                   border: '1px solid #e5e7eb',
-                  boxShadow: isDesktop 
-                    ? '0 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)' 
-                    : '0 1px 3px rgba(0,0,0,0.1)',
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseOver={(e) => {
-                  if (isDesktop) {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.1)';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (isDesktop) {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
-                  }
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s ease'
                 }}>
+                  {/* Invoice Header */}
                   <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'flex-start',
-                    marginBottom: '0.5rem'
+                    marginBottom: '1rem',
+                    paddingBottom: '1rem',
+                    borderBottom: '1px solid #f3f4f6'
                   }}>
                     <div>
                       <div style={{
-                        fontSize: isDesktop ? '1.3rem' : '1.1rem',
+                        fontSize: '1.3rem',
                         fontWeight: 700,
                         color: '#1f2937',
                         marginBottom: '0.25rem'
@@ -330,122 +465,123 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
                         Invoice #{invoice.invoice_number}
                       </div>
                       <div style={{
-                        fontSize: isDesktop ? '1rem' : '0.9rem',
+                        fontSize: '1rem',
                         color: '#6b7280'
                       }}>
                         {new Date(invoice.pdf_invoice_generated_at).toLocaleDateString()} • {invoice.truck_reg || 'N/A'}
                       </div>
+                      {invoice.debtor_name && (
+                        <div style={{
+                          fontSize: '0.9rem',
+                          color: '#9ca3af',
+                          marginTop: '0.25rem'
+                        }}>
+                          Debtor: {invoice.debtor_name}
+                        </div>
+                      )}
                     </div>
                     <div style={{
-                      background: invoice.status === 'Paid' ? '#10b981' : '#f59e0b',
-                      color: 'white',
-                      padding: isDesktop ? '0.5rem 1rem' : '0.25rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: isDesktop ? '0.9rem' : '0.8rem',
-                      fontWeight: 600
-                    }}>
-                      {invoice.status}
-                    </div>
-                  </div>
-                  
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '0.5rem',
-                    marginBottom: '1rem',
-                    fontSize: isDesktop ? '1rem' : '0.9rem',
-                    color: '#374151'
-                  }}>
-                    <div><strong>Debtor:</strong> {invoice.debtor_name || 'N/A'}</div>
-                    <div><strong>Total:</strong> R {invoice.total ? invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</div>
-                  </div>
-                  {(invoice.sender || invoice.receiver) && (
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
+                      display: 'flex',
                       gap: '0.5rem',
-                      marginBottom: '1rem',
-                      fontSize: isDesktop ? '0.9rem' : '0.8rem',
-                      color: '#6b7280'
+                      alignItems: 'center'
                     }}>
-                      {invoice.sender && <div><strong>From:</strong> {invoice.sender}</div>}
-                      {invoice.receiver && <div><strong>To:</strong> {invoice.receiver}</div>}
+                      <button
+                        onClick={() => handleGenerateInvoice(invoice)}
+                        style={{
+                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '0.5rem 1rem',
+                          fontSize: '0.9rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+                        }}
+                      >
+                        📥 Download
+                      </button>
+                      <button
+                        onClick={() => handleDeleteInvoice(invoice.id)}
+                        style={{
+                          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '0.5rem 1rem',
+                          fontSize: '0.9rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
+                        }}
+                      >
+                        🗑️ Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* PDF Image Display */}
+                  {pdfImages[invoice.id] && (
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      marginBottom: '1rem'
+                    }}>
+                      <img
+                        src={pdfImages[invoice.id]}
+                        alt={`Invoice ${invoice.invoice_number}`}
+                        style={{
+                          width: '90%',
+                          maxWidth: '90%',
+                          height: 'auto',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                          border: '1px solid #e5e7eb'
+                        }}
+                      />
                     </div>
                   )}
-                  
+
+                  {/* Invoice Details */}
                   <div style={{
-                    display: 'flex',
-                    gap: '0.5rem',
-                    justifyContent: 'flex-end'
+                    display: 'grid',
+                    gridTemplateColumns: isDesktop ? 'repeat(3, 1fr)' : '1fr',
+                    gap: '1rem',
+                    fontSize: '0.9rem',
+                    color: '#6b7280'
                   }}>
-                    <button
-                      onClick={() => handleGenerateInvoice(invoice)}
-                      style={{
-                        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: isDesktop ? '0.75rem 1.5rem' : '0.5rem 1rem',
-                        fontSize: isDesktop ? '0.9rem' : '0.8rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        minWidth: isDesktop ? '120px' : 'auto'
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(5, 150, 105, 0.3)';
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      📄 Download PDF
-                    </button>
-                    <button
-                      onClick={() => handleDeleteInvoice(invoice.id)}
-                      style={{
-                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: isDesktop ? '0.75rem 1.5rem' : '0.5rem 1rem',
-                        fontSize: isDesktop ? '0.9rem' : '0.8rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        minWidth: isDesktop ? '100px' : 'auto'
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.3)';
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      🗑️ Remove
-                    </button>
+                    <div>
+                      <strong>Sender:</strong> {invoice.sender || 'N/A'}
+                    </div>
+                    <div>
+                      <strong>Receiver:</strong> {invoice.receiver || 'N/A'}
+                    </div>
+                    <div>
+                      <strong>Total:</strong> {invoice.total ? `R${invoice.total.toLocaleString()}` : 'N/A'}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          background: '#f8fafc',
-          padding: isDesktop ? '1.5rem 3rem' : '1rem 2rem',
-          borderTop: '1px solid #e5e7eb',
-          textAlign: 'center',
-          fontSize: isDesktop ? '1rem' : '0.8rem',
-          color: '#6b7280',
-          fontWeight: 500
-        }}>
-          Showing {filteredInvoices.length} of {invoices.length} invoices
         </div>
       </div>
     </div>
