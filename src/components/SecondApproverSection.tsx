@@ -201,16 +201,16 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
       )}
       
       {/* Sender and Receiver */}
-      <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
+      <div style={{display:'flex',flexDirection:'column',gap:'0.7rem',marginBottom:'0.7rem'}}>
         <div>
           <div style={labelStyle}>Sender</div>
-          <div style={{...inputStyle,width:'150px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'left',border:'1px solid #333',borderRadius:'6px'}}>
+          <div style={{...inputStyle,width:'160px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'left',border:'1px solid #333',borderRadius:'6px'}}>
             {getField('sender')}
           </div>
         </div>
         <div>
           <div style={labelStyle}>Receiver</div>
-          <div style={{...inputStyle,width:'150px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'left',border:'1px solid #333',borderRadius:'6px'}}>
+          <div style={{...inputStyle,width:'160px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'left',border:'1px solid #333',borderRadius:'6px'}}>
             {getField('receiver')}
           </div>
         </div>
