@@ -60,16 +60,16 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
 
   // Populate invoice fields from calculations
   React.useEffect(() => {
-    // Set discount from calculations using same logic as getField
-    const discountValue = load?.parsed_data?.discount || firstApprovalData?.discount;
-    if (discountValue) {
+    // Set discount from calculations using exact same getField function
+    const discountValue = getField('discount');
+    if (discountValue && discountValue !== '-') {
       setInvoiceDiscount(discountValue.toString())
     }
     
-    // Set subtotal from calculations using same logic as getField - always carry over from load details
-    const subtotalValue = load?.parsed_data?.subtotal || firstApprovalData?.subtotal;
-    if (subtotalValue) {
-      setInvoiceSubtotal(formatCurrency(subtotalValue))
+    // Set subtotal from calculations using exact same getField function - always carry over from load details
+    const subtotalValue = getField('subtotal');
+    if (subtotalValue && subtotalValue !== '-') {
+      setInvoiceSubtotal(formatCurrency(parseFloat(subtotalValue)))
     }
   }, [load?.parsed_data, firstApprovalData])
 
