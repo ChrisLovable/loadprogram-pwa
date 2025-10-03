@@ -75,11 +75,11 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
   }
 
   const roleButtons = [
-    { key: 'driver', name: 'Driver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🚛' },
-    { key: 'first_approver', name: 'First Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '✅' },
-    { key: 'second_approver', name: 'Second Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🔍' },
-    { key: 'invoicer', name: 'Invoice', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '📄' },
-    { key: 'final_approver', name: 'Final Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🏁' }
+    { key: 'driver', name: 'Driver', color: 'linear-gradient(135deg, #000000 0%, #0ea5e9 50%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🚛' },
+    { key: 'first_approver', name: 'First Approver', color: 'linear-gradient(135deg, #000000 0%, #0ea5e9 50%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '✅' },
+    { key: 'second_approver', name: 'Second Approver', color: 'linear-gradient(135deg, #000000 0%, #0ea5e9 50%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🔍' },
+    { key: 'invoicer', name: 'Invoice', color: 'linear-gradient(135deg, #000000 0%, #0ea5e9 50%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '📄' },
+    { key: 'final_approver', name: 'Final Approver', color: 'linear-gradient(135deg, #000000 0%, #0ea5e9 50%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🏁' }
   ];
 
   return (
@@ -133,41 +133,47 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
                 boxShadow: `
-                  0 20px 40px rgba(0,0,0,0.4),
-                  0 8px 16px rgba(0,0,0,0.2),
-                  inset 0 2px 4px rgba(255,255,255,0.3),
-                  inset 0 -2px 4px rgba(0,0,0,0.2),
-                  0 0 0 1px rgba(255,255,255,0.1)
+                  0 25px 50px rgba(0,0,0,0.6),
+                  0 12px 24px rgba(0,0,0,0.4),
+                  0 6px 12px rgba(0,0,0,0.3),
+                  inset 0 3px 6px rgba(255,255,255,0.4),
+                  inset 0 -3px 6px rgba(0,0,0,0.3),
+                  inset 0 0 20px rgba(255,255,255,0.1),
+                  0 0 0 2px rgba(255,255,255,0.15)
                 `,
                 border: '2px solid rgba(255,255,255,0.2)',
                 transform: 'perspective(1000px) rotateX(5deg)',
-                filter: 'saturate(1.2) contrast(1.1)'
+                filter: 'saturate(1.4) contrast(1.3) brightness(1.1) hue-rotate(5deg)'
               }}
               onMouseOver={(e) => {
                 if (!isDisabled && currentRole !== role.key) {
                   e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
                   e.currentTarget.style.boxShadow = `
-                    0 30px 60px rgba(0,0,0,0.5),
-                    0 15px 30px rgba(0,0,0,0.3),
-                    inset 0 3px 6px rgba(255,255,255,0.4),
-                    inset 0 -3px 6px rgba(0,0,0,0.3),
-                    0 0 0 2px rgba(255,255,255,0.2),
-                    0 0 20px rgba(59, 130, 246, 0.3)
+                    0 35px 70px rgba(0,0,0,0.7),
+                    0 20px 40px rgba(0,0,0,0.5),
+                    0 10px 20px rgba(0,0,0,0.4),
+                    inset 0 4px 8px rgba(255,255,255,0.5),
+                    inset 0 -4px 8px rgba(0,0,0,0.4),
+                    inset 0 0 30px rgba(255,255,255,0.2),
+                    0 0 0 3px rgba(255,255,255,0.25),
+                    0 0 30px rgba(59, 130, 246, 0.4)
                   `;
-                  e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
+                  e.currentTarget.style.filter = 'saturate(1.6) contrast(1.4) brightness(1.2) hue-rotate(10deg)';
                 }
               }}
               onMouseOut={(e) => {
                 if (!isDisabled && currentRole !== role.key) {
                   e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
                   e.currentTarget.style.boxShadow = `
-                    0 20px 40px rgba(0,0,0,0.4),
-                    0 8px 16px rgba(0,0,0,0.2),
-                    inset 0 2px 4px rgba(255,255,255,0.3),
-                    inset 0 -2px 4px rgba(0,0,0,0.2),
-                    0 0 0 1px rgba(255,255,255,0.1)
+                    0 25px 50px rgba(0,0,0,0.6),
+                    0 12px 24px rgba(0,0,0,0.4),
+                    0 6px 12px rgba(0,0,0,0.3),
+                    inset 0 3px 6px rgba(255,255,255,0.4),
+                    inset 0 -3px 6px rgba(0,0,0,0.3),
+                    inset 0 0 20px rgba(255,255,255,0.1),
+                    0 0 0 2px rgba(255,255,255,0.15)
                   `;
-                  e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
+                  e.currentTarget.style.filter = 'saturate(1.4) contrast(1.3) brightness(1.1) hue-rotate(5deg)';
                 }
               }}
             >
@@ -205,7 +211,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummariesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(37, 99, 235, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(14, 165, 233, 0.8) 50%, rgba(37, 99, 235, 0.9) 100%)',
             color: 'white',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
@@ -219,11 +225,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             boxShadow: `
-              0 20px 40px rgba(0,0,0,0.4),
-              0 8px 16px rgba(0,0,0,0.2),
-              inset 0 2px 4px rgba(255,255,255,0.3),
-              inset 0 -2px 4px rgba(0,0,0,0.2),
-              0 0 0 1px rgba(255,255,255,0.1)
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
             `,
             height: '50px',
             transform: 'perspective(1000px) rotateX(5deg)',
@@ -232,23 +240,27 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
             e.currentTarget.style.boxShadow = `
-              0 30px 60px rgba(0,0,0,0.5),
-              0 15px 30px rgba(0,0,0,0.3),
-              inset 0 3px 6px rgba(255,255,255,0.4),
-              inset 0 -3px 6px rgba(0,0,0,0.3),
-              0 0 0 2px rgba(255,255,255,0.2),
-              0 0 20px rgba(37, 99, 235, 0.4)
+              0 35px 70px rgba(0,0,0,0.7),
+              0 20px 40px rgba(0,0,0,0.5),
+              0 10px 20px rgba(0,0,0,0.4),
+              inset 0 4px 8px rgba(255,255,255,0.5),
+              inset 0 -4px 8px rgba(0,0,0,0.4),
+              inset 0 0 30px rgba(255,255,255,0.2),
+              0 0 0 3px rgba(255,255,255,0.25),
+              0 0 30px rgba(37, 99, 235, 0.4)
             `;
             e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
           }}
           onMouseOut={(e) => {
             e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
             e.currentTarget.style.boxShadow = `
-              0 20px 40px rgba(0,0,0,0.4),
-              0 8px 16px rgba(0,0,0,0.2),
-              inset 0 2px 4px rgba(255,255,255,0.3),
-              inset 0 -2px 4px rgba(0,0,0,0.2),
-              0 0 0 1px rgba(255,255,255,0.1)
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
             `;
             e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
           }}
@@ -264,7 +276,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onDashboardClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(190, 24, 93, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(236, 72, 153, 0.8) 50%, rgba(190, 24, 93, 0.9) 100%)',
             color: 'white',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
@@ -278,11 +290,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             boxShadow: `
-              0 20px 40px rgba(0,0,0,0.4),
-              0 8px 16px rgba(0,0,0,0.2),
-              inset 0 2px 4px rgba(255,255,255,0.3),
-              inset 0 -2px 4px rgba(0,0,0,0.2),
-              0 0 0 1px rgba(255,255,255,0.1)
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
             `,
             height: '50px',
             transform: 'perspective(1000px) rotateX(5deg)',
@@ -303,11 +317,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onMouseOut={(e) => {
             e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
             e.currentTarget.style.boxShadow = `
-              0 20px 40px rgba(0,0,0,0.4),
-              0 8px 16px rgba(0,0,0,0.2),
-              inset 0 2px 4px rgba(255,255,255,0.3),
-              inset 0 -2px 4px rgba(0,0,0,0.2),
-              0 0 0 1px rgba(255,255,255,0.1)
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
             `;
             e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
           }}
@@ -330,7 +346,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummaryClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(124, 58, 237, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(168, 85, 247, 0.8) 50%, rgba(124, 58, 237, 0.9) 100%)',
             color: 'white',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
@@ -344,11 +360,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             boxShadow: `
-              0 20px 40px rgba(0,0,0,0.4),
-              0 8px 16px rgba(0,0,0,0.2),
-              inset 0 2px 4px rgba(255,255,255,0.3),
-              inset 0 -2px 4px rgba(0,0,0,0.2),
-              0 0 0 1px rgba(255,255,255,0.1)
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
             `,
             height: '50px',
             transform: 'perspective(1000px) rotateX(5deg)',
@@ -369,11 +387,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onMouseOut={(e) => {
             e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
             e.currentTarget.style.boxShadow = `
-              0 20px 40px rgba(0,0,0,0.4),
-              0 8px 16px rgba(0,0,0,0.2),
-              inset 0 2px 4px rgba(255,255,255,0.3),
-              inset 0 -2px 4px rgba(0,0,0,0.2),
-              0 0 0 1px rgba(255,255,255,0.1)
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
             `;
             e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
           }}
@@ -389,7 +409,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onInvoicesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(217, 119, 6, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(251, 191, 36, 0.8) 50%, rgba(217, 119, 6, 0.9) 100%)',
             color: 'white',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
@@ -403,11 +423,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             boxShadow: `
-              0 20px 40px rgba(0,0,0,0.4),
-              0 8px 16px rgba(0,0,0,0.2),
-              inset 0 2px 4px rgba(255,255,255,0.3),
-              inset 0 -2px 4px rgba(0,0,0,0.2),
-              0 0 0 1px rgba(255,255,255,0.1)
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
             `,
             height: '50px',
             transform: 'perspective(1000px) rotateX(5deg)',
@@ -428,11 +450,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onMouseOut={(e) => {
             e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
             e.currentTarget.style.boxShadow = `
-              0 20px 40px rgba(0,0,0,0.4),
-              0 8px 16px rgba(0,0,0,0.2),
-              inset 0 2px 4px rgba(255,255,255,0.3),
-              inset 0 -2px 4px rgba(0,0,0,0.2),
-              0 0 0 1px rgba(255,255,255,0.1)
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
             `;
             e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
           }}
