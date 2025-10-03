@@ -4,9 +4,10 @@ interface AdminPINModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPINValid: (userName: string, userRole: string) => void;
+  targetRole?: string | null;
 }
 
-const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINValid }) => {
+const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINValid, targetRole }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
@@ -76,7 +77,9 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
       left: 0,
       width: '100vw',
       height: '100vh',
-      background: 'rgba(0, 0, 0, 0.8)',
+      background: 'rgba(0, 0, 0, 0.9)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
       zIndex: 10000,
       display: 'flex',
       alignItems: 'center',
@@ -84,15 +87,17 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
       padding: '20px'
     }} onClick={onClose}>
       <div style={{
-        background: '#ffffff',
-        borderRadius: '16px',
-        padding: '2rem',
-        width: '100%',
-        maxWidth: '400px',
-        boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
-        border: '1px solid #e5e7eb',
+        background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+        borderRadius: '24px',
+        padding: '3rem 2rem',
+        width: '80vw',
+        maxWidth: '600px',
+        boxShadow: '0 32px 64px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)',
+        border: '1px solid rgba(255,255,255,0.2)',
         position: 'relative',
-        textAlign: 'center'
+        textAlign: 'center',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)'
       }} onClick={e => e.stopPropagation()}>
         
         {/* Close Button */}
@@ -100,20 +105,33 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '15px',
-            right: '15px',
-            background: 'none',
+            top: '20px',
+            right: '20px',
+            background: 'rgba(107, 114, 128, 0.1)',
             border: 'none',
-            fontSize: '24px',
+            fontSize: '20px',
             color: '#6b7280',
             cursor: 'pointer',
-            padding: '5px',
+            padding: '8px',
             borderRadius: '50%',
-            width: '30px',
-            height: '30px',
+            width: '36px',
+            height: '36px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            transition: 'all 0.2s ease',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+            e.currentTarget.style.color = '#ef4444';
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(107, 114, 128, 0.1)';
+            e.currentTarget.style.color = '#6b7280';
+            e.currentTarget.style.transform = 'scale(1)';
           }}
         >
           ×
@@ -121,27 +139,29 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
 
         {/* Header */}
         <div style={{
-          marginBottom: '1.5rem'
+          marginBottom: '2rem'
         }}>
           <div style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
+            fontSize: '2rem',
+            fontWeight: 800,
             color: '#1f2937',
-            marginBottom: '0.5rem'
+            marginBottom: '0.5rem',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}>
             👨‍💼 Admin Access
           </div>
           <div style={{
-            fontSize: '1rem',
-            color: '#6b7280'
+            fontSize: '1.1rem',
+            color: '#6b7280',
+            fontWeight: 500
           }}>
-            Enter your 4-digit PIN to access all roles
+            Enter your 4-digit PIN to access {targetRole ? targetRole.replace('_', ' ') : 'this role'}
           </div>
         </div>
 
         {/* PIN Input */}
         <div style={{
-          marginBottom: '1rem'
+          marginBottom: '1.5rem'
         }}>
           <input
             ref={inputRef}
@@ -153,24 +173,29 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
             maxLength={4}
             style={{
               width: '100%',
-              padding: '1rem',
-              fontSize: '1.5rem',
-              fontWeight: '600',
+              padding: '1.5rem',
+              fontSize: '2rem',
+              fontWeight: '700',
               textAlign: 'center',
-              letterSpacing: '0.5rem',
-              border: '2px solid #e5e7eb',
-              borderRadius: '12px',
-              background: '#f9fafb',
+              letterSpacing: '1rem',
+              border: '3px solid #e5e7eb',
+              borderRadius: '16px',
+              background: 'linear-gradient(145deg, #ffffff 0%, #f9fafb 100%)',
               outline: 'none',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.1)'
             }}
             onFocus={(e) => {
               e.currentTarget.style.borderColor = '#7c3aed';
               e.currentTarget.style.background = '#ffffff';
+              e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), 0 8px 24px rgba(124, 58, 237, 0.2)';
+              e.currentTarget.style.transform = 'scale(1.02)';
             }}
             onBlur={(e) => {
               e.currentTarget.style.borderColor = '#e5e7eb';
-              e.currentTarget.style.background = '#f9fafb';
+              e.currentTarget.style.background = 'linear-gradient(145deg, #ffffff 0%, #f9fafb 100%)';
+              e.currentTarget.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.1)';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
           />
         </div>
@@ -179,12 +204,14 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
         {error && (
           <div style={{
             color: '#dc2626',
-            fontSize: '0.9rem',
-            marginBottom: '1rem',
-            padding: '0.5rem',
-            background: '#fef2f2',
-            borderRadius: '8px',
-            border: '1px solid #fecaca'
+            fontSize: '1rem',
+            marginBottom: '1.5rem',
+            padding: '1rem',
+            background: 'linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%)',
+            borderRadius: '12px',
+            border: '2px solid #fecaca',
+            fontWeight: 600,
+            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.1)'
           }}>
             {error}
           </div>
@@ -194,8 +221,13 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
         {isValidating && (
           <div style={{
             color: '#7c3aed',
-            fontSize: '0.9rem',
-            marginBottom: '1rem'
+            fontSize: '1rem',
+            marginBottom: '1.5rem',
+            padding: '1rem',
+            background: 'linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 100%)',
+            borderRadius: '12px',
+            fontWeight: 600,
+            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.1)'
           }}>
             Validating PIN...
           </div>
@@ -203,9 +235,13 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
 
         {/* Instructions */}
         <div style={{
-          fontSize: '0.8rem',
+          fontSize: '0.9rem',
           color: '#9ca3af',
-          marginTop: '1rem'
+          marginTop: '1.5rem',
+          padding: '1rem',
+          background: 'rgba(107, 114, 128, 0.05)',
+          borderRadius: '12px',
+          fontWeight: 500
         }}>
           Press Enter to submit • Press Escape to cancel
         </div>
@@ -213,17 +249,21 @@ const AdminPINModal: React.FC<AdminPINModalProps> = ({ isOpen, onClose, onPINVal
         {/* Admin Users List */}
         <div style={{
           marginTop: '1.5rem',
-          padding: '1rem',
-          background: '#f8fafc',
-          borderRadius: '8px',
-          fontSize: '0.8rem',
-          color: '#6b7280'
+          padding: '1.5rem',
+          background: 'linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%)',
+          borderRadius: '16px',
+          fontSize: '0.9rem',
+          color: '#475569',
+          fontWeight: 500,
+          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
         }}>
-          <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Admin Users:</div>
-          <div>Sebastiaan Steyn - 1111</div>
-          <div>Adelaide - 2222</div>
-          <div>Chris de Vries - 3333</div>
-          <div>Andries Steyn - 4444</div>
+          <div style={{ fontWeight: 700, marginBottom: '0.75rem', color: '#334155' }}>Admin Users:</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+            <div>Sebastiaan Steyn - 1111</div>
+            <div>Adelaide - 2222</div>
+            <div>Chris de Vries - 3333</div>
+            <div>Andries Steyn - 4444</div>
+          </div>
         </div>
       </div>
     </div>

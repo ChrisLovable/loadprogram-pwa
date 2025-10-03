@@ -11,6 +11,7 @@ import Dashboard from './components/Dashboard'
 import InvoiceManager from './components/InvoiceManager'
 import WelcomeScreen from './components/WelcomeScreen'
 import { ToastProvider } from './components/Toast'
+import LoginModal from './components/LoginModal'
 import './App.css'
 
 
@@ -34,7 +35,61 @@ function App() {
   const [showInstallButton, setShowInstallButton] = useState(false)
   const [installState, setInstallState] = useState<'idle' | 'installing' | 'success'>('idle')
   const [showWelcomeScreen, setShowWelcomeScreen] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(true)
+  const [currentUser, setCurrentUser] = useState<{name: string, type: 'driver' | 'admin', role: string} | null>(null)
   
+  // Check for existing login session
+  useEffect(() => {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        if (userData.name && userData.role) {
+          setCurrentUser({
+            name: userData.name,
+            type: userData.role === 'driver' ? 'driver' : 'admin',
+            role: userData.role
+          });
+          setShowLoginModal(false);
+        }
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('currentUser');
+      }
+    }
+  }, []);
+
+  const handleLogin = (userType: 'driver' | 'admin', userName: string, userRole: string) => {
+    console.log('User logged in:', { userType, userName, userRole });
+    
+    setCurrentUser({
+      name: userName,
+      type: userType,
+      role: userRole
+    });
+    
+    // Store in localStorage
+    localStorage.setItem('currentUser', JSON.stringify({
+      name: userName,
+      role: userRole,
+      type: userType
+    }));
+    
+    setShowLoginModal(false);
+    
+    // Auto-select driver role for drivers
+    if (userType === 'driver') {
+      setCurrentRole('driver');
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setCurrentRole(null);
+    localStorage.removeItem('currentUser');
+    setShowLoginModal(true);
+  };
+
   // Debug: Monitor currentRole changes
   useEffect(() => {
     console.log('🔴 App - currentRole changed to:', currentRole);
@@ -1011,18 +1066,8 @@ function App() {
           onSummariesClick={() => setShowDashboard(true)}
           onSummaryClick={() => setShowSummary(true)}
           onInvoicesClick={() => setShowInvoices(true)}
-          onDriverPINValid={(driverName) => {
-            // Auto-fill driver name when PIN is validated
-            console.log('Driver PIN validated for:', driverName);
-            // The driver name will be automatically filled in DriverSection
-            // through the localStorage currentUser data
-          }}
-          onAdminPINValid={(userName, userRole) => {
-            // Handle admin user login
-            console.log('Admin PIN validated for:', userName, 'Role:', userRole);
-            // Admin users can access all roles - no restrictions
-            // The user info is stored in localStorage
-          }}
+          currentUser={currentUser}
+          onLogout={handleLogout}
         />
       </div>
       
@@ -2028,6 +2073,12 @@ function App() {
         </div>
       )}
     </div>
+    
+    {/* Login Modal */}
+    <LoginModal
+      isOpen={showLoginModal}
+      onLogin={handleLogin}
+    />
     </ToastProvider>
   )
 }

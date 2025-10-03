@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-interface PINModalProps {
+interface LoginModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  onPINValid: (driverName: string) => void;
+  onLogin: (userType: 'driver' | 'admin', userName: string, userRole: string) => void;
 }
 
-const PINModal: React.FC<PINModalProps> = ({ isOpen, onClose, onPINValid }) => {
+const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLogin }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isValidating, setIsValidating] = useState(false);
@@ -31,18 +30,31 @@ const PINModal: React.FC<PINModalProps> = ({ isOpen, onClose, onPINValid }) => {
     setError('');
 
     try {
-      // Import the PIN validation function
+      // Check driver PINs first
       const { validateDriverPIN } = await import('../utils/driverPins');
       const driverName = validateDriverPIN(pin);
 
       if (driverName) {
-        onPINValid(driverName);
+        onLogin('driver', driverName, 'driver');
         setPin('');
         setError('');
-      } else {
-        setError('Invalid PIN. Please try again.');
-        setPin('');
+        return;
       }
+
+      // Check admin PINs
+      const { validateAdminPIN } = await import('../utils/adminUsers');
+      const adminData = validateAdminPIN(pin);
+
+      if (adminData) {
+        onLogin('admin', adminData.name, adminData.role);
+        setPin('');
+        setError('');
+        return;
+      }
+
+      // Invalid PIN
+      setError('Invalid PIN. Please try again.');
+      setPin('');
     } catch (error) {
       setError('Error validating PIN. Please try again.');
       setPin('');
@@ -54,8 +66,6 @@ const PINModal: React.FC<PINModalProps> = ({ isOpen, onClose, onPINValid }) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handlePINSubmit();
-    } else if (e.key === 'Escape') {
-      onClose();
     }
   };
 
@@ -84,7 +94,7 @@ const PINModal: React.FC<PINModalProps> = ({ isOpen, onClose, onPINValid }) => {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '20px'
-    }} onClick={onClose}>
+    }}>
       <div style={{
         background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
         borderRadius: '24px',
@@ -97,64 +107,35 @@ const PINModal: React.FC<PINModalProps> = ({ isOpen, onClose, onPINValid }) => {
         textAlign: 'center',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)'
-      }} onClick={e => e.stopPropagation()}>
+      }}>
         
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            background: 'rgba(107, 114, 128, 0.1)',
-            border: 'none',
-            fontSize: '20px',
-            color: '#6b7280',
-            cursor: 'pointer',
-            padding: '8px',
-            borderRadius: '50%',
-            width: '36px',
-            height: '36px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.2s ease',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-            e.currentTarget.style.color = '#ef4444';
-            e.currentTarget.style.transform = 'scale(1.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = 'rgba(107, 114, 128, 0.1)';
-            e.currentTarget.style.color = '#6b7280';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-        >
-          ×
-        </button>
-
         {/* Header */}
         <div style={{
           marginBottom: '2rem'
         }}>
           <div style={{
-            fontSize: '2rem',
+            fontSize: '2.5rem',
             fontWeight: 800,
             color: '#1f2937',
             marginBottom: '0.5rem',
             textShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}>
-            🚛 Driver Access
+            🚛 Load Program
           </div>
           <div style={{
-            fontSize: '1.1rem',
+            fontSize: '1.2rem',
             color: '#6b7280',
-            fontWeight: 500
+            fontWeight: 500,
+            marginBottom: '0.5rem'
           }}>
-            Enter your 4-digit PIN to access the driver section
+            Enter your 4-digit PIN to access the system
+          </div>
+          <div style={{
+            fontSize: '1rem',
+            color: '#9ca3af',
+            fontWeight: 400
+          }}>
+            Drivers can access Driver section • Admins can access all sections
           </div>
         </div>
 
@@ -242,11 +223,31 @@ const PINModal: React.FC<PINModalProps> = ({ isOpen, onClose, onPINValid }) => {
           borderRadius: '12px',
           fontWeight: 500
         }}>
-          Press Enter to submit • Press Escape to cancel
+          Press Enter to submit
+        </div>
+
+        {/* User Types Info */}
+        <div style={{
+          marginTop: '1.5rem',
+          padding: '1.5rem',
+          background: 'linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%)',
+          borderRadius: '16px',
+          fontSize: '0.9rem',
+          color: '#475569',
+          fontWeight: 500,
+          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ fontWeight: 700, marginBottom: '0.75rem', color: '#334155' }}>Access Levels:</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+            <div style={{ color: '#059669' }}>🚛 Drivers (36 users)</div>
+            <div style={{ color: '#7c3aed' }}>👨‍💼 Admins (4 users)</div>
+            <div>Driver section only</div>
+            <div>All sections</div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default PINModal;
+export default LoginModal;

@@ -1,6 +1,4 @@
-import React, { useState } from 'react'
-import PINModal from './PINModal'
-import AdminPINModal from './AdminPINModal'
+import React from 'react'
 
 interface RoleSelectorProps {
   currentRole: string | null
@@ -10,62 +8,11 @@ interface RoleSelectorProps {
   onSummariesClick: () => void
   onSummaryClick: () => void
   onInvoicesClick: () => void
-  onDriverPINValid?: (driverName: string) => void
-  onAdminPINValid?: (userName: string, userRole: string) => void
+  currentUser: {name: string, type: 'driver' | 'admin', role: string} | null
+  onLogout: () => void
 }
 
-// const ROLE_PINS = {
-//   'driver': '1111',
-//   'first_approver': '2222',
-//   'second_approver': '3333',
-//   'invoicer': '4444',
-//   'final_approver': '5555'
-// }
-
-const ROLE_NAMES = {
-  'driver': 'Driver',
-  'first_approver': '1st Approver',
-  'second_approver': '2nd Approver',
-  'invoicer': 'Invoicing',
-  'final_approver': 'Final Approver'
-}
-
-const ROLE_ICONS = {
-  'driver': '🚛',
-  'first_approver': '✅',
-  'second_approver': '🔍',
-  'invoicer': '💰',
-  'final_approver': '📋'
-}
-
-const USERS = {
-  driver: [
-    { pin: '1111', name: 'Alice Driver' },
-    { pin: '1112', name: 'Bob Driver' },
-    // Add more drivers as needed
-  ],
-  first_approver: [
-    { pin: '2222', name: 'Carol 1st Approver' },
-    { pin: '2223', name: 'Dave 1st Approver' },
-    // Add more 1st approvers as needed
-  ],
-  second_approver: [
-    { pin: '3333', name: 'Eve 2nd Approver' },
-    // Add more 2nd approvers as needed
-  ],
-  invoicer: [
-    { pin: '4444', name: 'Frank Invoicer' },
-    // Add more invoicers as needed
-  ],
-  final_approver: [
-    { pin: '5555', name: 'Grace Final Approver' },
-    // Add more final approvers as needed
-  ],
-};
-
-const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, onDriverPINValid, onAdminPINValid }) => {
-  const [showPINModal, setShowPINModal] = useState(false)
-  const [showAdminPINModal, setShowAdminPINModal] = useState(false)
+const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, currentUser, onLogout }) => {
 
   // Calculate queue counts for each role
   const queueCounts: { [key: string]: number } = {
@@ -76,65 +23,25 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
     final_approver: loads.filter(l => l.status === 'third_approved').length,
   }
 
-  const handleAdminPINValid = (userName: string, userRole: string) => {
-    console.log('🔴 Admin PIN valid for:', userName);
-    setShowAdminPINModal(false);
-    
-    // Store admin user info in localStorage
-    localStorage.setItem('currentUser', JSON.stringify({ role: userRole, name: userName }));
-    
-    // Call the callback
-    if (onAdminPINValid) {
-      onAdminPINValid(userName, userRole);
-    }
-  };
-
-  const handleAdminPINModalClose = () => {
-    setShowAdminPINModal(false);
-  };
-
-  const handlePINValid = (driverName: string) => {
-    console.log('🔴 Driver PIN valid for:', driverName);
-    setShowPINModal(false);
-    
-    // Change role to driver
-    onRoleChange('driver');
-    
-    // Store driver info in localStorage
-    localStorage.setItem('currentUser', JSON.stringify({ role: 'driver', name: driverName }));
-    
-    // Call the callback to auto-fill driver name
-    if (onDriverPINValid) {
-      onDriverPINValid(driverName);
-    }
-  };
-
-  const handlePINModalClose = () => {
-    setShowPINModal(false);
-  };
-
-  const handleAdminAccess = () => {
-    setShowAdminPINModal(true);
-  };
-
   const handleRoleClick = (role: string) => {
     console.log('🔴 LATEST VERSION - Role clicked:', role);
     if (role === currentRole) return // Already selected
     
-    // Show PIN modal for driver role
-    if (role === 'driver') {
-      setShowPINModal(true);
-      return;
+    // Check access permissions
+    if (currentUser?.type === 'driver' && role !== 'driver') {
+      console.log('🔴 Driver trying to access non-driver role:', role);
+      return; // Drivers can only access driver role
     }
     
     console.log('🔴 Direct role access - Changing role to:', role);
     onRoleChange(role)
     
-    // Store current user info in localStorage (using default user for now)
-    const defaultUser = USERS[role as keyof typeof USERS]?.[0];
-    if (defaultUser) {
-      localStorage.setItem('currentUser', JSON.stringify({ role: role, name: defaultUser.name }))
-    }
+    // Store current user info in localStorage
+    localStorage.setItem('currentUser', JSON.stringify({ 
+      role: role, 
+      name: currentUser?.name || 'User',
+      type: currentUser?.type || 'admin'
+    }))
     
     // Auto-scroll to first card for approver roles
     if (role === 'first_approver' || role === 'second_approver' || role === 'final_approver') {
@@ -150,572 +57,293 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
         } else if (role === 'second_approver') {
           targetCard = document.querySelector('section[data-second-approver-card="true"]') ||
                       document.querySelector('section[style*="a78bfa"]') || 
-                      document.querySelector('section[style*="6366f1"]');
+                      document.querySelector('section[style*="8b5cf6"]');
         } else if (role === 'final_approver') {
           targetCard = document.querySelector('section[data-final-approver-card="true"]') ||
-                      document.querySelector('section[style*="bbf7d0"]') || 
-                      document.querySelector('section[style*="22c55e"]');
+                      document.querySelector('section[style*="f59e0b"]') || 
+                      document.querySelector('section[style*="d97706"]');
         }
-        
-        console.log(`🔍 Found ${role} card:`, targetCard);
         
         if (targetCard) {
-          console.log(`✅ Scrolling to ${role} card`);
-          targetCard.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start',
-            inline: 'nearest'
-          });
+          console.log(`✅ Found ${role} card, scrolling...`);
+          targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
-          console.log(`❌ ${role} card not found, using fallback scroll`);
-          // Fallback: scroll to phone screen
-          const phoneScreen = document.querySelector('.phone-screen');
-          if (phoneScreen) {
-            phoneScreen.scrollTo({
-              top: 300,
-              behavior: 'smooth'
-            });
-          } else {
-            // Final fallback: scroll window
-            window.scrollTo({
-              top: 300,
-              behavior: 'smooth'
-            });
-          }
+          console.log(`❌ ${role} card not found, scrolling to top`);
+          window.scrollTo({ top: 300, behavior: 'smooth' });
         }
-      }, 300); // Increased delay to ensure DOM is fully updated
+      }, 300);
     }
   }
 
+  const roles = [
+    { key: 'driver', name: 'Driver', color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderColor: '#34d399', icon: '🚛' },
+    { key: 'first_approver', name: 'First Approver', color: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', borderColor: '#60a5fa', icon: '✅' },
+    { key: 'second_approver', name: 'Second Approver', color: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)', borderColor: '#c4b5fd', icon: '🔍' },
+    { key: 'invoicer', name: 'Invoice', color: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', borderColor: '#fbbf24', icon: '📄' },
+    { key: 'final_approver', name: 'Final Approver', color: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', borderColor: '#fbbf24', icon: '🏁' }
+  ];
+
   return (
     <div style={{
-      background: '#111',
+      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
       borderRadius: '12px',
       padding: '1rem',
-      marginBottom: '1rem',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-      border: '1px solid #222'
+      marginTop: '-30px',
+      marginBottom: '1rem'
     }}>
-      {/* Remove Current Role display */}
+      {/* User Info and Logout */}
+      {currentUser && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1rem',
+          padding: '0.5rem',
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '8px'
+        }}>
+          <div style={{
+            color: 'white',
+            fontSize: '0.9rem',
+            fontWeight: 600
+          }}>
+            👤 {currentUser.name} ({currentUser.type === 'driver' ? 'Driver' : 'Admin'})
+          </div>
+          <button
+            onClick={onLogout}
+            style={{
+              background: 'rgba(239, 68, 68, 0.2)',
+              border: '1px solid #ef4444',
+              borderRadius: '6px',
+              padding: '0.25rem 0.5rem',
+              color: '#ef4444',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              fontWeight: 600
+            }}
+          >
+            Logout
+          </button>
+        </div>
+      )}
 
-      {/* Role Selection Grid */}
+      {/* Role Buttons */}
       <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.5rem', // Increased spacing between role buttons
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+        gap: '0.7rem',
         marginBottom: '1rem'
       }}>
-        {Object.entries(ROLE_NAMES).map(([role, name]) => {
-          let roleBackground = 'white';
-          if (role === 'driver') roleBackground = 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
-          if (role === 'first_approver') roleBackground = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-          if (role === 'second_approver') roleBackground = 'linear-gradient(135deg, #a78bfa 0%, #6366f1 100%)';
-          if (role === 'invoicer') roleBackground = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
-          if (role === 'final_approver') roleBackground = 'linear-gradient(135deg, #bbf7d0 0%, #22c55e 100%)';
+        {roles.map((role) => {
+          const isDisabled = currentUser?.type === 'driver' && role.key !== 'driver';
+          
           return (
             <button
-              key={role}
+              key={role.key}
               type="button"
-              onClick={() => handleRoleClick(role)}
-              disabled={role === currentRole}
+              onClick={() => handleRoleClick(role.key)}
+              disabled={isDisabled}
               style={{
-                background: roleBackground,
-                color: '#222',
-                border: '1.5px solid #111',
-                borderRadius: '32px',
-                padding: '0.5rem 1.2rem',
+                background: currentRole === role.key 
+                  ? role.color 
+                  : isDisabled 
+                    ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
+                    : role.color,
+                color: currentRole === role.key ? '#222' : 'white',
+                border: `2.5px solid ${currentRole === role.key ? '#fff' : role.borderColor}`,
+                borderRadius: '16px',
+                padding: '0.5rem 0.8rem',
                 fontWeight: 900,
                 fontSize: '0.85rem',
-                fontFamily: 'inherit',
-                cursor: role === currentRole ? 'not-allowed' : 'pointer',
-                opacity: role === currentRole ? 1 : 0.8,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                minHeight: 0,
-                height: 'auto',
-                boxShadow: '0 12px 48px 0 rgba(37,99,235,0.32), 0 4px 16px 0 rgba(255,255,255,0.22) inset, 0 2.5px 0 0 #fff, 0 1.5px 0 0 #fff inset',
-                backdropFilter: 'blur(18px)',
-                WebkitBackdropFilter: 'blur(18px)',
-                backgroundBlendMode: 'overlay',
+                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: isDisabled ? 0.5 : 1,
                 position: 'relative',
                 overflow: 'hidden',
-                transition: 'box-shadow 0.2s, transform 0.1s',
-                transform: 'translateY(0)',
-                outline: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.2rem'
               }}
-              onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-              onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
+              onMouseOver={(e) => {
+                if (!isDisabled && currentRole !== role.key) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (!isDisabled && currentRole !== role.key) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }
+              }}
             >
-              <span style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(120deg, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.18) 100%)',
-                borderRadius: '32px',
-                pointerEvents: 'none',
-                zIndex: 1
-              }} />
-              <span style={{
-                position: 'absolute',
-                top: '10px',
-                left: '24px',
-                width: '65%',
-                height: '22px',
-                background: 'linear-gradient(90deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.18) 100%)',
-                borderRadius: '16px',
-                filter: 'blur(2.5px)',
-                opacity: 0.8,
-                pointerEvents: 'none',
-                zIndex: 2
-              }} />
-              <span style={{
-                position: 'absolute',
-                bottom: '10px',
-                right: '24px',
-                width: '45%',
-                height: '14px',
-                background: 'linear-gradient(90deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.01) 100%)',
-                borderRadius: '12px',
-                filter: 'blur(2.5px)',
-                opacity: 0.6,
-                pointerEvents: 'none',
-                zIndex: 2
-              }} />
-              <span style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(120deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)',
-                borderRadius: '32px',
-                pointerEvents: 'none',
-                zIndex: 3,
-                animation: 'shine 2.5s linear infinite',
-                backgroundSize: '200% 100%',
-                backgroundPosition: '200% 0',
-              }} />
-              <span style={{flex:1,textAlign:'left',fontWeight:900,fontSize:'1.25rem',color:'#222',letterSpacing:'0.5px',fontFamily:'inherit',position:'relative',zIndex:4}}>{ROLE_ICONS[role as keyof typeof ROLE_ICONS]} {name}</span>
-              {role !== 'driver' && (
+              <span style={{fontSize:'1.2em'}}>{role.icon}</span>
+              <span>{role.name}</span>
+              {role.key !== 'driver' && (
                 <span style={{
-                  marginLeft: '0.5rem',
-                  background: '#f43f5e',
-                  color: 'white',
+                  position: 'absolute',
+                  top: '-8px',
+                  right: '-8px',
+                  background: currentRole === role.key ? '#fff' : '#ef4444',
+                  color: currentRole === role.key ? '#222' : 'white',
                   borderRadius: '50%',
-                  minWidth: 22,
-                  height: 22,
+                  width: '20px',
+                  height: '20px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.75rem',
+                  fontSize: '0.7rem',
                   fontWeight: 700,
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
-                  zIndex: 4,
                   padding: '0 6px',
-                }}>{queueCounts[role]}</span>
+                }}>{queueCounts[role.key]}</span>
               )}
             </button>
           )
         })}
-        
-        {/* Admin Access Button */}
+      </div>
+      
+      {/* Dashboard and Search in 2-column layout */}
+      <div style={{
+        display: 'flex',
+        gap: '1rem',
+        marginTop: '20px'
+      }}>
         <button
           type="button"
-          onClick={handleAdminAccess}
+          onClick={onSummariesClick}
           style={{
-            width: '100%',
-            background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
-            color: 'white',
-            border: '2px solid #8b5cf6',
-            borderRadius: '12px',
-            padding: '0.8rem 1rem',
-            fontWeight: 700,
-            fontSize: '0.9rem',
+            flex: 1,
+            background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
+            color: '#222',
+            border: '2.5px solid #60a5fa',
+            borderRadius: '16px',
+            padding: '0.5rem 1.2rem',
+            fontWeight: 900,
+            fontSize: '0.85rem',
             cursor: 'pointer',
-            marginTop: '1rem',
-            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
             transition: 'all 0.2s ease',
             position: 'relative',
             overflow: 'hidden'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(124, 58, 237, 0.4)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(79, 140, 255, 0.4)';
           }}
           onMouseOut={(e) => {
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(124, 58, 237, 0.3)';
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-            <span>👨‍💼</span>
-            <span>Admin Access</span>
+          <span style={{position:'relative',zIndex:4,display:'flex',flexDirection:'column',alignItems:'center',gap:'0.2rem'}}>
+            <span style={{fontSize:'1.2em'}}>📊</span>
+            <span>Dashboard</span>
           </span>
         </button>
         
-        {/* Dashboard and Search in 2-column layout */}
-        <div style={{
-          display: 'flex',
-          gap: '1rem',
-          marginTop: '20px'
-        }}>
-          <button
-            type="button"
-            onClick={onSummariesClick}
-            style={{
-              flex: 1,
-              background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
-              color: '#222',
-              border: '2.5px solid #60a5fa',
-              borderRadius: '16px',
-              padding: '0.5rem 1.2rem',
-              fontWeight: 900,
-              fontSize: '1.05rem',
-              fontFamily: 'inherit',
-              cursor: 'pointer',
-              boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              backgroundBlendMode: 'overlay',
-              position: 'relative',
-              overflow: 'hidden',
-              transition: 'box-shadow 0.2s, transform 0.1s',
-              transform: 'translateY(0)',
-              outline: 'none',
-            }}
-            onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-            onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-          <span style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(120deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 100%)',
+        <button
+          type="button"
+          onClick={onDashboardClick}
+          style={{
+            flex: 1,
+            background: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
+            color: '#222',
+            border: '2.5px solid #f472b6',
             borderRadius: '16px',
-            pointerEvents: 'none',
-            zIndex: 1
-          }} />
-          <span style={{
-            position: 'absolute',
-            top: '8px',
-            left: '18px',
-            width: '60%',
-            height: '18px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 100%)',
-            borderRadius: '12px',
-            filter: 'blur(1.5px)',
-            opacity: 0.7,
-            pointerEvents: 'none',
-            zIndex: 2
-          }} />
-          <span style={{
-            position: 'absolute',
-            bottom: '8px',
-            right: '18px',
-            width: '40%',
-            height: '10px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.01) 100%)',
-            borderRadius: '8px',
-            filter: 'blur(1.5px)',
-            opacity: 0.5,
-            pointerEvents: 'none',
-            zIndex: 2
-          }} />
-          <span style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(120deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
-            borderRadius: '16px',
-            pointerEvents: 'none',
-            zIndex: 3,
-            animation: 'shine 2.5s linear infinite',
-            backgroundSize: '200% 100%',
-            backgroundPosition: '200% 0',
-          }} />
-          <span style={{position:'relative',zIndex:4}}>📈 Dashboard</span>
-          </button>
-          <button
-            type="button"
-            onClick={onDashboardClick}
-            style={{
-              flex: 1,
-              background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
-              color: '#222',
-              border: '1.5px solid #111',
-              borderRadius: '16px',
-              padding: '0.5rem 1.2rem',
-              fontWeight: 900,
-              fontSize: '1.05rem',
-              fontFamily: 'inherit',
-              cursor: 'pointer',
-              boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              backgroundBlendMode: 'overlay',
-              position: 'relative',
-              overflow: 'hidden',
-              transition: 'box-shadow 0.2s, transform 0.1s',
-              transform: 'translateY(0)',
-              outline: 'none',
-            }}
-            onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-            onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-          <span style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(120deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 100%)',
-            borderRadius: '16px',
-            pointerEvents: 'none',
-            zIndex: 1
-          }} />
-          <span style={{
-            position: 'absolute',
-            top: '8px',
-            left: '18px',
-            width: '60%',
-            height: '18px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 100%)',
-            borderRadius: '12px',
-            filter: 'blur(1.5px)',
-            opacity: 0.7,
-            pointerEvents: 'none',
-            zIndex: 2
-          }} />
-          <span style={{
-            position: 'absolute',
-            bottom: '8px',
-            right: '18px',
-            width: '40%',
-            height: '10px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.01) 100%)',
-            borderRadius: '8px',
-            filter: 'blur(1.5px)',
-            opacity: 0.5,
-            pointerEvents: 'none',
-            zIndex: 2
-          }} />
-          <span style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(120deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
-            borderRadius: '16px',
-            pointerEvents: 'none',
-            zIndex: 3,
-            animation: 'shine 2.5s linear infinite',
-            backgroundSize: '200% 100%',
-            backgroundPosition: '200% 0',
-          }} />
+            padding: '0.5rem 1.2rem',
+            fontWeight: 900,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(236, 72, 153, 0.4)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
           <span style={{position:'relative',zIndex:4,display:'flex',flexDirection:'column',alignItems:'center',gap:'0.2rem'}}>
             <span style={{fontSize:'1.2em'}}>🔍</span>
             <span>Search</span>
           </span>
-          </button>
-        </div>
-        
-        {/* Summary and Invoices in 2-column layout */}
-        <div style={{
-          display: 'flex',
-          gap: '1rem',
-          marginTop: '-5px'
-        }}>
-          <button
-            type="button"
-            onClick={onSummaryClick}
-            style={{
-              flex: 1,
-              background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
-              color: '#222',
-              border: '1.5px solid #111',
-              borderRadius: '16px',
-              padding: '0.5rem 1.2rem',
-              fontWeight: 900,
-              fontSize: '1.05rem',
-              fontFamily: 'inherit',
-              cursor: 'pointer',
-              boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              backgroundBlendMode: 'overlay',
-              position: 'relative',
-              overflow: 'hidden',
-              transition: 'box-shadow 0.2s, transform 0.1s',
-              transform: 'translateY(0)',
-              outline: 'none',
-            }}
-            onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-            onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <span style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(120deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 100%)',
-              borderRadius: '16px',
-              pointerEvents: 'none',
-              zIndex: 1
-            }} />
-            <span style={{
-              position: 'absolute',
-              top: '8px',
-              left: '18px',
-              width: '60%',
-              height: '18px',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 100%)',
-              borderRadius: '12px',
-              filter: 'blur(1.5px)',
-              opacity: 0.7,
-              pointerEvents: 'none',
-              zIndex: 2
-            }} />
-            <span style={{
-              position: 'absolute',
-              bottom: '8px',
-              right: '18px',
-              width: '40%',
-              height: '10px',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.01) 100%)',
-              borderRadius: '8px',
-              filter: 'blur(1.5px)',
-              opacity: 0.5,
-              pointerEvents: 'none',
-              zIndex: 2
-            }} />
-            <span style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(120deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
-              borderRadius: '16px',
-              pointerEvents: 'none',
-              zIndex: 3,
-              animation: 'shine 2.5s linear infinite',
-              backgroundSize: '200% 100%',
-              backgroundPosition: '200% 0',
-            }} />
-            <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
-              <span>📊</span>
-              <span>Summary</span>
-            </span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={onInvoicesClick}
-            style={{
-              flex: 1,
-              background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
-              color: '#222',
-              border: '1.5px solid #111',
-              borderRadius: '16px',
-              padding: '0.5rem 1.2rem',
-              fontWeight: 900,
-              fontSize: '1.05rem',
-              fontFamily: 'inherit',
-              cursor: 'pointer',
-              boxShadow: '0 8px 32px 0 rgba(37,99,235,0.25), 0 2px 8px 0 rgba(255,255,255,0.18) inset, 0 1.5px 0 0 #fff, 0 0.5px 0 0 #fff inset',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              backgroundBlendMode: 'overlay',
-              position: 'relative',
-              overflow: 'hidden',
-              transition: 'box-shadow 0.2s, transform 0.1s',
-              transform: 'translateY(0)',
-              outline: 'none',
-            }}
-            onMouseDown={e => e.currentTarget.style.transform = 'translateY(2px)'}
-            onMouseUp={e => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <span style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(120deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 100%)',
-              borderRadius: '16px',
-              pointerEvents: 'none',
-              zIndex: 1
-            }} />
-            <span style={{
-              position: 'absolute',
-              top: '8px',
-              left: '18px',
-              width: '60%',
-              height: '18px',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 100%)',
-              borderRadius: '12px',
-              filter: 'blur(1.5px)',
-              opacity: 0.7,
-              pointerEvents: 'none',
-              zIndex: 2
-            }} />
-            <span style={{
-              position: 'absolute',
-              bottom: '8px',
-              right: '18px',
-              width: '40%',
-              height: '10px',
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.01) 100%)',
-              borderRadius: '8px',
-              filter: 'blur(1.5px)',
-              opacity: 0.5,
-              pointerEvents: 'none',
-              zIndex: 2
-            }} />
-            <span style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(120deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
-              borderRadius: '16px',
-              pointerEvents: 'none',
-              zIndex: 3,
-              animation: 'shine 2.5s linear infinite',
-              backgroundSize: '200% 100%',
-              backgroundPosition: '200% 0',
-            }} />
-            <span style={{position:'relative',zIndex:4,display:'flex',flexDirection:'column',alignItems:'center',gap:'0.2rem'}}>
-              <span style={{fontSize:'1.2em'}}>📋</span>
-              <span>Invoices</span>
-            </span>
-          </button>
-        </div>
+        </button>
       </div>
-      
-      {/* PIN Modal */}
-      <PINModal
-        isOpen={showPINModal}
-        onClose={handlePINModalClose}
-        onPINValid={handlePINValid}
-      />
-      
-      {/* Admin PIN Modal */}
-      <AdminPINModal
-        isOpen={showAdminPINModal}
-        onClose={handleAdminPINModalClose}
-        onPINValid={handleAdminPINValid}
-      />
+
+      {/* Summary and Invoices buttons */}
+      <div style={{
+        display: 'flex',
+        gap: '1rem',
+        marginTop: '0.5rem'
+      }}>
+        <button
+          type="button"
+          onClick={onSummaryClick}
+          style={{
+            flex: 1,
+            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+            color: '#222',
+            border: '2.5px solid #a78bfa',
+            borderRadius: '16px',
+            padding: '0.5rem 1.2rem',
+            fontWeight: 900,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(139, 92, 246, 0.4)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
+            <span>📊</span>
+            <span>Summary</span>
+          </span>
+        </button>
+        
+        <button
+          type="button"
+          onClick={onInvoicesClick}
+          style={{
+            flex: 1,
+            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+            color: '#222',
+            border: '2.5px solid #fbbf24',
+            borderRadius: '16px',
+            padding: '0.5rem 1.2rem',
+            fontWeight: 900,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(245, 158, 11, 0.4)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
+            <span>📋</span>
+            <span>Invoices</span>
+          </span>
+        </button>
+      </div>
     </div>
   )
 }
