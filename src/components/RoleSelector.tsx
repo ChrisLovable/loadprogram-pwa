@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import PINModal from './PINModal'
 
 interface RoleSelectorProps {
   currentRole: string | null
@@ -8,6 +9,7 @@ interface RoleSelectorProps {
   onSummariesClick: () => void
   onSummaryClick: () => void
   onInvoicesClick: () => void
+  onDriverPINValid?: (driverName: string) => void
 }
 
 // const ROLE_PINS = {
@@ -59,7 +61,8 @@ const USERS = {
   ],
 };
 
-const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick }) => {
+const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, onDriverPINValid }) => {
+  const [showPINModal, setShowPINModal] = useState(false)
 
   // Calculate queue counts for each role
   const queueCounts: { [key: string]: number } = {
@@ -70,9 +73,35 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
     final_approver: loads.filter(l => l.status === 'third_approved').length,
   }
 
+  const handlePINValid = (driverName: string) => {
+    console.log('🔴 Driver PIN valid for:', driverName);
+    setShowPINModal(false);
+    
+    // Change role to driver
+    onRoleChange('driver');
+    
+    // Store driver info in localStorage
+    localStorage.setItem('currentUser', JSON.stringify({ role: 'driver', name: driverName }));
+    
+    // Call the callback to auto-fill driver name
+    if (onDriverPINValid) {
+      onDriverPINValid(driverName);
+    }
+  };
+
+  const handlePINModalClose = () => {
+    setShowPINModal(false);
+  };
+
   const handleRoleClick = (role: string) => {
     console.log('🔴 LATEST VERSION - Role clicked:', role);
     if (role === currentRole) return // Already selected
+    
+    // Show PIN modal for driver role
+    if (role === 'driver') {
+      setShowPINModal(true);
+      return;
+    }
     
     console.log('🔴 Direct role access - Changing role to:', role);
     onRoleChange(role)
@@ -613,6 +642,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           </button>
         </div>
       </div>
+      
+      {/* PIN Modal */}
+      <PINModal
+        isOpen={showPINModal}
+        onClose={handlePINModalClose}
+        onPINValid={handlePINValid}
+      />
     </div>
   )
 }

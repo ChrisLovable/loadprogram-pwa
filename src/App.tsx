@@ -1011,6 +1011,12 @@ function App() {
           onSummariesClick={() => setShowDashboard(true)}
           onSummaryClick={() => setShowSummary(true)}
           onInvoicesClick={() => setShowInvoices(true)}
+          onDriverPINValid={(driverName) => {
+            // Auto-fill driver name when PIN is validated
+            console.log('Driver PIN validated for:', driverName);
+            // The driver name will be automatically filled in DriverSection
+            // through the localStorage currentUser data
+          }}
         />
       </div>
       
@@ -1215,7 +1221,7 @@ function App() {
                   <div style={{ fontSize: '0.9rem', marginTop: '10px', color: '#059669', fontWeight: 600 }}>
                     Opening Invoice Manager automatically...
       </div>
-                </div>
+    </div>
               ) : (
                 <div>
                   <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📋</div>
