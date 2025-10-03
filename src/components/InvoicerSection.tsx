@@ -711,8 +711,8 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             />
           </div>
 
-          {/* Invoice Subtotal and VAT - Same Line */}
-          <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
+          {/* All Three Financial Fields - Same Line */}
+          <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem',alignItems:'flex-end'}}>
             <div>
               <div style={labelStyle}>Invoice Subtotal</div>
               <div style={{
@@ -780,6 +780,27 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 }} 
               />
             </div>
+            <div>
+              <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>INVOICE TOTAL</div>
+              <div style={{
+                background:'#f0fdf4',
+                color:'#16a34a',
+                fontWeight:700,
+                fontSize:'1.2rem',
+                padding:'0.8rem',
+                borderRadius:'8px',
+                border:'2px solid #16a34a',
+                textAlign:'center',
+                marginTop:'0.3rem',
+                width: '200px',
+                height: '50px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {invoiceTotal ? `R ${invoiceTotal}` : 'R 0.00'}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -817,29 +838,6 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             </label>
           </div>
 
-          {/* Invoice Total - Aligned with VAT field */}
-          <div style={{textAlign:'center',marginBottom:'0.8rem',marginTop:'40px',marginLeft:'60px'}}>
-            <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>INVOICE TOTAL</div>
-            <div style={{
-              background:'#f0fdf4',
-              color:'#16a34a',
-              fontWeight:700,
-              fontSize:'1.2rem',
-              padding:'0.8rem',
-              borderRadius:'8px',
-              border:'2px solid #16a34a',
-              textAlign:'center',
-              marginTop:'0.3rem',
-              width: '200px',
-              margin: desktopLayout ? '0.3rem auto 0' : '0.3rem 0 0',
-              height: '2.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              {invoiceTotal ? `R ${invoiceTotal}` : 'R 0.00'}
-            </div>
-          </div>
         </div>
       </div>
 
