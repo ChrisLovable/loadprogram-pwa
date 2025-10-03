@@ -27,6 +27,7 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
   const [pdfImages, setPdfImages] = useState<{[key: number]: string}>({});
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   // Function to create a visual representation of PDF data
   const createPdfPreview = async (invoice: Invoice): Promise<string> => {
@@ -548,13 +549,24 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
                       <img
                         src={pdfImages[invoice.id]}
                         alt={`Invoice ${invoice.invoice_number}`}
+                        onClick={() => setEnlargedImage(pdfImages[invoice.id])}
                         style={{
                           width: '90%',
                           maxWidth: '90%',
                           height: 'auto',
                           borderRadius: '8px',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                          border: '1px solid #e5e7eb'
+                          border: '1px solid #e5e7eb',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = 'scale(1.02)';
+                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
                         }}
                       />
                     </div>
@@ -584,6 +596,66 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
           )}
         </div>
       </div>
+      
+      {/* Enlarged Image Modal */}
+      {enlargedImage && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.95)',
+          zIndex: 7000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }} onClick={() => setEnlargedImage(null)}>
+          <div style={{
+            position: 'relative',
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            background: '#fff',
+            borderRadius: '12px',
+            padding: '20px',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.5)'
+          }} onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setEnlargedImage(null)}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'rgba(239, 68, 68, 0.9)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5rem',
+                color: 'white',
+                cursor: 'pointer',
+                zIndex: 10
+              }}
+            >
+              ×
+            </button>
+            <img
+              src={enlargedImage}
+              alt="Enlarged Invoice"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                borderRadius: '8px',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

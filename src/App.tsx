@@ -454,45 +454,105 @@ function App() {
   // Enhanced search handler
   const handleDashboardSearch = () => {
     setSearchLoading(true);
+    console.log('🔍 Starting search with filters:', {
+      searchInvoice,
+      searchSender,
+      searchReceiver,
+      searchTruckReg,
+      searchDriver,
+      tripDateFilter,
+      invoiceDateFilter
+    });
+    console.log('📊 Total loads available:', loads.length);
+    console.log('📋 Sample load structure:', loads[0]);
+    
     setTimeout(() => { // Simulate loading
-      let results = loads;
+      let results = [...loads]; // Create a copy to avoid mutating original
+      
+      console.log('🔍 Initial results count:', results.length);
+      
       if (searchInvoice.trim()) {
-        results = results.filter(l =>
-          l.parsed_data?.invoice?.invoiceNumber?.toLowerCase().includes(searchInvoice.trim().toLowerCase())
-        );
+        const beforeCount = results.length;
+        results = results.filter(l => {
+          const invoiceNumber = l.parsed_data?.invoice?.invoiceNumber || l.invoice_number || '';
+          const matches = invoiceNumber.toLowerCase().includes(searchInvoice.trim().toLowerCase());
+          if (matches) console.log('✅ Invoice match:', invoiceNumber);
+          return matches;
+        });
+        console.log(`🔍 After invoice filter (${searchInvoice}): ${beforeCount} → ${results.length}`);
       }
+      
       if (searchSender.trim()) {
-        results = results.filter(l =>
-          l.parsed_data?.sender?.toLowerCase().includes(searchSender.trim().toLowerCase())
-        );
+        const beforeCount = results.length;
+        results = results.filter(l => {
+          const sender = l.parsed_data?.sender || l.sender || '';
+          const matches = sender.toLowerCase().includes(searchSender.trim().toLowerCase());
+          if (matches) console.log('✅ Sender match:', sender);
+          return matches;
+        });
+        console.log(`🔍 After sender filter (${searchSender}): ${beforeCount} → ${results.length}`);
       }
+      
       if (searchReceiver.trim()) {
-        results = results.filter(l =>
-          l.parsed_data?.receiver?.toLowerCase().includes(searchReceiver.trim().toLowerCase())
-        );
+        const beforeCount = results.length;
+        results = results.filter(l => {
+          const receiver = l.parsed_data?.receiver || l.receiver || '';
+          const matches = receiver.toLowerCase().includes(searchReceiver.trim().toLowerCase());
+          if (matches) console.log('✅ Receiver match:', receiver);
+          return matches;
+        });
+        console.log(`🔍 After receiver filter (${searchReceiver}): ${beforeCount} → ${results.length}`);
       }
+      
       if (searchTruckReg.trim()) {
-        results = results.filter(l =>
-          l.parsed_data?.truckReg?.toLowerCase().includes(searchTruckReg.trim().toLowerCase())
-        );
+        const beforeCount = results.length;
+        results = results.filter(l => {
+          const truckReg = l.parsed_data?.truckReg || l.truck_reg || '';
+          const matches = truckReg.toLowerCase().includes(searchTruckReg.trim().toLowerCase());
+          if (matches) console.log('✅ Truck Reg match:', truckReg);
+          return matches;
+        });
+        console.log(`🔍 After truck reg filter (${searchTruckReg}): ${beforeCount} → ${results.length}`);
       }
+      
       if (searchDriver.trim()) {
-        results = results.filter(l =>
-          l.driver_name?.toLowerCase().includes(searchDriver.trim().toLowerCase())
-        );
+        const beforeCount = results.length;
+        results = results.filter(l => {
+          const driver = l.driver_name || '';
+          const matches = driver.toLowerCase().includes(searchDriver.trim().toLowerCase());
+          if (matches) console.log('✅ Driver match:', driver);
+          return matches;
+        });
+        console.log(`🔍 After driver filter (${searchDriver}): ${beforeCount} → ${results.length}`);
       }
+      
       // Trip Date filter
       if (tripDateFilter !== 'all' && (tripDateFilter === 'custom' ? (tripDateRange.from || tripDateRange.to) : true)) {
-        results = results.filter(l =>
-          isDateInRange(l.parsed_data?.date, tripDateFilter, tripDateRange)
-        );
+        const beforeCount = results.length;
+        results = results.filter(l => {
+          const tripDate = l.parsed_data?.date || l.date || '';
+          const matches = isDateInRange(tripDate, tripDateFilter, tripDateRange);
+          if (matches) console.log('✅ Trip date match:', tripDate);
+          return matches;
+        });
+        console.log(`🔍 After trip date filter (${tripDateFilter}): ${beforeCount} → ${results.length}`);
       }
+      
       // Invoice Date filter
       if (invoiceDateFilter !== 'all' && (invoiceDateFilter === 'custom' ? (invoiceDateRange.from || invoiceDateRange.to) : true)) {
-        results = results.filter(l =>
-          isDateInRange(l.parsed_data?.invoice?.invoiceDate, invoiceDateFilter, invoiceDateRange)
-        );
+        const beforeCount = results.length;
+        results = results.filter(l => {
+          const invoiceDate = l.parsed_data?.invoice?.invoiceDate || l.pdf_invoice_generated_at || '';
+          const matches = isDateInRange(invoiceDate, invoiceDateFilter, invoiceDateRange);
+          if (matches) console.log('✅ Invoice date match:', invoiceDate);
+          return matches;
+        });
+        console.log(`🔍 After invoice date filter (${invoiceDateFilter}): ${beforeCount} → ${results.length}`);
       }
+      
+      console.log('🎯 Final search results:', results.length, 'loads found');
+      console.log('📋 Final results:', results);
+      
       setDashboardResults(results);
       setSearchLoading(false);
     }, 400);
@@ -1034,7 +1094,8 @@ function App() {
             height: 'auto',
             display: 'block',
             objectFit: 'contain',
-            margin: '0 auto'
+            margin: '0 auto',
+            borderRadius: '20px'
           }}
           onError={(e) => {
             console.log('Banner image failed to load');

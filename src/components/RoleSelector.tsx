@@ -117,7 +117,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 borderRadius: '20px',
                 padding: '0.6rem 0.8rem',
                 fontWeight: 900,
-                fontSize: '0.9rem',
+                fontSize: '1rem',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 opacity: isDisabled ? 0.5 : 1,
@@ -191,7 +191,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.9rem',
+                  fontSize: '1rem',
                   fontWeight: 700,
                 }}>{queueCounts[role.key]}</span>
               )}
@@ -211,13 +211,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummariesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(14, 165, 233, 0.8) 50%, rgba(37, 99, 235, 0.9) 100%)',
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(34, 197, 94, 0.8) 50%, rgba(22, 163, 74, 0.9) 100%)',
             color: 'white',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
             padding: '0.3rem 0.5rem',
             fontWeight: 900,
-            fontSize: '0.75rem',
+            fontSize: '0.85rem',
             cursor: 'pointer',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
@@ -233,7 +233,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '50px',
+            height: '70px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)'
           }}
@@ -247,7 +247,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 -4px 8px rgba(0,0,0,0.4),
               inset 0 0 30px rgba(255,255,255,0.2),
               0 0 0 3px rgba(255,255,255,0.25),
-              0 0 30px rgba(37, 99, 235, 0.4)
+              0 0 30px rgba(34, 197, 94, 0.4)
             `;
             e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
           }}
@@ -282,7 +282,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             borderRadius: '16px',
             padding: '0.3rem 0.5rem',
             fontWeight: 900,
-            fontSize: '0.75rem',
+            fontSize: '0.85rem',
             cursor: 'pointer',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
@@ -298,7 +298,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '50px',
+            height: '70px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)'
           }}
@@ -352,7 +352,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             borderRadius: '16px',
             padding: '0.3rem 0.5rem',
             fontWeight: 900,
-            fontSize: '0.75rem',
+            fontSize: '0.85rem',
             cursor: 'pointer',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
@@ -368,7 +368,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '50px',
+            height: '70px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)'
           }}
@@ -415,7 +415,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             borderRadius: '16px',
             padding: '0.3rem 0.5rem',
             fontWeight: 900,
-            fontSize: '0.75rem',
+            fontSize: '0.85rem',
             cursor: 'pointer',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
@@ -431,7 +431,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '50px',
+            height: '70px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)'
           }}
