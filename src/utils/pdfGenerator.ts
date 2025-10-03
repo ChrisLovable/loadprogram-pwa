@@ -399,19 +399,19 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
       doc.text(row.value, summaryX + 37, y);
     });
     
-    // Signature section
-    const sigY = summaryY + (summaryData.length * rowHeight) + 15;
+    // Signature section (compact)
+    const sigY = summaryY + (summaryData.length * rowHeight) + 10;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.text('Received in good order', 20, sigY);
-    doc.text('Signed _________', 20, sigY + 10);
-    doc.text('Date _________', 110, sigY + 10);
+    doc.text('Signed _________', 20, sigY + 8);
+    doc.text('Date _________', 110, sigY + 8);
     
-    // Bank Details (Modern 3D Design)
-    const bankY = sigY + 25;
+    // Bank Details (compact design)
+    const bankY = sigY + 18;
     const bankTableWidth = 100;
-    const bankTableHeight = 35;
-    const bankRowHeight = 6;
+    const bankTableHeight = 25; // Reduced height
+    const bankRowHeight = 5; // Reduced row height
 
     // Create shadow for 3D effect
     doc.setDrawColor(140, 140, 140); // Shadow border
@@ -428,17 +428,17 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     doc.rect(21, bankY + 1, bankTableWidth - 2, bankTableHeight - 2);
 
     // Modern header with accent
-    doc.setFontSize(10);
+    doc.setFontSize(9); // Slightly smaller
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(30, 30, 30); // Darker text for contrast
-    doc.text('Bankbesonderhede:', 22, bankY + 6);
+    doc.text('Bankbesonderhede:', 22, bankY + 5);
 
     // Add accent line under header
     doc.setDrawColor(70, 130, 180); // Steel blue accent
     doc.setLineWidth(0.8);
-    doc.line(22, bankY + 8, 22 + bankTableWidth - 2, bankY + 8);
+    doc.line(22, bankY + 6, 22 + bankTableWidth - 2, bankY + 6);
 
-    // Bank details in table format
+    // Bank details in table format (compact)
     const bankDetails = [
       { label: 'Bank:', value: 'Standard Bank' },
       { label: 'Branch:', value: 'Tak 055436' },
@@ -446,11 +446,11 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
       { label: 'Type:', value: 'Tjek' }
     ];
 
-    doc.setFontSize(8);
+    doc.setFontSize(7); // Smaller font
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(50, 50, 50); // Darker text
 
-    let bankTextY = bankY + 12;
+    let bankTextY = bankY + 9;
     bankDetails.forEach((detail) => {
       // Label (left column)
       doc.setFont('helvetica', 'bold');
@@ -463,6 +463,14 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
       bankTextY += bankRowHeight;
     });
     
+    // Calculate the actual content height to minimize white space
+    const contentHeight = bankY + bankTableHeight + 10; // Add small margin
+    
+    // Set page size to fit content (remove excess white space)
+    if (contentHeight < 297) {
+      doc.internal.pageSize.height = contentHeight;
+    }
+    
     // Generate filename
     const fileName = `Tax_Invoice_${Date.now()}.pdf`;
     
@@ -472,6 +480,7 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     // Save to downloads
     doc.save(fileName);
     console.log('✅ PDF SAVED:', fileName);
+    console.log('📏 Content height:', contentHeight, 'mm');
     
     return {
       pdfData,
