@@ -310,16 +310,16 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
         }}>
           <div style={{fontWeight:700,marginBottom:'0.5rem',fontSize:'1.05rem',color:'#2563eb'}}>💰 First Approver Calculation</div>
           
-          <div style={{display:'flex',gap:'1rem',justifyContent:'flex-start',marginBottom:'1rem'}}>
+          <div style={{display:'flex',gap:'0.8rem',justifyContent:'flex-start',marginBottom:'1rem'}}>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>Subtotal</div>
-              <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
+              <div style={{...inputStyle,width:'90px',background:'#f0f4ff',color:'#4f8cff',fontWeight:700,textAlign:'center',border:'1px solid #4f8cff',borderRadius:'6px'}}>
                 {getField('subtotal') ? formatCurrency(Number(getField('subtotal'))) : '0.00'}
               </div>
             </div>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>VAT (15%)</div>
-              <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
+              <div style={{...inputStyle,width:'90px',background:'#fff4e6',color:'#ff8c00',fontWeight:700,textAlign:'center',border:'1px solid #ff8c00',borderRadius:'6px'}}>
                 {getField('vat') ? formatCurrency(Number(getField('vat'))) : '0.00'}
               </div>
             </div>
