@@ -192,7 +192,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummariesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(34, 197, 94, 0.8) 50%, rgba(22, 163, 74, 0.9) 100%)',
+            background: '#16a34a',
             color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
@@ -233,7 +233,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onDashboardClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(236, 72, 153, 0.8) 50%, rgba(190, 24, 93, 0.9) 100%)',
+            background: '#be185d',
             color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
@@ -281,7 +281,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummaryClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(168, 85, 247, 0.8) 50%, rgba(124, 58, 237, 0.9) 100%)',
+            background: '#7c3aed',
             color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
@@ -322,7 +322,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onInvoicesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(251, 191, 36, 0.8) 50%, rgba(217, 119, 6, 0.9) 100%)',
+            background: '#d97706',
             color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
@@ -370,7 +370,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           type="button"
           onClick={onLogout}
           style={{
-            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(239, 68, 68, 0.8) 50%, rgba(220, 38, 38, 0.9) 100%)',
+            background: '#dc2626',
             color: '#000000',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
