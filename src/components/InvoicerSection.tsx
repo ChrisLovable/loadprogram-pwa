@@ -69,9 +69,10 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
     // Set subtotal from calculations using exact same getField function - always carry over from load details
     const subtotalValue = getField('subtotal');
     if (subtotalValue && subtotalValue !== '-') {
-      setInvoiceSubtotal(formatCurrency(parseFloat(subtotalValue)))
+      const formattedValue = formatCurrency(parseFloat(subtotalValue));
+      setInvoiceSubtotal(formattedValue);
     }
-  }, [load?.parsed_data, firstApprovalData])
+  }, [load?.parsed_data, firstApprovalData, load])
 
   // Debug: Log the load data
   console.log('Invoicer received load:', load)
@@ -714,23 +715,49 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
             <div>
               <div style={labelStyle}>Invoice Subtotal</div>
-              <input 
-                type="number" 
-                step="0.01" 
-                value={invoiceSubtotal} 
-                onChange={e => setInvoiceSubtotal(e.target.value)} 
-                style={{
-                  padding:'0.6rem',
-                  borderRadius:'6px',
-                  border:'1px solid #333',
-                  fontSize:'1rem',
-                  background:'#f7fafd',
-                  textAlign:'center',
-                  width: desktopLayout ? '160px' : '120px'
-                }} 
-                placeholder=""
-                required 
-              />
+              <div style={{
+                background:'#eff6ff',
+                color:'#3b82f6',
+                fontWeight:700,
+                fontSize:'1.2rem',
+                padding:'0.8rem',
+                borderRadius:'8px',
+                border:'2px solid #3b82f6',
+                textAlign:'center',
+                marginTop:'0.3rem',
+                width: desktopLayout ? '160px' : '120px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span style={{ color: '#3b82f6', fontWeight: 700, fontSize: '1.2rem' }}>R </span>
+                <input
+                  type="text"
+                  value={invoiceSubtotal.replace(/[R,\s]/g, '')}
+                  onChange={e => {
+                    const rawValue = e.target.value.replace(/[R,\s]/g, '');
+                    const parsedValue = parseFloat(rawValue);
+                    if (!isNaN(parsedValue)) {
+                      setInvoiceSubtotal(formatCurrency(parsedValue));
+                    } else if (rawValue === '') {
+                      setInvoiceSubtotal('');
+                    }
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    color: '#3b82f6',
+                    fontWeight: 700,
+                    fontSize: '1.2rem',
+                    textAlign: 'center',
+                    flexGrow: 1,
+                    minWidth: '0'
+                  }}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
             </div>
             <div>
               <div style={labelStyle}>VAT (15%)</div>
