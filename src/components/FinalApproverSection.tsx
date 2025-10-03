@@ -253,20 +253,39 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
         <div style={{display:'flex',flexDirection:'column',gap:'0.7rem',marginBottom:'0.7rem'}}>
           <div style={{textAlign:'left'}}>
             <div style={labelStyle}>Invoice Subtotal</div>
-            <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'left',border:'1px solid #333',borderRadius:'6px',minHeight:'2.5rem'}}>
+            <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'left',border:'1px solid #4f8cff',borderRadius:'6px',minHeight:'2.5rem'}}>
               {invoiceData?.invoiceSubtotal ? formatCurrency(parseFloat(invoiceData.invoiceSubtotal)) : '-'}
             </div>
           </div>
           <div style={{textAlign:'left'}}>
             <div style={labelStyle}>Discount</div>
-            <div style={{...inputStyle,width:'100px',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'left',border:'1px solid #333',borderRadius:'6px',minHeight:'2.5rem'}}>
+            <div style={{...inputStyle,width:'100px',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'left',border:'1px solid #dc2626',borderRadius:'6px',minHeight:'2.5rem'}}>
               {load?.first_approval?.discount ? `${load.first_approval.discount}%` : (invoiceData?.invoiceDiscount ? `${invoiceData.invoiceDiscount}%` : '')}
             </div>
           </div>
           <div style={{textAlign:'left'}}>
+            <div style={labelStyle}>Subtotal after discount</div>
+            <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'left',border:'1px solid #4f8cff',borderRadius:'6px',minHeight:'2.5rem'}}>
+              {(() => {
+                const subtotal = invoiceData?.invoiceSubtotal ? parseFloat(invoiceData.invoiceSubtotal.toString()) : 0;
+                const discountPercent = load?.first_approval?.discount ? parseFloat(load.first_approval.discount.toString()) : (invoiceData?.invoiceDiscount ? parseFloat(invoiceData.invoiceDiscount.toString()) : 0);
+                const discountAmount = subtotal * (discountPercent / 100);
+                const subtotalAfterDiscount = subtotal - discountAmount;
+                return subtotalAfterDiscount > 0 ? formatCurrency(subtotalAfterDiscount) : '-';
+              })()}
+            </div>
+          </div>
+          <div style={{textAlign:'left'}}>
             <div style={labelStyle}>Invoice VAT</div>
-            <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'left',border:'1px solid #333',borderRadius:'6px',minHeight:'2.5rem'}}>
-              {invoiceData?.invoiceVat ? formatCurrency(parseFloat(invoiceData.invoiceVat)) : '-'}
+            <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'left',border:'1px solid #ff8c00',borderRadius:'6px',minHeight:'2.5rem'}}>
+              {(() => {
+                const subtotal = invoiceData?.invoiceSubtotal ? parseFloat(invoiceData.invoiceSubtotal.toString()) : 0;
+                const discountPercent = load?.first_approval?.discount ? parseFloat(load.first_approval.discount.toString()) : (invoiceData?.invoiceDiscount ? parseFloat(invoiceData.invoiceDiscount.toString()) : 0);
+                const discountAmount = subtotal * (discountPercent / 100);
+                const subtotalAfterDiscount = subtotal - discountAmount;
+                const vatAmount = subtotalAfterDiscount * 0.15;
+                return vatAmount > 0 ? formatCurrency(vatAmount) : '-';
+              })()}
             </div>
           </div>
         </div>
@@ -283,7 +302,15 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
             textAlign:'center',
             marginTop:'0.3rem'
           }}>
-            {invoiceData?.invoiceTotal ? formatCurrency(parseFloat(invoiceData.invoiceTotal)) : '0.00'}
+            {(() => {
+              const subtotal = invoiceData?.invoiceSubtotal ? parseFloat(invoiceData.invoiceSubtotal.toString()) : 0;
+              const discountPercent = load?.first_approval?.discount ? parseFloat(load.first_approval.discount.toString()) : (invoiceData?.invoiceDiscount ? parseFloat(invoiceData.invoiceDiscount.toString()) : 0);
+              const discountAmount = subtotal * (discountPercent / 100);
+              const subtotalAfterDiscount = subtotal - discountAmount;
+              const vatAmount = subtotalAfterDiscount * 0.15;
+              const totalAmount = subtotalAfterDiscount + vatAmount;
+              return totalAmount > 0 ? formatCurrency(totalAmount) : '0.00';
+            })()}
           </div>
         </div>
       </div>
