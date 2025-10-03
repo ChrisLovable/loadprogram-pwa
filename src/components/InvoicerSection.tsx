@@ -748,7 +748,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             padding: desktopLayout ? '1rem' : '0.8rem',
             border:'1px solid #e5e7eb',
             marginBottom:'0.8rem',
-            marginTop:'300px'
+            marginTop:'350px'
           }}>
             <label style={{
               display:'flex',
@@ -774,7 +774,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           </div>
 
           {/* Invoice Total - Aligned with VAT field */}
-          <div style={{textAlign:'center',marginBottom:'0.8rem',marginTop:'380px'}}>
+          <div style={{textAlign:'center',marginBottom:'0.8rem',marginTop:'40px'}}>
             <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>INVOICE TOTAL</div>
             <div style={{
               background:'#f0fdf4',
