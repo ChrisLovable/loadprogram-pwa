@@ -26,7 +26,6 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
-  const [pdfImages, setPdfImages] = useState<{[key: number]: string}>({});
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   // Function to create a visual representation of PDF data
@@ -189,7 +188,7 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
             }
           });
 
-          setPdfImages(imagesMap);
+          // PDF images are no longer used in the compact design
         }
       } catch (error) {
         console.error('Error loading invoices:', error);
@@ -599,122 +598,172 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
                     </div>
                   </div>
 
-                  {/* Card Body */}
-                  <div style={{ padding: '1.5rem' }}>
-                    {/* PDF Preview */}
-                    {pdfImages[invoice.id] && (
-                      <div style={{
-                        marginBottom: '1.5rem',
-                        borderRadius: '12px',
-                        overflow: 'hidden',
-                        boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
-                      }}>
-                        <img
-                          src={pdfImages[invoice.id]}
-                          alt={`Invoice ${invoice.invoice_number}`}
-                          onClick={() => setEnlargedImage(pdfImages[invoice.id])}
-                          style={{
-                            width: '100%',
-                            height: 'auto',
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s ease'
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.02)';
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    {/* Invoice Summary Cards */}
+                  {/* Card Body - Compact Design */}
+                  <div style={{ padding: '1rem' }}>
+                    {/* Compact Invoice Details */}
                     <div style={{
                       display: 'grid',
                       gridTemplateColumns: isDesktop ? 'repeat(3, 1fr)' : '1fr',
-                      gap: '1rem'
+                      gap: '0.75rem',
+                      marginBottom: '0.75rem'
                     }}>
-                      {/* Sender Card */}
+                      {/* Invoice Info Card */}
                       <div style={{
                         background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-                        borderRadius: '12px',
-                        padding: '1rem',
+                        borderRadius: '8px',
+                        padding: '0.75rem',
                         border: '1px solid #bae6fd',
                         textAlign: 'center'
                       }}>
                         <div style={{
-                          fontSize: '0.8rem',
+                          fontSize: '0.7rem',
                           fontWeight: 600,
                           color: '#0369a1',
-                          marginBottom: '0.5rem',
+                          marginBottom: '0.25rem',
                           textTransform: 'uppercase',
                           letterSpacing: '0.5px'
                         }}>
-                          📤 From
+                          📄 Invoice
                         </div>
                         <div style={{
-                          fontSize: '1rem',
+                          fontSize: '0.9rem',
                           fontWeight: 700,
-                          color: '#0c4a6e',
-                          wordBreak: 'break-word'
+                          color: '#0c4a6e'
                         }}>
-                          {invoice.sender || 'N/A'}
+                          #{invoice.invoice_number}
+                        </div>
+                        <div style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: '#0369a1',
+                          marginTop: '0.25rem'
+                        }}>
+                          {new Date(invoice.pdf_invoice_generated_at).toLocaleDateString()}
                         </div>
                       </div>
 
-                      {/* Receiver Card */}
+                      {/* Truck Info Card */}
                       <div style={{
                         background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-                        borderRadius: '12px',
-                        padding: '1rem',
+                        borderRadius: '8px',
+                        padding: '0.75rem',
                         border: '1px solid #bbf7d0',
                         textAlign: 'center'
                       }}>
                         <div style={{
-                          fontSize: '0.8rem',
+                          fontSize: '0.7rem',
                           fontWeight: 600,
                           color: '#166534',
-                          marginBottom: '0.5rem',
+                          marginBottom: '0.25rem',
                           textTransform: 'uppercase',
                           letterSpacing: '0.5px'
                         }}>
-                          📥 To
+                          🚛 Truck
                         </div>
                         <div style={{
-                          fontSize: '1rem',
+                          fontSize: '0.9rem',
                           fontWeight: 700,
-                          color: '#14532d',
-                          wordBreak: 'break-word'
+                          color: '#14532d'
                         }}>
-                          {invoice.receiver || 'N/A'}
+                          {invoice.truck_reg || 'N/A'}
+                        </div>
+                        <div style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 500,
+                          color: '#166534',
+                          marginTop: '0.25rem'
+                        }}>
+                          {invoice.debtor_name || 'N/A'}
                         </div>
                       </div>
 
                       {/* Total Card */}
                       <div style={{
                         background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                        borderRadius: '12px',
-                        padding: '1rem',
+                        borderRadius: '8px',
+                        padding: '0.75rem',
                         border: '1px solid #f59e0b',
                         textAlign: 'center'
                       }}>
                         <div style={{
-                          fontSize: '0.8rem',
+                          fontSize: '0.7rem',
                           fontWeight: 600,
                           color: '#92400e',
-                          marginBottom: '0.5rem',
+                          marginBottom: '0.25rem',
                           textTransform: 'uppercase',
                           letterSpacing: '0.5px'
                         }}>
                           💰 Total
                         </div>
                         <div style={{
-                          fontSize: '1.2rem',
+                          fontSize: '1.1rem',
                           fontWeight: 800,
                           color: '#78350f'
                         }}>
                           {invoice.total ? `R${invoice.total.toLocaleString()}` : 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Route Info */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: isDesktop ? 'repeat(2, 1fr)' : '1fr',
+                      gap: '0.75rem'
+                    }}>
+                      {/* From Card */}
+                      <div style={{
+                        background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                        borderRadius: '8px',
+                        padding: '0.75rem',
+                        border: '1px solid #fecaca',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                          color: '#dc2626',
+                          marginBottom: '0.25rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          📤 From
+                        </div>
+                        <div style={{
+                          fontSize: '0.9rem',
+                          fontWeight: 700,
+                          color: '#991b1b',
+                          wordBreak: 'break-word'
+                        }}>
+                          {invoice.sender || 'N/A'}
+                        </div>
+                      </div>
+
+                      {/* To Card */}
+                      <div style={{
+                        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                        borderRadius: '8px',
+                        padding: '0.75rem',
+                        border: '1px solid #bbf7d0',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                          color: '#166534',
+                          marginBottom: '0.25rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          📥 To
+                        </div>
+                        <div style={{
+                          fontSize: '0.9rem',
+                          fontWeight: 700,
+                          color: '#14532d',
+                          wordBreak: 'break-word'
+                        }}>
+                          {invoice.receiver || 'N/A'}
                         </div>
                       </div>
                     </div>

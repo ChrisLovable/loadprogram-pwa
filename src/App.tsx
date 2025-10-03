@@ -1066,9 +1066,9 @@ function App() {
                         <span>Invoice Date: <b>{load?.parsed_data?.invoice?.invoiceDate || '-'}</b></span>
                         <span>Invoice Number: <b>{load?.parsed_data?.invoice?.invoiceNumber || '-'}</b></span>
                         <span>Debtor: <b>{load?.parsed_data?.invoice?.invoiceMadeOutTo || '-'}</b></span>
-                        <span>Invoice Subtotal: <b>R {load?.parsed_data?.invoice?.invoiceSubtotal || '-'}</b></span>
-                        <span>Invoice VAT: <b>R {load?.parsed_data?.invoice?.invoiceVat || '-'}</b></span>
-                        <span>Invoice Total: <b>R {load?.parsed_data?.invoice?.invoiceTotal || '-'}</b></span>
+                        <span>Invoice Subtotal: <b>R {load?.parsed_data?.invoice?.invoiceSubtotal ? Number(load.parsed_data.invoice.invoiceSubtotal).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</b></span>
+                        <span>Invoice VAT: <b>R {load?.parsed_data?.invoice?.invoiceVat ? Number(load.parsed_data.invoice.invoiceVat).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</b></span>
+                        <span>Invoice Total: <b>R {load?.parsed_data?.invoice?.invoiceTotal ? Number(load.parsed_data.invoice.invoiceTotal).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</b></span>
                         <span>Invoice Sent: <b>{load?.parsed_data?.invoice?.invoiceSent ? 'Yes' : 'No'}</b></span>
                       </div>
                     </div>
