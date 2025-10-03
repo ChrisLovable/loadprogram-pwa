@@ -278,7 +278,7 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
             <div>
               <div style={labelStyle}>Rate / Animal</div>
               <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('ratePerAnimal') ? `R ${formatCurrency(Number(getField('ratePerAnimal')))}` : ''}
+                {getField('ratePerAnimal') && getField('ratePerAnimal') !== '-' ? `R ${formatCurrency(Number(getField('ratePerAnimal')))}` : ''}
               </div>
             </div>
           </div>
@@ -289,13 +289,13 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
             <div>
               <div style={labelStyle}>Running KMs</div>
               <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('runningKms') ? Math.round(Number(getField('runningKms'))) : ''}
+                {getField('runningKms') && getField('runningKms') !== '-' ? Math.round(Number(getField('runningKms'))) : ''}
               </div>
             </div>
             <div>
               <div style={labelStyle}>Rate/Km</div>
               <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('runningKmRate') ? `R ${formatCurrency(Number(getField('runningKmRate')))}` : ''}
+                {getField('runningKmRate') && getField('runningKmRate') !== '-' ? `R ${formatCurrency(Number(getField('runningKmRate')))}` : ''}
               </div>
             </div>
           </div>
