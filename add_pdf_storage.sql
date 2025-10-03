@@ -21,3 +21,4 @@ COMMENT ON COLUMN loads.invoice_number IS 'Invoice number for searching';
 COMMENT ON COLUMN loads.debtor_name IS 'Debtor/client name for searching';
 
 
+
