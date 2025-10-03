@@ -17,5 +17,13 @@ export interface Load {
   ocr_data?: any
   created_at: string
   updated_at: string
+  // Additional fields that are actually stored in the database
+  sender?: string
+  receiver?: string
+  date?: string
+  truck_reg?: string
+  trailer_reg?: string
+  parsed_data?: any
+  parsed_table?: any
 }
 

@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.0",
+    "html2pdf.js": "^0.12.1",
     "jspdf": "^3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tesseract.js": "^5.1.1"
+    "tesseract.js": "^5.1.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
@@ -23,3 +25,6 @@
     "vite": "^5.0.8"
   }
 }
+
+
+

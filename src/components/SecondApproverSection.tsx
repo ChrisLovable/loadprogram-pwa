@@ -11,6 +11,14 @@ const inputStyle = { width: '100%', padding: '0.6rem', borderRadius: '8px', bord
 const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onApprovalComplete }) => {
   const [comments, setComments] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  // Currency formatting function
+  const formatCurrency = (value: number): string => {
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+  }
   const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
 
   // Load first approval data from localStorage
@@ -105,9 +113,6 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
 
   return (
     <form onSubmit={handleSubmit} className="approver-form">
-      {currentUser.role === 'second_approver' && currentUser.name && (
-        <div style={{fontSize:'0.98rem',color:'#0284c7',fontWeight:600,marginBottom:'0.5rem'}}>Approved by: {currentUser.name}</div>
-      )}
       {/* Sender and Receiver */}
       <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
         <div>
@@ -127,26 +132,26 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
       {Array.isArray(load?.parsed_table) && load.parsed_table.filter((row: any) => Object.values(row).some((v: any) => v && v !== '')).length > 0 && (
         <div style={{marginBottom:'0.7rem'}}>
           <div style={labelStyle}>Descriptions Table</div>
-          <table style={{width:'100%',borderCollapse:'collapse',background:'#f7fafd',borderRadius:'8px',overflow:'hidden',boxShadow:'0 1px 4px rgba(79,140,255,0.07)',fontSize:'0.75rem'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',background:'#ffffff',borderRadius:'8px',overflow:'hidden',boxShadow:'0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)',fontSize:'0.75rem'}}>
             <thead>
-              <tr style={{background:'#e3f6f5',color:'#38d39f',fontWeight:700}}>
-                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db'}}>No</th>
-                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db'}}>Description</th>
-                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db'}}>Mass</th>
-                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db'}}>Volume</th>
-                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db'}}>R</th>
-                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db'}}>C</th>
+              <tr style={{background:'#ffffff',color:'#38d39f',fontWeight:700}}>
+                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',background:'#ffffff'}}>No</th>
+                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',background:'#ffffff'}}>Description</th>
+                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',background:'#ffffff'}}>Mass</th>
+                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',background:'#ffffff'}}>Volume</th>
+                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',background:'#ffffff'}}>R</th>
+                <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',background:'#ffffff'}}>C</th>
               </tr>
             </thead>
             <tbody>
               {load.parsed_table.filter((row: any) => Object.values(row).some((v: any) => v && v !== '')).map((row: any, i: number) => (
-                <tr key={i} style={{textAlign:'center',fontWeight:600,color:'#333'}}>
-                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>{row.packages}</td>
-                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>{row.description}</td>
-                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>{row.gross}</td>
-                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>{row.volume}</td>
-                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>{row.r}</td>
-                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>{row.c}</td>
+                <tr key={i} style={{textAlign:'center',fontWeight:600,color:'#333',background:'#ffffff'}}>
+                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>{row.packages}</td>
+                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>{row.description}</td>
+                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>{row.gross}</td>
+                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>{row.volume}</td>
+                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>{row.r}</td>
+                  <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>{row.c}</td>
                 </tr>
               ))}
             </tbody>
@@ -162,13 +167,13 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
           <div>
             <div style={labelStyle}>Trip KM</div>
             <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {getField('tripKm') ? Number(getField('tripKm')).toFixed(2) : '-'}
+              {getField('tripKm') ? Math.round(Number(getField('tripKm'))) : ''}
             </div>
           </div>
           <div>
             <div style={labelStyle}>Rate per KM</div>
             <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {getField('rate') ? Number(getField('rate')).toFixed(2) : '-'}
+              {getField('rate') ? `R ${formatCurrency(Number(getField('rate')))}` : ''}
             </div>
           </div>
         </div>
@@ -178,13 +183,13 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
             <div>
               <div style={labelStyle}># Animals</div>
               <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('totalAnimals') ? Number(getField('totalAnimals')).toFixed(2) : '-'}
+                {getField('totalAnimals') ? Math.round(Number(getField('totalAnimals'))) : ''}
               </div>
             </div>
             <div>
               <div style={labelStyle}>Rate / Animal</div>
               <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('ratePerAnimal') ? Number(getField('ratePerAnimal')).toFixed(2) : '-'}
+                {getField('ratePerAnimal') ? `R ${formatCurrency(Number(getField('ratePerAnimal')))}` : ''}
               </div>
             </div>
           </div>
@@ -195,13 +200,13 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
             <div>
               <div style={labelStyle}>Running KMs</div>
               <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('runningKms') ? Number(getField('runningKms')).toFixed(2) : '-'}
+                {getField('runningKms') ? Math.round(Number(getField('runningKms'))) : ''}
               </div>
             </div>
             <div>
-              <div style={labelStyle}>Running KM Rate</div>
+              <div style={labelStyle}>Rate/Km</div>
               <div style={{...inputStyle,width:'100px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('runningKmRate') ? Number(getField('runningKmRate')).toFixed(2) : '-'}
+                {getField('runningKmRate') ? `R ${formatCurrency(Number(getField('runningKmRate')))}` : ''}
               </div>
             </div>
           </div>
@@ -220,13 +225,13 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>Subtotal</div>
               <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('subtotal') ? Number(getField('subtotal')).toFixed(2) : 'R 0.00'}
+                {getField('subtotal') ? formatCurrency(Number(getField('subtotal'))) : '0.00'}
               </div>
             </div>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>VAT (15%)</div>
               <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-                {getField('vat') ? Number(getField('vat')).toFixed(2) : 'R 0.00'}
+                {getField('vat') ? formatCurrency(Number(getField('vat'))) : '0.00'}
               </div>
             </div>
           </div>
@@ -244,7 +249,7 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
               textAlign:'center',
               marginTop:'0.3rem'
             }}>
-              {getField('total') ? Number(getField('total')).toFixed(2) : 'R 0.00'}
+              {getField('total') ? formatCurrency(Number(getField('total'))) : '0.00'}
             </div>
           </div>
         </div>
@@ -291,6 +296,94 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
       >
         {submitting ? '⏳ Submitting...' : '✅ Submit & Approve'}
       </button>
+
+      {/* Photo Thumbnails */}
+      {load.photos && load.photos.length > 0 && (
+        <div style={{
+          marginTop: '1rem',
+          padding: '1rem',
+          background: '#f8fafc',
+          borderRadius: '8px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <div style={{
+            fontSize: '0.9rem',
+            fontWeight: 600,
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>
+            📸 Document Photos ({load.photos.length})
+          </div>
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-start'
+          }}>
+            {load.photos.map((photoUrl: string, i: number) => (
+              <img
+                key={`${load.id}-photo-${i}`}
+                src={photoUrl}
+                alt={`Document ${i+1}`}
+                style={{
+                  width: 60,
+                  height: 60,
+                  objectFit: 'cover',
+                  borderRadius: '8px',
+                  border: '2px solid #d1d5db',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+                onClick={() => {
+                  // Create modal for expanded view
+                  const modal = document.createElement('div');
+                  modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    cursor: pointer;
+                  `;
+                  
+                  const img = document.createElement('img');
+                  img.src = photoUrl;
+                  img.style.cssText = `
+                    max-width: 90%;
+                    max-height: 90%;
+                    object-fit: contain;
+                    border-radius: 8px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                  `;
+                  
+                  modal.appendChild(img);
+                  document.body.appendChild(modal);
+                  
+                  modal.onclick = () => {
+                    document.body.removeChild(modal);
+                  };
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.borderColor = '#3b82f6';
+                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </form>
   )
 }

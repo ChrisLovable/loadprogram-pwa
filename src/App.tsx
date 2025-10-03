@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import * as XLSX from 'xlsx'
 import DriverSection from './components/DriverSection'
 import FirstApproverSection from './components/FirstApproverSection'
+
 import SecondApproverSection from './components/SecondApproverSection'
 import InvoicerSection from './components/InvoicerSection'
 import FinalApproverSection from './components/FinalApproverSection'
@@ -8,6 +10,8 @@ import RoleSelector from './components/RoleSelector'
 import Dashboard from './components/Dashboard'
 import InvoiceManager from './components/InvoiceManager'
 import './App.css'
+
+
 import { supabase } from './lib/supabase';
 
 
@@ -20,8 +24,13 @@ import { supabase } from './lib/supabase';
 function App() {
   const [loads, setLoads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+
   // const [currentLoad, setCurrentLoad] = useState(DEMO_LOAD)
   const [currentRole, setCurrentRole] = useState<string | null>(null)
+  
+  // PWA Installation state
+  const [showInstallButton, setShowInstallButton] = useState(false)
+  const [installState, setInstallState] = useState<'idle' | 'installing' | 'success'>('idle')
   
   // Debug: Monitor currentRole changes
   useEffect(() => {
@@ -31,6 +40,64 @@ function App() {
       console.log('🔴 App - Driver section should be visible now');
     }
   }, [currentRole]);
+
+  // PWA Installation handling
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setShowInstallButton(true);
+    };
+
+    const handleAppInstalled = () => {
+      console.log('PWA was installed');
+      setInstallState('success');
+      setShowInstallButton(false);
+      
+      // Reset after showing success
+      setTimeout(() => {
+        setInstallState('idle');
+      }, 3000);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setShowInstallButton(false);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (installState === 'installing') return;
+    
+    setInstallState('installing');
+    
+    // Use the global function from index.html
+    if ((window as any).showInstallPrompt) {
+      (window as any).showInstallPrompt();
+    }
+  };
+
+  // Service Worker Update Check
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(registration => {
+        // Check for updates every 30 seconds
+        const updateInterval = setInterval(() => {
+          registration.update();
+        }, 30000);
+
+        // Clean up interval on unmount
+        return () => clearInterval(updateInterval);
+      });
+    }
+  }, []);
   // const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
   const [searchInvoice, setSearchInvoice] = useState('');
   const [searchSender, setSearchSender] = useState('');
@@ -50,19 +117,42 @@ function App() {
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; loadId: number | null }>({ show: false, loadId: null });
   const [showSummary, setShowSummary] = useState(false);
   const [showInvoices, setShowInvoices] = useState(false);
+  const [showInvoicerModal, setShowInvoicerModal] = useState(false);
   const [summarySortBy, setSummarySortBy] = useState<'truckReg' | 'sender' | 'receiver' | null>(null);
   const [summarySortOrder, setSummarySortOrder] = useState<'asc' | 'desc'>('asc');
   const [summaryDateRange, setSummaryDateRange] = useState({ from: '', to: '' });
 
   const loadData = async () => {
-    // Fetch loads from Supabase
-    const { data, error } = await supabase.from('loads').select('*').order('created_at', { ascending: false });
-    if (!error && data) setLoads(data);
+    setLoading(true);
+    try {
+      // Fetch loads from Supabase
+      const { data, error } = await supabase.from('loads').select('*').order('created_at', { ascending: false });
+      if (!error && data) {
+        console.log('=== PHOTO DEBUGGING ===');
+        console.log('Total loads fetched:', data.length);
+        data.forEach((load, index) => {
+          console.log(`Load ${index + 1}:`, {
+            id: load.id,
+            status: load.status,
+            photos: load.photos,
+            photosLength: load.photos ? load.photos.length : 0,
+            photosType: typeof load.photos
+          });
+        });
+        console.log('=== END PHOTO DEBUGGING ===');
+        setLoads(data);
+      } else {
+        console.error('Error fetching loads:', error);
+      }
+    } catch (err) {
+      console.error('Exception in loadData:', err);
+    }
     setLoading(false);
   };
 
   useEffect(() => {
     loadData()
+
     // Load first approval data from localStorage
     // const storedFirstApproval = localStorage.getItem('firstApprovalData')
     // if (storedFirstApproval) {
@@ -71,7 +161,20 @@ function App() {
     // Optionally add realtime subscription here
   }, [])
 
+  // Auto-open invoicer modal when loads are ready
+  useEffect(() => {
+    if (currentRole === 'invoicer' && loads.length > 0) {
+      const readyLoads = loads.filter(l => l.status === 'second_approved');
+      if (readyLoads.length > 0) {
+        console.log(`Auto-opening invoicer modal: ${readyLoads.length} loads ready`);
+        setShowInvoicerModal(true);
+      }
+    }
+  }, [currentRole, loads]);
+
   if (loading) return <div className="loading">Loading...</div>
+
+
 
   // Handle Textract completion
   const handleTextractComplete = (textractData: any) => {
@@ -177,6 +280,77 @@ function App() {
     return filteredLoads;
   };
 
+  // Export to Excel function
+  const exportToExcel = () => {
+    const data = getSortedSummaryData();
+    
+    // Prepare data for Excel
+    const excelData = data.map(load => ({
+      'Date': load?.parsed_data?.date || load?.date || '-',
+      'Truck Reg': load?.parsed_data?.truckReg || load?.truck_reg || '-',
+      'Sender': load?.parsed_data?.sender || '-',
+      'Receiver': load?.parsed_data?.receiver || '-',
+      'Trip KMs': load?.parsed_data?.tripKm || '-',
+      '# Animals': load?.parsed_data?.totalAnimals || '-',
+      'Description': load?.parsed_data?.description || 
+                   (load?.parsed_table && Array.isArray(load.parsed_table) ? 
+                    load.parsed_table.map((row: any) => row.description).filter(Boolean).join(', ') : 
+                    '-')
+    }));
+
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(excelData);
+
+    // Set column widths (autofit)
+    const colWidths = [
+      { wch: 12 }, // Date
+      { wch: 15 }, // Truck Reg
+      { wch: 25 }, // Sender
+      { wch: 25 }, // Receiver
+      { wch: 10 }, // Trip KMs
+      { wch: 12 }, // # Animals
+      { wch: 30 }  // Description
+    ];
+    ws['!cols'] = colWidths;
+
+    // Add alternating row colors (white and light green)
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let row = range.s.r + 1; row <= range.e.r; row++) { // Skip header row
+      const rowColor = row % 2 === 0 ? 'E8F5E8' : 'FFFFFF'; // Light green and white
+      for (let col = range.s.c; col <= range.e.c; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+        if (!ws[cellAddress]) ws[cellAddress] = { v: '', t: 's' };
+        ws[cellAddress].s = {
+          fill: { fgColor: { rgb: rowColor } },
+          alignment: { horizontal: 'left', vertical: 'center' }
+        };
+      }
+    }
+
+    // Style the header row
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: col });
+      if (!ws[cellAddress]) ws[cellAddress] = { v: '', t: 's' };
+      ws[cellAddress].s = {
+        fill: { fgColor: { rgb: '059669' } }, // Dark green header
+        font: { color: { rgb: 'FFFFFF' }, bold: true },
+        alignment: { horizontal: 'center', vertical: 'center' }
+      };
+    }
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Load Summary');
+
+    // Generate filename with current date
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const filename = `Load_Summary_${dateStr}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(wb, filename);
+  };
+
   // Helper for date filtering
   const isDateInRange = (dateStr: string, filter: string, range: any) => {
     if (!dateStr) return false;
@@ -267,13 +441,15 @@ function App() {
   };
 
   // Find the first load in 'uploaded' status for First Approver
+
   // const firstLoad = loads.find(l => l.status === 'uploaded') || {
   //   ...currentLoad,
   //   first_approval: firstApprovalData
   // }
 
-  
+
   return (
+
     <div className="phone-container">
       <div className="phone-screen">
         <div style={{
@@ -287,6 +463,58 @@ function App() {
           overflowY: 'auto',
           overflowX: 'hidden',
         }}>
+          
+          {/* PWA Install Button */}
+          {showInstallButton && (
+            <div style={{
+              position: 'fixed',
+              top: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 10000,
+            }}>
+              <button
+                onClick={handleInstallClick}
+                disabled={installState === 'installing'}
+                style={{
+                  background: installState === 'installing' 
+                    ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
+                    : installState === 'success'
+                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    : 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: installState === 'installing' ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
+                  transition: 'all 0.3s ease',
+                  transform: installState === 'success' ? 'scale(1.05)' : 'scale(1)',
+                  minWidth: '140px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+                onMouseOver={(e) => {
+                  if (installState === 'idle') {
+                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (installState === 'idle') {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.3)';
+                  }
+                }}
+              >
+                {installState === 'installing' && '⏳ Installing...'}
+                {installState === 'success' && '✅ Successfully Installed!'}
+                {installState === 'idle' && '📱 Install App'}
+              </button>
+            </div>
+          )}
       {/* Search Modal */}
       {showSearch && (
         <div style={{
@@ -757,7 +985,7 @@ function App() {
         <>
           {loads.filter(l => l.status === 'uploaded').length > 0 && (
             loads.filter(l => l.status === 'uploaded').map(load => (
-              <section key={load.id} style={{
+              <section key={load.id} data-first-approver-card="true" style={{
                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 borderRadius: '12px',
                 padding: '3px',
@@ -822,7 +1050,7 @@ function App() {
                 }}>
                   <FirstApproverSection load={load} onApprovalComplete={loadData} />
                 </div>
-              </section>
+        </section>
             ))
           )}
         </>
@@ -833,7 +1061,7 @@ function App() {
         <>
           {loads.filter(l => l.status === 'first_approved').length > 0 && (
             loads.filter(l => l.status === 'first_approved').map(load => (
-              <section key={load.id} style={{
+              <section key={load.id} data-second-approver-card="true" style={{
                 background: 'linear-gradient(135deg, #a78bfa 0%, #6366f1 100%)',
                 borderRadius: '12px',
                 padding: '3px',
@@ -904,13 +1132,13 @@ function App() {
                 }}>
                   <SecondApproverSection load={load} onApprovalComplete={loadData} />
                 </div>
-              </section>
+        </section>
             ))
           )}
         </>
       )}
 
-      {/* INVOICER ROLE CARD */}
+      {/* INVOICER ROLE - Auto-open Modal */}
       {currentRole === 'invoicer' && (
         <section style={{
           background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
@@ -937,14 +1165,33 @@ function App() {
           <div style={{
             background: 'rgba(255,255,255,0.97)',
             borderRadius: '8px',
-            padding: '10px',
-            border: '1px solid rgba(255,255,255,0.8)'
+            padding: '20px',
+            border: '1px solid rgba(255,255,255,0.8)',
+            textAlign: 'center'
           }}>
-            {loads.filter(l => l.status === 'second_approved').length > 0 && (
-              loads.filter(l => l.status === 'second_approved').map(load => (
-                <InvoicerSection key={load.id} load={load} onInvoiceComplete={loadData} onDeleteLoad={(loadId) => setDeleteConfirm({ show: true, loadId })} />
-              ))
-            )}
+            <div style={{
+              fontSize: '1.1rem',
+              color: '#666',
+              marginBottom: '20px'
+            }}>
+              {loads.filter(l => l.status === 'second_approved').length > 0 ? (
+                <div>
+                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📋</div>
+                  <div>{loads.filter(l => l.status === 'second_approved').length} loads ready for invoicing</div>
+                  <div style={{ fontSize: '0.9rem', marginTop: '10px', color: '#059669', fontWeight: 600 }}>
+                    Opening Invoice Manager automatically...
+      </div>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📋</div>
+                  <div>No loads ready for invoicing</div>
+                  <div style={{ fontSize: '0.9rem', marginTop: '10px', color: '#999' }}>
+                    Loads need to be approved by the Second Approver first
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       )}
@@ -954,7 +1201,7 @@ function App() {
         <>
           {loads.filter(l => l.status === 'third_approved').length > 0 &&
             loads.filter(l => l.status === 'third_approved').map(load => (
-              <section key={load.id} style={{
+              <section key={load.id} data-final-approver-card="true" style={{
                 background: 'linear-gradient(135deg, #d1fae5 0%, #bbf7d0 100%)',
                 borderRadius: '12px',
                 padding: '3px',
@@ -1020,6 +1267,7 @@ function App() {
                   <FinalApproverSection load={load} onFinalApprovalComplete={loadData} />
                 </div>
         </section>
+
             ))
           }
         </>
@@ -1313,6 +1561,42 @@ function App() {
                 📊 Load Summary Table
               </div>
               
+              {/* Export Button */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginBottom: '1rem'
+              }}>
+                <button
+                  onClick={exportToExcel}
+                  style={{
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(5, 150, 105, 0.3)',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem'
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.4)';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(5, 150, 105, 0.3)';
+                  }}
+                >
+                  📊 Export to Excel
+                </button>
+              </div>
+              
               {/* Date Range Filter */}
               <div style={{
                 display: 'flex',
@@ -1578,9 +1862,130 @@ function App() {
       )}
       </div>
       </div>
+
+      {/* Invoicer Modal */}
+      {showInvoicerModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.8)',
+          zIndex: 5000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            width: '1200px',
+            maxWidth: '95vw',
+            maxHeight: '90vh',
+            overflow: 'hidden',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+              color: 'white',
+              padding: '1.5rem 2rem',
+              borderBottom: '1px solid #e5e7eb',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div style={{
+                fontSize: '1.5rem',
+                fontWeight: 700,
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                letterSpacing: '0.5px'
+              }}>
+                🧾 Invoice Manager
+              </div>
+              <button
+                onClick={() => setShowInvoicerModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: 'white',
+                  fontSize: '1.5rem',
+                  width: '40px',
+                  height: '40px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div style={{
+              flex: 1,
+              overflow: 'auto',
+              padding: '2rem',
+              background: '#f8fafc'
+            }}>
+              {loads.filter(l => l.status === 'second_approved').length > 0 ? (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2rem'
+                }}>
+                  {loads.filter(l => l.status === 'second_approved').map((load, index) => (
+                    <InvoicerSection 
+                      key={load.id} 
+                      load={load} 
+                      onInvoiceComplete={() => {
+                        loadData();
+                        setShowInvoicerModal(false);
+                      }} 
+                      onDeleteLoad={(loadId) => {
+                        setDeleteConfirm({ show: true, loadId });
+                        setShowInvoicerModal(false);
+                      }} 
+                      index={index} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '60px 20px',
+                  color: '#666',
+                  fontSize: '1.1rem'
+                }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '20px' }}>📋</div>
+                  <div>No loads ready for invoicing</div>
+                  <div style={{ fontSize: '0.9rem', marginTop: '10px', color: '#999' }}>
+                    Loads need to be approved by the Second Approver first
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 export default App
+
+
 

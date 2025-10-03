@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 interface RoleSelectorProps {
   currentRole: string | null
@@ -34,14 +34,6 @@ const ROLE_ICONS = {
   'final_approver': '📋'
 }
 
-const ROLE_COLORS: { [key: string]: string } = {
-  'driver': '#ff0000',
-  'first_approver': '#2563eb',
-  'second_approver': '#8b5cf6',
-  'invoicer': '#6b7280',
-  'final_approver': '#059669'
-}
-
 const USERS = {
   driver: [
     { pin: '1111', name: 'Alice Driver' },
@@ -68,10 +60,6 @@ const USERS = {
 };
 
 const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick }) => {
-  const [showPinEntry, setShowPinEntry] = useState(false)
-  const [selectedRole, setSelectedRole] = useState<string>('')
-  const [pin, setPin] = useState('')
-  const [pinError, setPinError] = useState('')
 
   // Calculate queue counts for each role
   const queueCounts: { [key: string]: number } = {
@@ -85,52 +73,66 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
   const handleRoleClick = (role: string) => {
     console.log('🔴 LATEST VERSION - Role clicked:', role);
     if (role === currentRole) return // Already selected
-    setSelectedRole(role)
-    setPin('')
-    setPinError('')
-    setShowPinEntry(true)
-  }
-
-  const handlePinSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('🔴 PIN Submit - Selected role:', selectedRole, 'PIN entered:', pin);
     
-    // Find user for selectedRole and pin
-    const user = USERS[selectedRole as keyof typeof USERS]?.find(u => u.pin === pin);
-    console.log('🔴 Found user:', user);
+    console.log('🔴 Direct role access - Changing role to:', role);
+    onRoleChange(role)
     
-    if (user) {
-      console.log('🔴 PIN correct! Changing role to:', selectedRole);
-      onRoleChange(selectedRole)
-      setShowPinEntry(false)
-      setPin('')
-      setPinError('')
-      // Store current user info in localStorage
-      localStorage.setItem('currentUser', JSON.stringify({ role: selectedRole, name: user.name }))
-      
-      // Scroll to show the first approval card after a short delay
+    // Store current user info in localStorage (using default user for now)
+    const defaultUser = USERS[role as keyof typeof USERS]?.[0];
+    if (defaultUser) {
+      localStorage.setItem('currentUser', JSON.stringify({ role: role, name: defaultUser.name }))
+    }
+    
+    // Auto-scroll to first card for approver roles
+    if (role === 'first_approver' || role === 'second_approver' || role === 'final_approver') {
       setTimeout(() => {
-        const phoneScreen = document.querySelector('.phone-screen');
-        if (phoneScreen) {
-          phoneScreen.scrollTo({
-            top: 200, // Scroll down to show cards below buttons
-            behavior: 'smooth'
-          });
+        console.log(`🔍 Looking for ${role} card...`);
+        
+        let targetCard;
+        
+        if (role === 'first_approver') {
+          targetCard = document.querySelector('section[data-first-approver-card="true"]') ||
+                      document.querySelector('section[style*="3b82f6"]') || 
+                      document.querySelector('section[style*="2563eb"]');
+        } else if (role === 'second_approver') {
+          targetCard = document.querySelector('section[data-second-approver-card="true"]') ||
+                      document.querySelector('section[style*="a78bfa"]') || 
+                      document.querySelector('section[style*="6366f1"]');
+        } else if (role === 'final_approver') {
+          targetCard = document.querySelector('section[data-final-approver-card="true"]') ||
+                      document.querySelector('section[style*="bbf7d0"]') || 
+                      document.querySelector('section[style*="22c55e"]');
         }
-      }, 300); // Small delay to ensure cards are rendered
-    } else {
-      console.log('🔴 PIN incorrect! Available users for', selectedRole, ':', USERS[selectedRole as keyof typeof USERS]);
-      setPinError('Incorrect PIN. Please try again.')
-      setPin('')
+        
+        console.log(`🔍 Found ${role} card:`, targetCard);
+        
+        if (targetCard) {
+          console.log(`✅ Scrolling to ${role} card`);
+          targetCard.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
+        } else {
+          console.log(`❌ ${role} card not found, using fallback scroll`);
+          // Fallback: scroll to phone screen
+          const phoneScreen = document.querySelector('.phone-screen');
+          if (phoneScreen) {
+            phoneScreen.scrollTo({
+              top: 300,
+              behavior: 'smooth'
+            });
+          } else {
+            // Final fallback: scroll window
+            window.scrollTo({
+              top: 300,
+              behavior: 'smooth'
+            });
+          }
+        }
+      }, 300); // Increased delay to ensure DOM is fully updated
     }
   }
-
-  // const handleLogout = () => {
-  //   onRoleChange('')
-  //   setShowPinEntry(false)
-  //   setPin('')
-  //   setPinError('')
-  // }
 
   return (
     <div style={{
@@ -170,7 +172,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 borderRadius: '32px',
                 padding: '0.5rem 1.2rem',
                 fontWeight: 900,
-                fontSize: '1.05rem',
+                fontSize: '0.85rem',
                 fontFamily: 'inherit',
                 cursor: role === currentRole ? 'not-allowed' : 'pointer',
                 opacity: role === currentRole ? 1 : 0.8,
@@ -243,23 +245,25 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 backgroundSize: '200% 100%',
                 backgroundPosition: '200% 0',
               }} />
-              <span style={{flex:1,textAlign:'left',fontWeight:900,fontSize:'1.45rem',color:'#222',letterSpacing:'0.5px',fontFamily:'inherit',position:'relative',zIndex:4}}>{ROLE_ICONS[role as keyof typeof ROLE_ICONS]} {name}</span>
-              <span style={{
-                marginLeft: '0.5rem',
-                background: '#f43f5e',
-                color: 'white',
-                borderRadius: '50%',
-                minWidth: 22,
-                height: 22,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '0.95rem',
-                fontWeight: 700,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
-                zIndex: 4,
-                padding: '0 6px',
-              }}>{queueCounts[role]}</span>
+              <span style={{flex:1,textAlign:'left',fontWeight:900,fontSize:'1.25rem',color:'#222',letterSpacing:'0.5px',fontFamily:'inherit',position:'relative',zIndex:4}}>{ROLE_ICONS[role as keyof typeof ROLE_ICONS]} {name}</span>
+              {role !== 'driver' && (
+                <span style={{
+                  marginLeft: '0.5rem',
+                  background: '#f43f5e',
+                  color: 'white',
+                  borderRadius: '50%',
+                  minWidth: 22,
+                  height: 22,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+                  zIndex: 4,
+                  padding: '0 6px',
+                }}>{queueCounts[role]}</span>
+              )}
             </button>
           )
         })}
@@ -267,7 +271,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
         <div style={{
           display: 'flex',
           gap: '1rem',
-          marginTop: '0px'
+          marginTop: '20px'
         }}>
           <button
             type="button"
@@ -427,7 +431,10 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             backgroundSize: '200% 100%',
             backgroundPosition: '200% 0',
           }} />
-          <span style={{position:'relative',zIndex:4}}>🔍 Search</span>
+          <span style={{position:'relative',zIndex:4,display:'flex',flexDirection:'column',alignItems:'center',gap:'0.2rem'}}>
+            <span style={{fontSize:'1.2em'}}>🔍</span>
+            <span>Search</span>
+          </span>
           </button>
         </div>
         
@@ -435,7 +442,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
         <div style={{
           display: 'flex',
           gap: '1rem',
-          marginTop: '20px'
+          marginTop: '-5px'
         }}>
           <button
             type="button"
@@ -596,152 +603,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               backgroundSize: '200% 100%',
               backgroundPosition: '200% 0',
             }} />
-            <span style={{position:'relative',zIndex:4}}>📋 Invoices</span>
+            <span style={{position:'relative',zIndex:4,display:'flex',flexDirection:'column',alignItems:'center',gap:'0.2rem'}}>
+              <span style={{fontSize:'1.2em'}}>📋</span>
+              <span>Invoices</span>
+            </span>
           </button>
         </div>
       </div>
-
-      {/* Logout Button */}
-      {/* Removed Logout button and its containing logic */}
-
-      {/* PIN Entry Modal */}
-      {showPinEntry && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          background: 'rgba(30,41,59,0.45)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <div style={{
-            background: 'rgba(255,255,255,0.85)',
-            borderRadius: '16px',
-            border: '1.5px solid #e0e7ef',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-            padding: '1.2rem 1rem 1rem 1rem',
-            width: '200px',
-            maxWidth: '95vw',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            position: 'relative',
-          }}>
-            <form onSubmit={handlePinSubmit} style={{width:'100%'}}>
-              <div style={{
-                textAlign: 'center',
-                marginBottom: '1rem',
-              }}>
-                <div style={{
-                  fontSize: '1rem',
-                  fontWeight: 800,
-                  color: '#fff',
-                  background: `linear-gradient(90deg, ${ROLE_COLORS[selectedRole as keyof typeof ROLE_COLORS]} 0%, #047857 100%)`,
-                  borderRadius: '8px',
-                  padding: '0.5rem 0',
-                  marginBottom: '0.3rem',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
-                  letterSpacing: '0.3px',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.10)'
-                }}>
-                  {ROLE_NAMES[selectedRole as keyof typeof ROLE_NAMES]}
-                </div>
-                <div style={{
-                  fontSize: '0.9rem',
-                  color: '#334155',
-                  fontWeight: 600,
-                  letterSpacing: '0.1px',
-                  marginTop: '0.1rem',
-                }}>
-                  Enter your PIN to access this role
-                </div>
-              </div>
-              <input
-                type="password"
-                value={pin}
-                onChange={e => setPin(e.target.value)}
-                placeholder=""
-                maxLength={4}
-                style={{
-                  width: '60px',
-                  padding: '0.8rem',
-                  fontSize: '1.4rem',
-                  textAlign: 'center',
-                  border: `2px solid ${ROLE_COLORS[selectedRole as keyof typeof ROLE_COLORS]}`,
-                  borderRadius: '8px',
-                  marginBottom: '0.8rem',
-                  letterSpacing: '0.4rem',
-                  background: 'rgba(255,255,255,0.7)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                  color: '#222',
-                  fontWeight: 700,
-                  outline: 'none',
-                  display: 'block',
-                  marginLeft: 'auto',
-                  marginRight: 'auto',
-                }}
-                autoFocus
-              />
-              {pinError && (
-                <div style={{
-                  color: '#dc2626',
-                  fontSize: '1.05rem',
-                  textAlign: 'center',
-                  marginBottom: '1rem',
-                  fontWeight: 700
-                }}>
-                  {pinError}
-                </div>
-              )}
-              <div style={{display: 'flex', gap: '0.7rem', marginTop: '0.2rem'}}>
-                <button
-                  type="button"
-                  onClick={() => { setShowPinEntry(false); setPin(''); setPinError(''); }}
-                  style={{
-                    flex: 1,
-                    background: 'linear-gradient(135deg, #cbd5e1 0%, #64748b 100%)',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: '10px',
-                    padding: '0.9rem 0',
-                    fontWeight: 700,
-                    fontSize: '1.08rem',
-                    boxShadow: '0 2px 8px rgba(100,116,139,0.13)',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={pin.length !== 4}
-                  style={{
-                    flex: 1,
-                    background: pin.length === 4 ? `linear-gradient(135deg, ${ROLE_COLORS[selectedRole as keyof typeof ROLE_COLORS]} 0%, #047857 100%)` : '#d1d5db',
-                    color: pin.length === 4 ? '#fff' : '#888',
-                    border: 'none',
-                    borderRadius: '10px',
-                    padding: '0.9rem 0',
-                    fontWeight: 700,
-                    fontSize: '1.08rem',
-                    boxShadow: pin.length === 4 ? '0 2px 8px rgba(16,185,129,0.13)' : 'none',
-                    cursor: pin.length === 4 ? 'pointer' : 'not-allowed',
-                    transition: 'background 0.2s',
-                  }}
-                >
-                  Access Role
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

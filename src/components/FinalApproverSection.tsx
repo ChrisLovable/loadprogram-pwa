@@ -12,6 +12,14 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
   const [finalComments, setFinalComments] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [invoiceData, setInvoiceData] = useState<any>(null)
+
+  // Currency formatting function
+  const formatCurrency = (value: number): string => {
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+  }
   // const [firstApprovalData, setFirstApprovalData] = useState<any>(null)
 
   // Load invoice data from localStorage
@@ -121,23 +129,26 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
 
   return (
     <form onSubmit={handleSubmit} className="final-approver-form">
-      {currentUser.role === 'final_approver' && currentUser.name && (
-        <div style={{fontSize:'0.98rem',color:'#047857',fontWeight:600,marginBottom:'0.5rem'}}>Approved by: {currentUser.name}</div>
-      )}
       {/* Load Calculation Summary */}
       <div style={{background:'#f7fafd',borderRadius:'10px',padding:'0.7rem',marginBottom:'1.2rem',boxShadow:'0 1px 4px rgba(79,140,255,0.07)'}}>
         <div style={{fontWeight:700,marginBottom:'0.8rem',fontSize:'1.05rem',color:'#059669'}}>📊 Load Calculation Summary</div>
-        <div style={{display:'flex',gap:'1rem',justifyContent:'flex-start',marginBottom:'0.7rem'}}>
+        <div style={{display:'flex',flexDirection:'column',gap:'0.7rem',alignItems:'flex-start',marginBottom:'0.7rem'}}>
           <div style={{textAlign:'center'}}>
             <div style={labelStyle}>Subtotal</div>
             <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {load?.parsed_data?.subtotal ? `R ${parseFloat(load.parsed_data.subtotal).toFixed(2)}` : '-'}
+              {load?.first_approval?.subtotal ? formatCurrency(parseFloat(load.first_approval.subtotal)) : (load?.parsed_data?.subtotal ? formatCurrency(parseFloat(load.parsed_data.subtotal)) : '')}
+            </div>
+          </div>
+          <div style={{textAlign:'center'}}>
+            <div style={labelStyle}>Discount</div>
+            <div style={{...inputStyle,width:'100px',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
+              {load?.first_approval?.discount ? `${load.first_approval.discount}%` : ''}
             </div>
           </div>
           <div style={{textAlign:'center'}}>
             <div style={labelStyle}>VAT (15%)</div>
             <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {load?.parsed_data?.vat ? `R ${parseFloat(load.parsed_data.vat).toFixed(2)}` : '-'}
+              {load?.first_approval?.vat_amount ? formatCurrency(parseFloat(load.first_approval.vat_amount)) : (load?.parsed_data?.vat ? formatCurrency(parseFloat(load.parsed_data.vat)) : '')}
             </div>
           </div>
         </div>
@@ -154,7 +165,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
             textAlign:'center',
             marginTop:'0.3rem'
           }}>
-            {load?.parsed_data?.total ? `R ${parseFloat(load.parsed_data.total).toFixed(2)}` : 'R 0.00'}
+            {load?.first_approval?.total_invoice ? formatCurrency(parseFloat(load.first_approval.total_invoice)) : (load?.parsed_data?.total ? formatCurrency(parseFloat(load.parsed_data.total)) : '0.00')}
           </div>
         </div>
       </div>
@@ -168,7 +179,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
             {load?.parsed_data?.invoice?.invoiceMadeOutTo || invoiceData?.invoiceMadeOutTo || '-'}
           </div>
         </div>
-        <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
+        <div style={{display:'flex',flexDirection:'column',gap:'0.7rem',marginBottom:'0.7rem'}}>
           <div>
             <div style={labelStyle}>Invoice Date</div>
             <div style={{...inputStyle,width:'120px',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
@@ -182,17 +193,23 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
             </div>
           </div>
         </div>
-        <div style={{display:'flex',gap:'1rem',justifyContent:'flex-start',marginBottom:'0.7rem'}}>
-          <div style={{textAlign:'center'}}>
+        <div style={{display:'flex',flexDirection:'column',gap:'0.7rem',marginBottom:'0.7rem'}}>
+          <div style={{textAlign:'left'}}>
             <div style={labelStyle}>Invoice Subtotal</div>
-            <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {invoiceData?.invoiceSubtotal ? `R ${parseFloat(invoiceData.invoiceSubtotal).toFixed(2)}` : '-'}
+            <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'left',border:'1px solid #333',borderRadius:'6px',minHeight:'2.5rem'}}>
+              {invoiceData?.invoiceSubtotal ? formatCurrency(parseFloat(invoiceData.invoiceSubtotal)) : '-'}
             </div>
           </div>
-          <div style={{textAlign:'center'}}>
+          <div style={{textAlign:'left'}}>
+            <div style={labelStyle}>Discount</div>
+            <div style={{...inputStyle,width:'100px',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'left',border:'1px solid #333',borderRadius:'6px',minHeight:'2.5rem'}}>
+              {load?.first_approval?.discount ? `${load.first_approval.discount}%` : (invoiceData?.invoiceDiscount ? `${invoiceData.invoiceDiscount}%` : '')}
+            </div>
+          </div>
+          <div style={{textAlign:'left'}}>
             <div style={labelStyle}>Invoice VAT</div>
-            <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {invoiceData?.invoiceVat ? `R ${parseFloat(invoiceData.invoiceVat).toFixed(2)}` : '-'}
+            <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'left',border:'1px solid #333',borderRadius:'6px',minHeight:'2.5rem'}}>
+              {invoiceData?.invoiceVat ? formatCurrency(parseFloat(invoiceData.invoiceVat)) : '-'}
             </div>
           </div>
         </div>
@@ -209,7 +226,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
             textAlign:'center',
             marginTop:'0.3rem'
           }}>
-            {invoiceData?.invoiceTotal ? `R ${parseFloat(invoiceData.invoiceTotal).toFixed(2)}` : 'R 0.00'}
+            {invoiceData?.invoiceTotal ? formatCurrency(parseFloat(invoiceData.invoiceTotal)) : '0.00'}
           </div>
         </div>
       </div>
@@ -256,6 +273,94 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
       >
         {submitting ? '⏳ Finalizing...' : '✅ Approve & Save'}
       </button>
+
+      {/* Photo Thumbnails */}
+      {load.photos && load.photos.length > 0 && (
+        <div style={{
+          marginTop: '1rem',
+          padding: '1rem',
+          background: '#f8fafc',
+          borderRadius: '8px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <div style={{
+            fontSize: '0.9rem',
+            fontWeight: 600,
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>
+            📸 Document Photos ({load.photos.length})
+          </div>
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-start'
+          }}>
+            {load.photos.map((photoUrl: string, i: number) => (
+              <img
+                key={`${load.id}-photo-${i}`}
+                src={photoUrl}
+                alt={`Document ${i+1}`}
+                style={{
+                  width: 60,
+                  height: 60,
+                  objectFit: 'cover',
+                  borderRadius: '8px',
+                  border: '2px solid #d1d5db',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+                onClick={() => {
+                  // Create modal for expanded view
+                  const modal = document.createElement('div');
+                  modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    cursor: pointer;
+                  `;
+                  
+                  const img = document.createElement('img');
+                  img.src = photoUrl;
+                  img.style.cssText = `
+                    max-width: 90%;
+                    max-height: 90%;
+                    object-fit: contain;
+                    border-radius: 8px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                  `;
+                  
+                  modal.appendChild(img);
+                  document.body.appendChild(modal);
+                  
+                  modal.onclick = () => {
+                    document.body.removeChild(modal);
+                  };
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.borderColor = '#3b82f6';
+                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </form>
   )
 }

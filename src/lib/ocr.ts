@@ -10,8 +10,10 @@ export interface OCRResult {
   sender?: string
   receiver?: string
   date?: string
-  truck_reg?: string
-  trailer_reg?: string
+  truck_reg?: string  // snake_case for database
+  trailer_reg?: string  // snake_case for database
+  truckReg?: string  // camelCase for components
+  trailerReg?: string  // camelCase for components
   loading_time_arrived?: string
   loading_time_completed?: string
   offloading_time_arrived?: string
@@ -35,6 +37,25 @@ export const extractLoadDocumentData = async (imageFile: File): Promise<OCRResul
     console.log(text)
     console.log('=== END OCR TEXT ===')
     
+    // Debug: Log sender and receiver analysis
+    console.log('=== SENDER AND RECEIVER ANALYSIS ===')
+    const lines = text.split(/\r?\n/)
+    lines.forEach((line, index) => {
+      if (line.toLowerCase().includes('sender') || line.toLowerCase().includes('receiver') || 
+          line.toLowerCase().includes('somerset') || line.toLowerCase().includes('fritz') || 
+          line.toLowerCase().includes('karan') || line.toLowerCase().includes('wonderwale')) {
+        console.log(`Line ${index}: "${line}"`)
+      }
+    })
+    console.log('=== END SENDER/RECEIVER ANALYSIS ===')
+    
+    // Debug: Log the raw text for registration number analysis
+    console.log('=== RAW TEXT FOR REGISTRATION ANALYSIS ===')
+    console.log('Raw text length:', text.length)
+    console.log('Raw text preview (first 500 chars):', text.substring(0, 500))
+    console.log('Raw text preview (last 500 chars):', text.substring(Math.max(0, text.length - 500)))
+    console.log('=== END RAW TEXT ANALYSIS ===')
+    
     // Initialize extraction variables
     let startKm, endKm
     let allNumbers: number[] = []
@@ -43,7 +64,59 @@ export const extractLoadDocumentData = async (imageFile: File): Promise<OCRResul
     let offloading_time_arrived = '', offloading_time_completed = ''
     let table: any[] = []
     
-    const lines = text.split(/\r?\n/)
+    // Debug: Log all lines for registration number analysis
+    console.log('=== ANALYZING ALL LINES FOR REGISTRATION NUMBERS ===')
+    lines.forEach((line, index) => {
+      if (line.toLowerCase().includes('truck') || line.toLowerCase().includes('trailer') || line.toLowerCase().includes('reg')) {
+        console.log(`Line ${index}: "${line}"`)
+        console.log(`Line ${index} length: ${line.length}`)
+        console.log(`Line ${index} trimmed: "${line.trim()}"`)
+      }
+    })
+    console.log('=== END REGISTRATION ANALYSIS ===')
+    
+    // Debug: Test specific patterns on each line
+    console.log('=== TESTING REGISTRATION PATTERNS ON EACH LINE ===')
+    lines.forEach((line, index) => {
+      if (line.toLowerCase().includes('truck') || line.toLowerCase().includes('trailer') || line.toLowerCase().includes('reg')) {
+        console.log(`\n--- Testing Line ${index}: "${line}" ---`)
+        
+        // Test truck patterns
+        const truckPatterns = [
+          /Truck\s+Reg\.\s+No\.\s*:\s*(.+)/i,
+          /Truck\s+Reg\s+No\.\s*:\s*(.+)/i,
+          /Truck\s+Reg:\s*(.+)/i,
+          /Truck\s+No\.\s*:\s*(.+)/i
+        ]
+        
+        truckPatterns.forEach((pattern, i) => {
+          const match = line.match(pattern)
+          if (match) {
+            console.log(`✅ TRUCK PATTERN ${i} MATCHED: "${match[1]}"`)
+          } else {
+            console.log(`❌ TRUCK PATTERN ${i} NO MATCH`)
+          }
+        })
+        
+        // Test trailer patterns
+        const trailerPatterns = [
+          /Trailer\s+Reg\.\s+No\.\s*:\s*(.+)/i,
+          /Trailer\s+Reg\s+No\.\s*:\s*(.+)/i,
+          /Trailer\s+Reg:\s*(.+)/i,
+          /Trailer\s+No\.\s*:\s*(.+)/i
+        ]
+        
+        trailerPatterns.forEach((pattern, i) => {
+          const match = line.match(pattern)
+          if (match) {
+            console.log(`✅ TRAILER PATTERN ${i} MATCHED: "${match[1]}"`)
+          } else {
+            console.log(`❌ TRAILER PATTERN ${i} NO MATCH`)
+          }
+        })
+      }
+    })
+    console.log('=== END PATTERN TESTING ===')
     
     // Extract KM values - they are handwritten at the bottom of the document
     // Focus on the bottom portion where KM readings appear
@@ -87,39 +160,118 @@ export const extractLoadDocumentData = async (imageFile: File): Promise<OCRResul
       if (startKm && endKm) break
     }
     
-    // Extract other fields from all lines
-    for (const line of lines) {
-      // Extract fields - customized for your specific document format
-      if (!sender && !receiver) {
-        // Handle the case where SENDER and RECEIVER are on the same line
-        const senderReceiverMatch = line.match(/SENDER:\s*([^R]+)\s*RECEIVER:\s*(.+)/i)
-        if (senderReceiverMatch) {
-          sender = senderReceiverMatch[1].trim()
-          receiver = senderReceiverMatch[2].trim()
-          console.log(`Found sender: "${sender}" and receiver: "${receiver}" from line: "${line}"`)
-        }
-      }
+    // Extract sender and receiver with multi-line context
+    let senderLines: string[] = []
+    let receiverLines: string[] = []
+    let inSenderSection = false
+    let inReceiverSection = false
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim()
       
-      // Fallback: try individual patterns if not found together
-      if (!sender) {
-        const senderMatch = line.match(/SENDER:\s*([^R]+)/i)
+      // Detect sender section
+      if (line.match(/SENDER:/i)) {
+        inSenderSection = true
+        inReceiverSection = false
+        console.log(`Found SENDER label at line ${i}: "${line}"`)
+        
+        // Extract content after SENDER: on the same line
+        const senderMatch = line.match(/SENDER:\s*(.+)/i)
         if (senderMatch) {
-          sender = senderMatch[1].trim()
-          console.log(`Found sender: "${sender}" from line: "${line}"`)
+          senderLines.push(senderMatch[1].trim())
+          console.log(`Found sender content on same line: "${senderMatch[1].trim()}"`)
         }
+        continue
       }
       
-      if (!receiver) {
+      // Detect receiver section
+      if (line.match(/RECEIVER:/i)) {
+        inReceiverSection = true
+        inSenderSection = false
+        console.log(`Found RECEIVER label at line ${i}: "${line}"`)
+        
+        // Extract content after RECEIVER: on the same line
         const receiverMatch = line.match(/RECEIVER:\s*(.+)/i)
         if (receiverMatch) {
-          receiver = receiverMatch[1].trim()
-          console.log(`Found receiver: "${receiver}" from line: "${line}"`)
+          receiverLines.push(receiverMatch[1].trim())
+          console.log(`Found receiver content on same line: "${receiverMatch[1].trim()}"`)
+        }
+        continue
+      }
+      
+      // Collect sender lines (look for common sender patterns)
+      if (inSenderSection && !inReceiverSection) {
+        const senderPatterns = [
+          /(Somerset East|Fritz Marx|Vleissentraal)/i,
+          /(^[A-Z][a-z]+\s+[A-Z][a-z]+$)/, // Two capitalized words
+          /(^[A-Z][a-z]+$)/ // Single capitalized word
+        ]
+        
+        for (const pattern of senderPatterns) {
+          if (pattern.test(line) && line.length > 3 && line.length < 50) {
+            senderLines.push(line)
+            console.log(`Found sender line: "${line}"`)
+            break
+          }
+        }
+        
+        // Stop collecting sender lines if we hit a section divider or empty line
+        if (line === '' || line.match(/Cell No:|LOADING:|OFF LOADING:/i)) {
+          inSenderSection = false
         }
       }
       
+      // Collect receiver lines (look for common receiver patterns)
+      if (inReceiverSection && !inSenderSection) {
+        const receiverPatterns = [
+          /(KARAN BEEF|WONDERWALE|PMB)/i,
+          /(^[A-Z][A-Z\s,]+$)/, // All caps with spaces and commas
+          /(^[A-Z][a-z]+\s+[A-Z][a-z]+$)/ // Two capitalized words
+        ]
+        
+        for (const pattern of receiverPatterns) {
+          if (pattern.test(line) && line.length > 3 && line.length < 50) {
+            receiverLines.push(line)
+            console.log(`Found receiver line: "${line}"`)
+            break
+          }
+        }
+        
+        // Stop collecting receiver lines if we hit a section divider or empty line
+        if (line === '' || line.match(/Cell No:|LOADING:|OFF LOADING:/i)) {
+          inReceiverSection = false
+        }
+      }
+    }
+    
+    // Combine sender and receiver lines
+    if (senderLines.length > 0) {
+      sender = senderLines.join(', ')
+      console.log(`Combined sender: "${sender}" from ${senderLines.length} lines`)
+    }
+    
+    if (receiverLines.length > 0) {
+      receiver = receiverLines.join(', ')
+      console.log(`Combined receiver: "${receiver}" from ${receiverLines.length} lines`)
+    }
+    
+    // Extract other fields from all lines
+    for (const line of lines) {
+      
       if (!truck_reg) {
-        // Look for "Truck Reg. No." pattern from your document
-        const truckMatch = line.match(/Truck\s+Reg\.\s+No\.\s+(.+)/i)
+        // Look for various truck registration patterns
+        const truckMatch = line.match(/Truck\s+Reg\.\s+No\.\s*:\s*(.+)/i) ||
+                          line.match(/Truck\s+Reg\s+No\.\s*:\s*(.+)/i) ||
+                          line.match(/Truck\s+Registration\s+No\.\s*:\s*(.+)/i) ||
+                          line.match(/Truck\s+Reg:\s*(.+)/i) ||
+                          line.match(/Truck\s+No\.\s*:\s*(.+)/i) ||
+                          line.match(/Truck:\s*(.+)/i) ||
+                          line.match(/TRUCK\s+REG[:\s]+(.+)/i) ||
+                          line.match(/TRUCK\s+NO[:\s]+(.+)/i) ||
+                          line.match(/Truck\s+Reg[:\s]+(.+)/i) ||
+                          line.match(/Truck\s+No[:\s]+(.+)/i) ||
+                          line.match(/Truck\s+Reg\.\s+No\.\s+(.+)/i) ||
+                          line.match(/Truck\s+Reg\s+No\.\s+(.+)/i)
         if (truckMatch) {
           truck_reg = truckMatch[1].trim()
           console.log(`Found truck_reg: "${truck_reg}" from line: "${line}"`)
@@ -127,9 +279,24 @@ export const extractLoadDocumentData = async (imageFile: File): Promise<OCRResul
       }
       
       if (!trailer_reg) {
-        // Look for trailer registration pattern from your document
-        const trailerMatch = line.match(/Rog\.\s+Nox?\.\s+(.+)/i) ||
-                            line.match(/Trailer.*?No\.\s+(.+)/i)
+        // Look for various trailer registration patterns
+        const trailerMatch = line.match(/Trailer\s+Reg\.\s+No\.\s*:\s*(.+)/i) ||
+                            line.match(/Trailer\s+Reg\s+No\.\s*:\s*(.+)/i) ||
+                            line.match(/Trailer\s+Registration\s+No\.\s*:\s*(.+)/i) ||
+                            line.match(/Trailer\s+Reg:\s*(.+)/i) ||
+                            line.match(/Trailer\s+No\.\s*:\s*(.+)/i) ||
+                            line.match(/Trailer:\s*(.+)/i) ||
+                            line.match(/Reg\.\s+Nox?\.\s*:\s*(.+)/i) ||
+                            line.match(/Trailer.*?No\.\s*:\s*(.+)/i) ||
+                            line.match(/Reg\.\s+No\.\s*:\s*(.+)/i) ||
+                            line.match(/Rog\.\s+Nox?\.\s*:\s*(.+)/i) || // Keep old pattern as fallback
+                            line.match(/TRAILER\s+REG[:\s]+(.+)/i) ||
+                            line.match(/TRAILER\s+NO[:\s]+(.+)/i) ||
+                            line.match(/Trailer\s+Reg[:\s]+(.+)/i) ||
+                            line.match(/Trailer\s+No[:\s]+(.+)/i) ||
+                            line.match(/REG\s+NO[:\s]+(.+)/i) ||
+                            line.match(/Trailer\s+Reg\.\s+No\.\s+(.+)/i) ||
+                            line.match(/Trailer\s+Reg\s+No\.\s+(.+)/i)
         if (trailerMatch) {
           trailer_reg = trailerMatch[1].trim()
           console.log(`Found trailer_reg: "${trailer_reg}" from line: "${line}"`)
@@ -184,10 +351,109 @@ export const extractLoadDocumentData = async (imageFile: File): Promise<OCRResul
     // Fallback KM extraction if not found in bottom section
     if (!startKm || !endKm) {
       const kmMatches = text.match(/\d{5,7}/g)
-      if (kmMatches && kmMatches.length >= 2) {
+    if (kmMatches && kmMatches.length >= 2) {
         allNumbers = kmMatches.map(n => parseInt(n)).filter(n => !isNaN(n) && n >= 50000 && n <= 2000000)
         if (!startKm && allNumbers.length > 0) startKm = allNumbers[allNumbers.length - 2]
         if (!endKm && allNumbers.length > 1) endKm = allNumbers[allNumbers.length - 1]
+      }
+    }
+    
+    // BRUTE FORCE APPROACH: Look for any line that might contain registration numbers
+    console.log('=== BRUTE FORCE REGISTRATION SEARCH ===')
+    console.log('Total lines to search:', lines.length)
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      
+      // Look for lines that contain both "reg" and numbers/letters that look like registration
+      if (line.toLowerCase().includes('reg') && (line.match(/[0-9]/) || line.match(/[A-Z]/))) {
+        console.log(`🔍 BRUTE FORCE: Found potential reg line ${i}: "${line}"`)
+        console.log(`🔍 BRUTE FORCE: Line length: ${line.length}`)
+        
+        // Try to extract anything that looks like a registration number
+        const regCandidates = line.match(/[A-Z0-9\s\-]{4,10}/g)
+        if (regCandidates) {
+          console.log(`🔍 BRUTE FORCE: Found candidates: ${regCandidates.join(', ')}`)
+          
+          // Filter candidates
+          const validCandidates = regCandidates.filter(candidate => {
+            const clean = candidate.trim()
+            return clean.length >= 4 && clean.length <= 10 && 
+                   (clean.match(/[0-9]/) && clean.match(/[A-Z]/)) // Must have both numbers and letters
+          })
+          
+          console.log(`🔍 BRUTE FORCE: Valid candidates: ${validCandidates.join(', ')}`)
+          
+          // Assign to truck/trailer if not already found
+          if (!truck_reg && validCandidates.length > 0) {
+            truck_reg = validCandidates[0].trim()
+            console.log(`🔍 BRUTE FORCE: Assigned truck_reg: "${truck_reg}"`)
+          }
+          
+          if (!trailer_reg && validCandidates.length > 1) {
+            trailer_reg = validCandidates[1].trim()
+            console.log(`🔍 BRUTE FORCE: Assigned trailer_reg: "${trailer_reg}"`)
+          }
+        } else {
+          console.log(`🔍 BRUTE FORCE: No candidates found in line: "${line}"`)
+        }
+      }
+    }
+    console.log('=== END BRUTE FORCE SEARCH ===')
+
+    // Fallback registration extraction - look for any alphanumeric sequences that might be registration numbers
+    if (!truck_reg || !trailer_reg) {
+      console.log('=== FALLBACK REGISTRATION EXTRACTION ===')
+      // Look for patterns like: ABC123, 123ABC, ABC-123, ABC 123, 018 SSG, 019-20-555, etc.
+      const regMatches = text.match(/\b[A-Z]{2,3}[\s\-]?[0-9]{2,4}[A-Z]?\b/g) || 
+                        text.match(/\b[0-9]{2,4}[\s\-]?[A-Z]{2,3}\b/g) ||
+                        text.match(/\b[A-Z]{1,2}[0-9]{3,6}[A-Z]?\b/g) ||
+                        text.match(/\b[0-9]{3,6}[A-Z]{1,2}\b/g) ||
+                        text.match(/\b[0-9]{3}\s+[A-Z]{3}\b/g) ||  // Pattern: 018 SSG
+                        text.match(/\b[0-9]{3}-[0-9]{2}-[0-9]{3}\b/g) ||  // Pattern: 019-20-555
+                        text.match(/\b[0-9]{3}\s+[A-Z]{2,3}\b/g) ||  // Pattern: 018 SSG (alternative)
+                        text.match(/\b[0-9]{3}-[0-9]{2}-[0-9]{3}\b/g)  // Pattern: 019-20-555 (alternative)
+      
+      if (regMatches) {
+        console.log('Found potential registration numbers:', regMatches)
+        
+        // Filter out obvious non-registration patterns
+        const filteredRegs = regMatches.filter(reg => {
+          const cleanReg = reg.replace(/[\s\-]/g, '')
+          // Skip if it's too short, too long, or contains only numbers
+          return cleanReg.length >= 4 && cleanReg.length <= 8 && !/^\d+$/.test(cleanReg)
+        })
+        
+        console.log('Filtered registration numbers:', filteredRegs)
+        
+        if (!truck_reg && filteredRegs.length > 0) {
+          truck_reg = filteredRegs[0]
+          console.log(`Fallback truck_reg: "${truck_reg}"`)
+        }
+        
+        if (!trailer_reg && filteredRegs.length > 1) {
+          trailer_reg = filteredRegs[1]
+          console.log(`Fallback trailer_reg: "${trailer_reg}"`)
+        }
+      }
+      
+      // Additional fallback: look for any line that contains "reg" or "no" followed by alphanumeric
+      if (!truck_reg || !trailer_reg) {
+        console.log('=== ADDITIONAL FALLBACK: SEARCHING FOR REG/NO PATTERNS ===')
+        for (const line of lines) {
+          const regNoMatch = line.match(/(?:reg|no)[:\s]+([a-zA-Z0-9\s\-]{4,8})/i)
+          if (regNoMatch) {
+            const potentialReg = regNoMatch[1].trim()
+            console.log(`Found potential registration from line: "${line}" -> "${potentialReg}"`)
+            
+            if (!truck_reg && potentialReg.length >= 4) {
+              truck_reg = potentialReg
+              console.log(`Using as truck_reg: "${truck_reg}"`)
+            } else if (!trailer_reg && potentialReg.length >= 4) {
+              trailer_reg = potentialReg
+              console.log(`Using as trailer_reg: "${trailer_reg}"`)
+            }
+          }
+        }
       }
     }
     
@@ -200,8 +466,10 @@ export const extractLoadDocumentData = async (imageFile: File): Promise<OCRResul
       sender: sender || undefined,
       receiver: receiver || undefined,
       date: date || undefined,
-      truck_reg: truck_reg || undefined,
-      trailer_reg: trailer_reg || undefined,
+      truckReg: truck_reg || undefined,  // Convert to camelCase
+      trailerReg: trailer_reg || undefined,  // Convert to camelCase
+      truck_reg: truck_reg || undefined,  // Keep snake_case for database compatibility
+      trailer_reg: trailer_reg || undefined,  // Keep snake_case for database compatibility
       loading_time_arrived: loading_time_arrived || undefined,
       loading_time_completed: loading_time_completed || undefined,
       offloading_time_arrived: offloading_time_arrived || undefined,

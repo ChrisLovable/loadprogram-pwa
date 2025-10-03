@@ -1,33 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { generatePDFInvoice } from '../utils/pdfGenerator';
+import { supabase } from '../lib/supabase';
 
 interface InvoiceManagerProps {
   onClose: () => void;
 }
 
 interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  date: string;
-  truckReg: string;
-  sender: string;
-  receiver: string;
-  total: number;
+  id: number;
+  invoice_number: string;
+  pdf_invoice_generated_at: string;
+  truck_reg?: string;
+  sender?: string;
+  receiver?: string;
+  total?: number;
   status: string;
-  loadData: any;
+  debtor_name?: string;
+  pdf_invoice?: string;
+  pdf_invoice_filename?: string;
+  loadData?: any;
 }
 
 const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
-  // Load invoices from localStorage (in a real app, this would be from a database)
+  // Load invoices from database
   useEffect(() => {
-    const savedInvoices = localStorage.getItem('generatedInvoices');
-    if (savedInvoices) {
-      setInvoices(JSON.parse(savedInvoices));
-    }
+    const loadInvoices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('loads')
+          .select('*')
+          .not('pdf_invoice', 'is', null)
+          .order('pdf_invoice_generated_at', { ascending: false });
+        
+        if (error) {
+          console.error('Error loading invoices:', error);
+          return;
+        }
+        
+        // Transform data to match Invoice interface
+        const transformedInvoices = data?.map(load => ({
+          id: load.id,
+          invoice_number: load.invoice_number || `INV-${load.id}`,
+          pdf_invoice_generated_at: load.pdf_invoice_generated_at,
+          truck_reg: load.truck_reg || load.parsed_data?.truckReg,
+          sender: load.sender || load.parsed_data?.sender,
+          receiver: load.receiver || load.parsed_data?.receiver,
+          total: load.parsed_data?.total || load.first_approval?.total_invoice,
+          status: 'Generated',
+          debtor_name: load.debtor_name,
+          pdf_invoice: load.pdf_invoice,
+          pdf_invoice_filename: load.pdf_invoice_filename,
+          loadData: load
+        })) || [];
+        
+        setInvoices(transformedInvoices);
+      } catch (error) {
+        console.error('Error loading invoices:', error);
+      }
+    };
+    
+    loadInvoices();
   }, []);
 
   // Filter invoices based on search term
@@ -36,23 +73,55 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
       setFilteredInvoices(invoices);
     } else {
       const filtered = invoices.filter(invoice =>
-        invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invoice.truckReg.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invoice.sender.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invoice.receiver.toLowerCase().includes(searchTerm.toLowerCase())
+        invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (invoice.debtor_name && invoice.debtor_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (invoice.truck_reg && invoice.truck_reg.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (invoice.sender && invoice.sender.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (invoice.receiver && invoice.receiver.toLowerCase().includes(searchTerm.toLowerCase()))
       );
       setFilteredInvoices(filtered);
     }
   }, [invoices, searchTerm]);
 
-  const handleGenerateInvoice = (invoice: Invoice) => {
-    generatePDFInvoice(invoice.loadData);
+  const handleGenerateInvoice = async (invoice: Invoice) => {
+    if (invoice.pdf_invoice) {
+      // Download existing PDF
+      const link = document.createElement('a');
+      link.href = invoice.pdf_invoice;
+      link.download = invoice.pdf_invoice_filename || `invoice_${invoice.invoice_number}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (invoice.loadData) {
+      // Generate new PDF
+      await generatePDFInvoice(invoice.loadData);
+    }
   };
 
-  const handleDeleteInvoice = (invoiceId: string) => {
-    const updatedInvoices = invoices.filter(inv => inv.id !== invoiceId);
-    setInvoices(updatedInvoices);
-    localStorage.setItem('generatedInvoices', JSON.stringify(updatedInvoices));
+  const handleDeleteInvoice = async (invoiceId: number) => {
+    try {
+      const { error } = await supabase
+        .from('loads')
+        .update({
+          pdf_invoice: null,
+          pdf_invoice_filename: null,
+          pdf_invoice_generated_at: null,
+          invoice_number: null,
+          debtor_name: null
+        })
+        .eq('id', invoiceId);
+      
+      if (error) {
+        console.error('Error deleting invoice:', error);
+        return;
+      }
+      
+      // Update local state
+      const updatedInvoices = invoices.filter(inv => inv.id !== invoiceId);
+      setInvoices(updatedInvoices);
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+    }
   };
 
   return (
@@ -67,24 +136,54 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '20px',
+      padding: isDesktop ? '40px' : '20px',
     }} onClick={onClose}>
       <div style={{
         background: '#ffffff',
         borderRadius: '12px',
         padding: '0',
-        width: '90vw',
-        maxWidth: '90vw',
-        height: '85vh',
-        maxHeight: '85vh',
+        width: isDesktop ? '1200px' : '90vw',
+        maxWidth: isDesktop ? '1200px' : '90vw',
+        height: isDesktop ? '800px' : '85vh',
+        maxHeight: isDesktop ? '800px' : '85vh',
         boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
         border: '1px solid #e5e7eb',
         position: 'relative',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        marginLeft: '-40px'
       }} onClick={e => e.stopPropagation()}>
+        
+        {/* Layout Toggle Button */}
+        <button
+          onClick={() => setIsDesktop(!isDesktop)}
+          style={{
+            position: 'absolute',
+            top: '15px',
+            left: '15px',
+            background: 'rgba(255,255,255,0.9)',
+            border: '1px solid #e5e7eb',
+            borderRadius: '6px',
+            padding: '0.5rem 1rem',
+            fontSize: '0.8rem',
+            cursor: 'pointer',
+            zIndex: 10,
+            fontWeight: 600,
+            color: '#374151',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,1)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.9)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          {isDesktop ? '📱 Mobile View' : '🖥️ Desktop View'}
+        </button>
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -117,11 +216,11 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
         <div style={{
           background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
           color: 'white',
-          padding: '1.5rem 2rem',
+          padding: isDesktop ? '2rem 3rem' : '1.5rem 2rem',
           borderBottom: '1px solid #e5e7eb'
         }}>
           <div style={{
-            fontSize: '1.2rem',
+            fontSize: isDesktop ? '1.5rem' : '1.2rem',
             fontWeight: 700,
             marginBottom: '1rem',
             textAlign: 'center',
@@ -142,18 +241,19 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
           }}>
             <input
               type="text"
-              placeholder="Search by invoice number, truck reg, sender, or receiver..."
+              placeholder="Search by invoice number or debtor name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 flex: 1,
-                minWidth: '300px',
-                padding: '0.5rem',
+                minWidth: isDesktop ? '400px' : '300px',
+                maxWidth: isDesktop ? '600px' : '400px',
+                padding: isDesktop ? '0.75rem' : '0.5rem',
                 borderRadius: '6px',
                 border: '1px solid rgba(255,255,255,0.3)',
                 background: 'rgba(255,255,255,0.1)',
-                color: 'white',
-                fontSize: '0.8rem'
+                color: '#374151',
+                fontSize: isDesktop ? '1rem' : '0.8rem'
               }}
             />
           </div>
@@ -164,7 +264,8 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
           flex: 1,
           overflow: 'auto',
           background: '#fff',
-          minHeight: 0
+          minHeight: 0,
+          padding: isDesktop ? '2rem' : '1rem'
         }}>
           {filteredInvoices.length === 0 ? (
             <div style={{
@@ -174,24 +275,44 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
               justifyContent: 'center',
               height: '100%',
               color: '#6b7280',
-              fontSize: '1rem'
+              fontSize: isDesktop ? '1.2rem' : '1rem'
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📄</div>
+              <div style={{ fontSize: isDesktop ? '4rem' : '3rem', marginBottom: '1rem' }}>📄</div>
               <div>No invoices found</div>
-              <div style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
+              <div style={{ fontSize: isDesktop ? '1rem' : '0.8rem', marginTop: '0.5rem' }}>
                 {searchTerm ? 'Try adjusting your search terms' : 'Generate invoices from the invoicer section'}
               </div>
             </div>
           ) : (
-            <div style={{ padding: '1rem' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isDesktop ? 'repeat(auto-fill, minmax(300px, 1fr))' : '1fr',
+              gap: isDesktop ? '2rem' : '1rem',
+              maxWidth: isDesktop ? 'none' : '100%'
+            }}>
               {filteredInvoices.map((invoice) => (
                 <div key={invoice.id} style={{
                   background: '#f8fafc',
                   borderRadius: '8px',
-                  padding: '1rem',
-                  marginBottom: '1rem',
+                  padding: isDesktop ? '1.5rem' : '1rem',
                   border: '1px solid #e5e7eb',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  boxShadow: isDesktop 
+                    ? '0 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)' 
+                    : '0 1px 3px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => {
+                  if (isDesktop) {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.1)';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (isDesktop) {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+                  }
                 }}>
                   <div style={{
                     display: 'flex',
@@ -201,26 +322,26 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
                   }}>
                     <div>
                       <div style={{
-                        fontSize: '1.1rem',
+                        fontSize: isDesktop ? '1.3rem' : '1.1rem',
                         fontWeight: 700,
                         color: '#1f2937',
                         marginBottom: '0.25rem'
                       }}>
-                        Invoice #{invoice.invoiceNumber}
+                        Invoice #{invoice.invoice_number}
                       </div>
                       <div style={{
-                        fontSize: '0.9rem',
+                        fontSize: isDesktop ? '1rem' : '0.9rem',
                         color: '#6b7280'
                       }}>
-                        {invoice.date} • {invoice.truckReg}
+                        {new Date(invoice.pdf_invoice_generated_at).toLocaleDateString()} • {invoice.truck_reg || 'N/A'}
                       </div>
                     </div>
                     <div style={{
                       background: invoice.status === 'Paid' ? '#10b981' : '#f59e0b',
                       color: 'white',
-                      padding: '0.25rem 0.5rem',
+                      padding: isDesktop ? '0.5rem 1rem' : '0.25rem 0.5rem',
                       borderRadius: '4px',
-                      fontSize: '0.8rem',
+                      fontSize: isDesktop ? '0.9rem' : '0.8rem',
                       fontWeight: 600
                     }}>
                       {invoice.status}
@@ -232,12 +353,25 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
                     gridTemplateColumns: '1fr 1fr',
                     gap: '0.5rem',
                     marginBottom: '1rem',
-                    fontSize: '0.9rem',
+                    fontSize: isDesktop ? '1rem' : '0.9rem',
                     color: '#374151'
                   }}>
-                    <div><strong>From:</strong> {invoice.sender}</div>
-                    <div><strong>To:</strong> {invoice.receiver}</div>
+                    <div><strong>Debtor:</strong> {invoice.debtor_name || 'N/A'}</div>
+                    <div><strong>Total:</strong> R {invoice.total ? invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</div>
                   </div>
+                  {(invoice.sender || invoice.receiver) && (
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '0.5rem',
+                      marginBottom: '1rem',
+                      fontSize: isDesktop ? '0.9rem' : '0.8rem',
+                      color: '#6b7280'
+                    }}>
+                      {invoice.sender && <div><strong>From:</strong> {invoice.sender}</div>}
+                      {invoice.receiver && <div><strong>To:</strong> {invoice.receiver}</div>}
+                    </div>
+                  )}
                   
                   <div style={{
                     display: 'flex',
@@ -251,11 +385,12 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
                         color: 'white',
                         border: 'none',
                         borderRadius: '6px',
-                        padding: '0.5rem 1rem',
-                        fontSize: '0.8rem',
+                        padding: isDesktop ? '0.75rem 1.5rem' : '0.5rem 1rem',
+                        fontSize: isDesktop ? '0.9rem' : '0.8rem',
                         fontWeight: 600,
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        minWidth: isDesktop ? '120px' : 'auto'
                       }}
                       onMouseOver={(e) => {
                         e.currentTarget.style.transform = 'translateY(-1px)';
@@ -275,11 +410,12 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
                         color: 'white',
                         border: 'none',
                         borderRadius: '6px',
-                        padding: '0.5rem 1rem',
-                        fontSize: '0.8rem',
+                        padding: isDesktop ? '0.75rem 1.5rem' : '0.5rem 1rem',
+                        fontSize: isDesktop ? '0.9rem' : '0.8rem',
                         fontWeight: 600,
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        minWidth: isDesktop ? '100px' : 'auto'
                       }}
                       onMouseOver={(e) => {
                         e.currentTarget.style.transform = 'translateY(-1px)';
@@ -290,7 +426,7 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
                         e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      🗑️ Delete
+                      🗑️ Remove
                     </button>
                   </div>
                 </div>
@@ -302,10 +438,10 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
         {/* Footer */}
         <div style={{
           background: '#f8fafc',
-          padding: '1rem 2rem',
+          padding: isDesktop ? '1.5rem 3rem' : '1rem 2rem',
           borderTop: '1px solid #e5e7eb',
           textAlign: 'center',
-          fontSize: '0.8rem',
+          fontSize: isDesktop ? '1rem' : '0.8rem',
           color: '#6b7280',
           fontWeight: 500
         }}>

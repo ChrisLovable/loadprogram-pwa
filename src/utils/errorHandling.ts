@@ -53,3 +53,12 @@ export function showUserError(error: AppError): void {
 export function isAppError(value: any): value is AppError {
   return value && typeof value === 'object' && 'code' in value && 'message' in value;
 }
+
+// Device detection utilities
+export function isDesktop(): boolean {
+  return window.innerWidth >= 1024;
+}
+
+export function getEffectiveLayout(): 'mobile' | 'desktop' {
+  return isDesktop() ? 'desktop' : 'mobile';
+}

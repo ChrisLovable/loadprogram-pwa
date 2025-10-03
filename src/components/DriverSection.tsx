@@ -16,12 +16,14 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
   const [visionError, setVisionError] = useState<string | null>(null)
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [uploadCompleted, setUploadCompleted] = useState(false)
   
   // Debug: Monitor showSuccess state changes
   useEffect(() => {
     console.log('🎉 showSuccess state changed to:', showSuccess);
     if (showSuccess) {
       console.log('🎉 Rendering success message...');
+      console.log('🎉 Current showSuccess value:', showSuccess);
     }
   }, [showSuccess]);
 
@@ -128,6 +130,8 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       })
       reader.readAsDataURL(photos[0])
       const base64Image = await base64Promise
+      console.log('🔍 Base64 image length:', base64Image.length)
+      console.log('🔍 Base64 image preview:', base64Image.substring(0, 50) + '...')
       // Call AWS Textract with retry logic
       console.log('Calling AWS Textract API...')
       const lambdaEndpoint = 'https://b5nahrxq89.execute-api.us-east-1.amazonaws.com/prod/';
@@ -138,14 +142,18 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
       
       while (retryCount < maxRetries && !textractData) {
         try {
+          const requestBody = {
+            image: base64Image
+          }
+          console.log('🔍 Request body keys:', Object.keys(requestBody))
+          console.log('🔍 Image data length:', requestBody.image.length)
+          
           const res = await fetch(lambdaEndpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              image: base64Image
-            }),
+            body: JSON.stringify(requestBody),
             signal: AbortSignal.timeout(30000) // 30 second timeout
           })
           
@@ -208,6 +216,46 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         textractData = JSON.parse(textractData.body)
       }
       console.log('Parsed Textract data on submit:', textractData)
+      
+      // Lambda function now handles sender/receiver parsing correctly
+      console.log('✅ Using Lambda function parsed data directly')
+      
+      console.log('📊 OCR Result keys:', Object.keys(textractData || {}));
+      console.log('📊 Truck Reg from OCR:', textractData?.truckReg || textractData?.truck_reg);
+      console.log('📊 Trailer Reg from OCR:', textractData?.trailerReg || textractData?.trailer_reg);
+      console.log('📊 Sender from OCR:', textractData?.sender);
+      console.log('📊 Receiver from OCR:', textractData?.receiver);
+      console.log('📊 Table data from OCR:', textractData?.table);
+      console.log('📊 Packages from OCR:', textractData?.table?.[0]?.packages);
+      console.log('📊 Description from OCR:', textractData?.table?.[0]?.description);
+      console.log('📊 Raw text from AWS Textract:', textractData?.raw_text);
+      console.log('📊 Raw text length:', textractData?.raw_text?.length);
+      
+      // If registration numbers are empty, try fallback OCR
+      if ((!textractData?.truckReg && !textractData?.truck_reg) || 
+          (!textractData?.trailerReg && !textractData?.trailer_reg)) {
+        console.log('🚨 AWS Textract failed to extract registration numbers, trying fallback OCR...');
+        try {
+          const { fallbackOCR } = await import('../utils/ocrFallback')
+          const fallbackData = await fallbackOCR(photos[0])
+          console.log('📊 Fallback OCR result:', fallbackData);
+          
+          // Merge fallback data with AWS Textract data
+          if (fallbackData) {
+            textractData = {
+              ...textractData,
+              truckReg: fallbackData.truck_reg || textractData.truckReg || textractData.truck_reg,
+              trailerReg: fallbackData.trailer_reg || textractData.trailerReg || textractData.trailer_reg,
+              truck_reg: fallbackData.truck_reg || textractData.truck_reg,
+              trailer_reg: fallbackData.trailer_reg || textractData.trailer_reg,
+            }
+            console.log('📊 Merged OCR data:', textractData);
+          }
+        } catch (fallbackError) {
+          console.error('Fallback OCR failed:', fallbackError);
+        }
+      }
+      
       // Pass Textract data to parent component for use in FirstApprover
       if (onTextractComplete) {
         console.log('DriverSection calling onTextractComplete from submit with:', textractData)
@@ -299,9 +347,9 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         date: safeDate,
         sender: textractData.sender || null,
         receiver: textractData.receiver || null,
-        truck_reg: textractData.truckReg || null,
-        trailer_reg: textractData.trailerReg || null,
-        parsed_table: textractData.tableData || null,
+        truck_reg: textractData.truckReg || textractData.truck_reg || null,
+        trailer_reg: textractData.trailerReg || textractData.trailer_reg || null,
+        parsed_table: textractData.table || null,
         parsed_data: textractData || null,
         photos: uploadedPhotoUrls,
       });
@@ -315,9 +363,9 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
           date: safeDate,
           sender: textractData.sender || null,
           receiver: textractData.receiver || null,
-          truck_reg: textractData.truckReg || null,
-          trailer_reg: textractData.trailerReg || null,
-          parsed_table: textractData.tableData || null,
+          truck_reg: textractData.truckReg || textractData.truck_reg || null,
+          trailer_reg: textractData.trailerReg || textractData.trailer_reg || null,
+          parsed_table: textractData.table || null,
           parsed_data: textractData || null,
           photos: uploadedPhotoUrls,
         }
@@ -333,17 +381,35 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         console.log('🎉 Setting showSuccess to true...');
         // Show success message
         setShowSuccess(true);
+        setUploadCompleted(true);
+        console.log('🎉 showSuccess set to true, should trigger useEffect');
+        
         setDriverName('Driver 1');
         setVisionError(null);
         setPhotos([]);
         const fileInput = document.getElementById('file-input') as HTMLInputElement | null;
         if (fileInput) fileInput.value = '';
-        if (onUploadComplete) onUploadComplete();
         
-        // Auto-hide success message after 3 seconds
+        // Delay the onUploadComplete callback to allow success message to show
         setTimeout(() => {
+          if (onUploadComplete && uploadCompleted) {
+            console.log('🎉 Calling onUploadComplete callback after delay');
+            onUploadComplete();
+            setUploadCompleted(false); // Reset flag
+          }
+        }, 1000); // 1 second delay to let success message appear
+        
+        // Auto-hide success message after 5 seconds (increased from 3)
+        setTimeout(() => {
+          console.log('🎉 Auto-hiding success message after 5 seconds');
           setShowSuccess(false);
-        }, 3000);
+          // If upload was completed and callback hasn't been called yet, call it now
+          if (uploadCompleted && onUploadComplete) {
+            console.log('🎉 Calling onUploadComplete callback from auto-hide timeout');
+            onUploadComplete();
+            setUploadCompleted(false); // Reset flag
+          }
+        }, 5000);
       }
     } catch (error) {
       console.error('🚨 CRITICAL ERROR - DriverSection upload failed:', error);
@@ -515,7 +581,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
             required
               readOnly={currentUser.role === 'driver'}
               style={{
-                width: '100%',
+                width: '160px',
                 padding: '1rem 1.2rem',
                 borderRadius: '16px',
                 border: '2px solid rgba(255,255,255,0.3)',
@@ -654,7 +720,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
               }}
             >
               🖼️ Choose from Phone Gallery
-            </button>
+          </button>
           </div>
           <div style={{display:'flex',gap:'0.5rem',marginTop:'0.8rem',flexWrap:'wrap'}}>
             {photos.map((file, idx) => (
@@ -785,62 +851,91 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         </button>
       </form>
 
-      {/* Success Message */}
+
+      {/* Success Message - Simplified for debugging */}
       {showSuccess && (
-        <div style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '20px',
-          padding: '2rem 2.5rem',
-          boxShadow: '0 20px 60px rgba(16,185,129,0.4), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
-          border: '2px solid rgba(255,255,255,0.2)',
-          color: 'white',
-          textAlign: 'center',
-          zIndex: 1000,
-          animation: 'successPulse 0.6s ease-out',
-          maxWidth: '320px',
-          width: '90%'
-        }}>
+        <>
+          {console.log('🎉 Success message JSX is rendering!')}
           <div style={{
-            fontSize: '3rem',
-            marginBottom: '1rem',
-            animation: 'successBounce 0.8s ease-out'
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: '#10b981',
+            borderRadius: '12px',
+            padding: '2rem',
+            color: 'white',
+            textAlign: 'center',
+            zIndex: 9999,
+            maxWidth: '120px',
+            width: '120px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+            border: '2px solid #059669'
+          }}>
+            {/* Close X Button */}
+            <button
+              onClick={() => {
+                console.log('🎉 Close button clicked, hiding success message');
+                setShowSuccess(false);
+                // If upload was completed and callback hasn't been called yet, call it now
+                if (uploadCompleted && onUploadComplete) {
+                  console.log('🎉 Calling onUploadComplete callback from close button');
+                  onUploadComplete();
+                  setUploadCompleted(false); // Reset flag
+                }
+              }}
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                background: 'rgba(255,255,255,0.2)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                color: 'white',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
+                zIndex: 10000
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              ×
+            </button>
+          <div style={{
+            fontSize: '2rem',
+            marginBottom: '1rem'
           }}>
             ✅
           </div>
           <div style={{
-            fontSize: '1.4rem',
+            fontSize: '1.5rem',
             fontWeight: 700,
-            marginBottom: '0.5rem',
-            textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-            letterSpacing: '0.5px'
+            marginBottom: '1rem'
           }}>
-            Load Submitted Successfully!
+            Successfully Submitted!
           </div>
           <div style={{
             fontSize: '1rem',
-            opacity: 0.9,
-            fontWeight: 500,
-            lineHeight: '1.4'
+            opacity: 0.9
           }}>
-            Your load has been uploaded and is ready for review by the 1st Approver.
+            Photos uploaded and processed successfully
           </div>
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '50%',
-            background: 'linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)',
-            borderRadius: '20px 20px 0 0',
-            pointerEvents: 'none'
-          }}></div>
           </div>
-        )}
+        </>
+      )}
 
       {/* Image Enlargement - Top Positioned */}
       {enlargedImage && (

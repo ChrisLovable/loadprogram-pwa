@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 interface FirstApproverSectionProps {
   load: any // expects load with ocr_data and optionally vision_data
@@ -34,6 +34,16 @@ const getField = (load: any, field: string, fallback: any = '') => {
   if (load?.textract_data && load.textract_data[field] !== undefined) return load.textract_data[field]
   if (load?.vision_data && load.vision_data[field] !== undefined) return load.vision_data[field]
   if (load?.ocr_data && load.ocr_data[field] !== undefined) return load.ocr_data[field]
+  
+  // Special handling for registration numbers - check both camelCase and snake_case
+  if (field === 'truckReg' || field === 'trailerReg') {
+    const snakeCaseField = field === 'truckReg' ? 'truck_reg' : 'trailer_reg'
+    if (load?.parsed_data && load.parsed_data[snakeCaseField] !== undefined) return load.parsed_data[snakeCaseField]
+    if (load?.textract_data && load.textract_data[snakeCaseField] !== undefined) return load.textract_data[snakeCaseField]
+    if (load?.vision_data && load.vision_data[snakeCaseField] !== undefined) return load.vision_data[snakeCaseField]
+    if (load?.ocr_data && load.ocr_data[snakeCaseField] !== undefined) return load.ocr_data[snakeCaseField]
+  }
+  
   return fallback
 }
 
@@ -44,14 +54,18 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
   // Debug: Log the load data
   console.log('FirstApprover received load:', load)
   console.log('Textract data available:', load?.textract_data)
+  console.log('Parsed data available:', load?.parsed_data)
+  console.log('Load keys:', Object.keys(load || {}))
   console.log('StartKm from getField:', getField(load, 'startKm', 'NOT_FOUND'))
   console.log('EndKm from getField:', getField(load, 'endKm', 'NOT_FOUND'))
+  console.log('TruckReg from getField:', getField(load, 'truckReg', 'NOT_FOUND'))
+  console.log('TrailerReg from getField:', getField(load, 'trailerReg', 'NOT_FOUND'))
   // Vision fields
   const [sender, setSender] = useState(getField(load, 'sender', ''))
   const [receiver, setReceiver] = useState(getField(load, 'receiver', ''))
   const [date, setDate] = useState(getField(load, 'date', ''))
-  const [truckReg, setTruckReg] = useState(getField(load, 'truck_reg', ''))
-  const [trailerReg, setTrailerReg] = useState(getField(load, 'trailer_reg', ''))
+  const [truckReg, setTruckReg] = useState(getField(load, 'truckReg', ''))
+  const [trailerReg, setTrailerReg] = useState(getField(load, 'trailerReg', ''))
 
   const [table, setTable] = useState(getTableData(load))
   const [startKm, setStartKm] = useState(getField(load, 'startKm', ''))
@@ -63,8 +77,8 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
     const newEndKm = getField(load, 'endKm', '')
     const newSender = getField(load, 'sender', '')
     const newReceiver = getField(load, 'receiver', '')
-    const newTruckReg = getField(load, 'truck_reg', '')
-    const newTrailerReg = getField(load, 'trailer_reg', '')
+    const newTruckReg = getField(load, 'truckReg', '')
+    const newTrailerReg = getField(load, 'trailerReg', '')
     const newDate = getField(load, 'date', '')
     
     console.log('Updating all fields:', { 
@@ -85,8 +99,17 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
   const [ratePerAnimal, setRatePerAnimal] = useState(0)
   const [runningKms, setRunningKms] = useState(0)
   const [runningKmRate, setRunningKmRate] = useState(0)
+  const [discount, setDiscount] = useState(0)
   const [comments, setComments] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  // Currency formatting function
+  const formatCurrency = (value: number): string => {
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+  }
 
   const tripKm = startKm && endKm ? Number(endKm) - Number(startKm) : ''
   
@@ -97,6 +120,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
   const ratePerAnimalNum = Number(ratePerAnimal) || 0;
   const runningKmsNum = Number(runningKms) || 0;
   const runningKmRateNum = Number(runningKmRate) || 0;
+  const discountNum = Number(discount) || 0;
 
   const costPerLoadedKm = rateNum && tripKmNum ? rateNum * tripKmNum : 0;
   // Calculate totalAnimals from the table
@@ -107,7 +131,10 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
   const costPerHead = ratePerAnimalNum && totalAnimals ? ratePerAnimalNum * totalAnimals : 0;
   const costPerRunningKm = runningKmsNum && runningKmRateNum ? runningKmsNum * runningKmRateNum : 0;
   // Total subtotal is the sum of all three
-  const subtotal = costPerLoadedKm + costPerHead + costPerRunningKm;
+  const baseSubtotal = costPerLoadedKm + costPerHead + costPerRunningKm;
+  // Apply discount
+  const discountAmount = baseSubtotal * (discountNum / 100);
+  const subtotal = baseSubtotal - discountAmount;
   const vatAmount = subtotal ? subtotal * 0.15 : 0;
   const totalInvoice = subtotal ? subtotal + vatAmount : 0;
 
@@ -123,6 +150,9 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
   };
   const handleRunningKmRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRunningKmRate(e.target.value === '' ? 0 : e.target.valueAsNumber);
+  };
+  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDiscount(e.target.value === '' ? 0 : e.target.valueAsNumber);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,6 +174,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         ratePerAnimal: Number(ratePerAnimal),
         runningKms: Number(runningKms),
         runningKmRate: Number(runningKmRate),
+        discount: Number(discount),
         subtotal: subtotal, // store as number
         vat: vatAmount, // store as number
         total: totalInvoice, // store as number
@@ -187,15 +218,17 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         const firstApprovalData = {
           rate: rate,
           ratePerAnimal: ratePerAnimal,
-          subtotal: subtotal.toFixed(2),
-          vat: vatAmount.toFixed(2),
-          total: totalInvoice.toFixed(2),
+          subtotal: formatCurrency(subtotal),
+          vat: formatCurrency(vatAmount),
+          total: formatCurrency(totalInvoice),
           comments: comments,
           tripKm: tripKm,
           totalAnimals: totalAnimals,
-          costPerLoadedKm: costPerLoadedKm.toFixed(2),
-          costPerHead: costPerHead.toFixed(2),
-          costPerRunningKm: costPerRunningKm.toFixed(2),
+          costPerLoadedKm: formatCurrency(costPerLoadedKm),
+          costPerHead: formatCurrency(costPerHead),
+          costPerRunningKm: formatCurrency(costPerRunningKm),
+          discount: discount,
+          discountAmount: formatCurrency(discountAmount),
           approver: 'First Approver',
           timestamp: new Date().toISOString()
         }
@@ -220,15 +253,17 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
       const currentData = {
         rate: rate,
         ratePerAnimal: ratePerAnimal,
-        subtotal: subtotal.toFixed(2),
-        vat: vatAmount.toFixed(2),
-        total: totalInvoice.toFixed(2),
+        subtotal: formatCurrency(subtotal),
+        vat: formatCurrency(vatAmount),
+        total: formatCurrency(totalInvoice),
         comments: comments,
         tripKm: tripKm,
         totalAnimals: totalAnimals,
-        costPerLoadedKm: costPerLoadedKm.toFixed(2),
-        costPerHead: costPerHead.toFixed(2),
-        costPerRunningKm: costPerRunningKm.toFixed(2),
+        costPerLoadedKm: formatCurrency(costPerLoadedKm),
+        costPerHead: formatCurrency(costPerHead),
+        costPerRunningKm: formatCurrency(costPerRunningKm),
+        discount: discount,
+        discountAmount: formatCurrency(discountAmount),
         approver: 'First Approver',
         timestamp: new Date().toISOString()
       }
@@ -241,7 +276,55 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         detail: currentData 
       }))
     }
-  }, [rate, ratePerAnimal, tripKm, subtotal, vatAmount, totalInvoice, comments, totalAnimals, costPerLoadedKm, costPerHead, costPerRunningKm])
+  }, [rate, ratePerAnimal, tripKm, subtotal, vatAmount, totalInvoice, comments, totalAnimals, costPerLoadedKm, costPerHead, costPerRunningKm, discount, discountAmount])
+
+  // Real-time save for basic fields (sender, receiver, date, truck/trailer reg)
+  React.useEffect(() => {
+    const saveBasicFields = async () => {
+      if (!load?.id) return;
+      
+      try {
+        // Normalize date to YYYY-MM-DD
+        let safeDate = date;
+        if (date) {
+          if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            safeDate = date;
+          } else if (/^\d{2}-\d{2}-\d{2}$/.test(date)) {
+            const [yy, mm, dd] = date.split('-');
+            const yyyy = parseInt(yy, 10) < 50 ? '20' + yy : '19' + yy;
+            safeDate = `${yyyy}-${mm}-${dd}`;
+          } else {
+            safeDate = new Date().toISOString().slice(0, 10);
+          }
+        } else {
+          safeDate = new Date().toISOString().slice(0, 10);
+        }
+
+        // Update the load in Supabase with basic fields
+        const { supabase } = await import('../lib/supabase');
+        const { error } = await supabase.from('loads').update({
+          sender,
+          receiver,
+          date: safeDate,
+          truck_reg: truckReg,
+          trailer_reg: trailerReg,
+        }).eq('id', load.id);
+
+        if (error) {
+          console.error('Failed to save basic fields:', error);
+        } else {
+          console.log('Basic fields saved successfully:', { sender, receiver, date: safeDate, truckReg, trailerReg });
+        }
+      } catch (error) {
+        console.error('Error saving basic fields:', error);
+      }
+    };
+
+    // Debounce the save operation to avoid too many database calls
+    const timeoutId = setTimeout(saveBasicFields, 1000); // Save after 1 second of no changes
+    
+    return () => clearTimeout(timeoutId);
+  }, [sender, receiver, date, truckReg, trailerReg, load?.id]);
 
   // Get current user from localStorage
   const currentUser = (() => {
@@ -252,11 +335,8 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
 
   return (
     <form onSubmit={handleSubmit} className="approver-form">
-      {currentUser.role === 'first_approver' && currentUser.name && (
-        <div style={{fontSize:'0.98rem',color:'#2563eb',fontWeight:600,marginBottom:'0.5rem'}}>Approved by: {currentUser.name}</div>
-      )}
       {/* Load Details - No Extra Padding */}
-      <div style={{background:'#f7fafd',borderRadius:'10px',padding:'0',marginBottom:'1.2rem',boxShadow:'0 1px 4px rgba(79,140,255,0.07)'}}>
+      <div style={{background:'#f7fafd',borderRadius:'10px',padding:'0',marginBottom:'1.2rem',boxShadow:'0 1px 4px rgba(79,140,255,0.07)',width:'90%',maxWidth:'90vw',margin:'0 auto 1.2rem auto'}}>
         <div style={{
           color: '#2563eb',
           borderRadius: '8px',
@@ -334,117 +414,144 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         {/* Sender - Left Aligned */}
         <div style={{marginBottom:'0.7rem',paddingLeft:'0.5rem',paddingRight:'0.5rem'}}>
             <div style={labelStyle}>Sender</div>
-          <input type="text" value={sender} onChange={e => setSender(e.target.value)} style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f7fafd',width:'280px'}} />
+          <input type="text" value={sender} onChange={e => setSender(e.target.value)} style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f7fafd',width:'100%',maxWidth:'280px'}} />
           </div>
         
         {/* Receiver - Left Aligned */}
         <div style={{marginBottom:'0.7rem',paddingLeft:'0.5rem',paddingRight:'0.5rem'}}>
             <div style={labelStyle}>Receiver</div>
-          <input type="text" value={receiver} onChange={e => setReceiver(e.target.value)} style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f7fafd',width:'280px'}} />
+          <input type="text" value={receiver} onChange={e => setReceiver(e.target.value)} style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f7fafd',width:'100%',maxWidth:'280px'}} />
           </div>
         
         {/* Truck & Trailer Reg - Aligned to Edges */}
         <div style={{display:'flex',justifyContent:'space-between',paddingLeft:'0.5rem',paddingRight:'0.5rem',paddingBottom:'0.5rem'}}>
           <div>
             <div style={labelStyle}>Truck Reg.</div>
-            <input type="text" value={truckReg} onChange={e => setTruckReg(e.target.value)} style={{...inputStyle,width:'120px',border:'1px solid #333',borderRadius:'6px'}} />
+            <input type="text" value={truckReg} onChange={e => setTruckReg(e.target.value)} style={{...inputStyle,width:'100px',border:'1px solid #333',borderRadius:'6px'}} />
           </div>
           <div>
             <div style={labelStyle}>Trailer Reg.</div>
-            <input type="text" value={trailerReg} onChange={e => setTrailerReg(e.target.value)} style={{...inputStyle,width:'120px',border:'1px solid #333',borderRadius:'6px'}} />
+            <input type="text" value={trailerReg} onChange={e => setTrailerReg(e.target.value)} style={{...inputStyle,width:'100px',border:'1px solid #333',borderRadius:'6px'}} />
           </div>
         </div>
       </div>
       {/* Document Info Table - Excel-like Structure */}
       <div style={{marginBottom:'1.2rem', maxWidth:'100%', overflowX:'auto'}}>
-        <table style={{width:'100%', minWidth:'350px', borderCollapse:'collapse', background:'#f7fafd', borderRadius:'8px', overflow:'hidden', boxShadow:'0 1px 4px rgba(79,140,255,0.07)', fontSize:'0.75rem'}}>
+        <table style={{width:'100%', borderCollapse:'collapse', background:'#ffffff', borderRadius:'8px', overflow:'hidden', boxShadow:'0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)', fontSize:'0.65rem'}}>
           <thead>
-            <tr style={{background:'#e0f2fe',color:'#2563eb',fontWeight:700}}>
-              <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db', minWidth:'40px'}}>No</th>
-              <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db', minWidth:'80px'}}>Description</th>
-              <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db', minWidth:'50px'}}>Mass</th>
-              <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db', minWidth:'50px'}}>Volume</th>
-              <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db', minWidth:'30px'}}>R</th>
-              <th style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db', minWidth:'30px'}}>C</th>
+            <tr style={{background:'#ffffff',color:'#2563eb',fontWeight:700}}>
+              <th style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db', minWidth:'40px',background:'#ffffff'}}>No</th>
+              <th style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db', minWidth:'80px',background:'#ffffff'}}>Description</th>
+              <th style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db', minWidth:'50px',background:'#ffffff'}}>Mass</th>
+              <th style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db', minWidth:'50px',background:'#ffffff'}}>Volume</th>
+              <th style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db', minWidth:'30px',background:'#ffffff'}}>R</th>
+              <th style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db', minWidth:'30px',background:'#ffffff'}}>C</th>
             </tr>
           </thead>
           <tbody>
-            {table.filter((row: any) => Object.values(row).some((val: any) => val && val.toString().trim() !== '')).map((row: any, i: number) => (
-              <tr key={i} style={{textAlign:'center',fontWeight:600,color:'#333'}}>
-                <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>
-                  <input
-                    type="text"
-                    value={row.packages}
-                    onChange={e => {
-                      const newTable = [...table]
-                      newTable[i] = { ...row, packages: e.target.value }
-                      setTable(newTable)
-                    }}
-                    style={{width:'100%',maxWidth:'40px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333'}}
-                  />
-                </td>
-                <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>
-                  <input
-                    type="text"
-                    value={row.description}
-                    onChange={e => {
-                      const newTable = [...table]
-                      newTable[i] = { ...row, description: e.target.value }
-                      setTable(newTable)
-                    }}
-                    style={{width:'100%',maxWidth:'80px',textAlign:'left',border:'none',background:'transparent',fontWeight:600,color:'#333'}}
-                  />
-                </td>
-                <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>
-                  <input
-                    type="text"
-                    value={row.gross}
-                    onChange={e => {
-                      const newTable = [...table]
-                      newTable[i] = { ...row, gross: e.target.value }
-                      setTable(newTable)
-                    }}
-                    style={{width:'100%',maxWidth:'50px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333'}}
-                  />
-                </td>
-                <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>
-                  <input
-                    type="text"
-                    value={row.volume}
-                    onChange={e => {
-                      const newTable = [...table]
-                      newTable[i] = { ...row, volume: e.target.value }
-                      setTable(newTable)
-                    }}
-                    style={{width:'100%',maxWidth:'50px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333'}}
-                  />
-                </td>
-                <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>
-                  <input
-                    type="text"
-                    value={row.r}
-                    onChange={e => {
-                      const newTable = [...table]
-                      newTable[i] = { ...row, r: e.target.value }
-                      setTable(newTable)
-                    }}
-                    style={{width:'100%',maxWidth:'30px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333'}}
-                  />
-                </td>
-                <td style={{padding:'0.3rem 0.2rem',fontSize:'0.75rem',border:'1px solid #d1d5db',minHeight:'2rem'}}>
-                  <input
-                    type="text"
-                    value={row.c}
-                    onChange={e => {
-                      const newTable = [...table]
-                      newTable[i] = { ...row, c: e.target.value }
-                      setTable(newTable)
-                    }}
-                    style={{width:'100%',maxWidth:'30px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333'}}
-                  />
-                </td>
+            {Array.from({ length: 6 }, (_, i) => {
+              const row = table[i] || { packages: '', description: '', gross: '', volume: '', r: '', c: '' };
+              return (
+              <tr key={i} style={{textAlign:'center',fontWeight:600,color:'#333',background:'#ffffff'}}>
+                  <td style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>
+                    <input
+                      type="text"
+                      value={row.packages}
+                      onChange={e => {
+                        const newTable = [...table];
+                        // Ensure we have enough rows
+                        while (newTable.length <= i) {
+                          newTable.push({ packages: '', description: '', gross: '', volume: '', r: '', c: '' });
+                        }
+                        newTable[i] = { ...row, packages: e.target.value };
+                        setTable(newTable);
+                      }}
+                      style={{width:'100%',maxWidth:'40px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333',padding:'0',fontSize:'0.65rem'}}
+                    />
+                  </td>
+                  <td style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>
+                    <input
+                      type="text"
+                      value={row.description}
+                      onChange={e => {
+                        const newTable = [...table];
+                        // Ensure we have enough rows
+                        while (newTable.length <= i) {
+                          newTable.push({ packages: '', description: '', gross: '', volume: '', r: '', c: '' });
+                        }
+                        newTable[i] = { ...row, description: e.target.value };
+                        setTable(newTable);
+                      }}
+                      style={{width:'100%',maxWidth:'80px',textAlign:'left',border:'none',background:'transparent',fontWeight:600,color:'#333',padding:'0',fontSize:'0.65rem'}}
+                    />
+                  </td>
+                  <td style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>
+                    <input
+                      type="text"
+                      value={row.gross}
+                      onChange={e => {
+                        const newTable = [...table];
+                        // Ensure we have enough rows
+                        while (newTable.length <= i) {
+                          newTable.push({ packages: '', description: '', gross: '', volume: '', r: '', c: '' });
+                        }
+                        newTable[i] = { ...row, gross: e.target.value };
+                        setTable(newTable);
+                      }}
+                      style={{width:'100%',maxWidth:'50px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333',padding:'0',fontSize:'0.65rem'}}
+                    />
+                  </td>
+                  <td style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>
+                    <input
+                      type="text"
+                      value={row.volume}
+                      onChange={e => {
+                        const newTable = [...table];
+                        // Ensure we have enough rows
+                        while (newTable.length <= i) {
+                          newTable.push({ packages: '', description: '', gross: '', volume: '', r: '', c: '' });
+                        }
+                        newTable[i] = { ...row, volume: e.target.value };
+                        setTable(newTable);
+                      }}
+                      style={{width:'100%',maxWidth:'50px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333',padding:'0',fontSize:'0.65rem'}}
+                    />
+                  </td>
+                  <td style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>
+                    <input
+                      type="text"
+                      value={row.r}
+                      onChange={e => {
+                        const newTable = [...table];
+                        // Ensure we have enough rows
+                        while (newTable.length <= i) {
+                          newTable.push({ packages: '', description: '', gross: '', volume: '', r: '', c: '' });
+                        }
+                        newTable[i] = { ...row, r: e.target.value };
+                        setTable(newTable);
+                      }}
+                      style={{width:'100%',maxWidth:'30px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333',padding:'0',fontSize:'0.65rem'}}
+                    />
+                  </td>
+                  <td style={{padding:'0',fontSize:'0.65rem',border:'1px solid #d1d5db',minHeight:'2rem',background:'#ffffff'}}>
+                    <input
+                      type="text"
+                      value={row.c}
+                      onChange={e => {
+                        const newTable = [...table];
+                        // Ensure we have enough rows
+                        while (newTable.length <= i) {
+                          newTable.push({ packages: '', description: '', gross: '', volume: '', r: '', c: '' });
+                        }
+                        newTable[i] = { ...row, c: e.target.value };
+                        setTable(newTable);
+                      }}
+                      style={{width:'100%',maxWidth:'30px',textAlign:'center',border:'none',background:'transparent',fontWeight:600,color:'#333',padding:'0',fontSize:'0.65rem'}}
+                    />
+                  </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -493,13 +600,13 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         boxShadow: '0 1px 4px rgba(79,140,255,0.07)'
       }}>
         <div style={{display: 'flex', justifyContent: 'center', marginBottom: '0.5rem', gap: '1rem'}}>
-          <div style={{border: '1px solid #4f8cff', borderRadius: '6px', padding: '0.5rem', minHeight: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '150px'}}>
-            <span style={{fontWeight: 600, color: '#4f8cff', marginRight: '0.3rem'}}>Start:</span>
-            <input type="number" value={startKm} onChange={e => setStartKm(e.target.value)} style={{width:'100%',border:'none',background:'transparent',fontWeight:700,color:'#4f8cff',textAlign:'center',outline:'none'}} />
+          <div style={{border: '1px solid #4f8cff', borderRadius: '6px', padding: '0.3rem', minHeight: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '150px'}}>
+            <span style={{fontWeight: 600, color: '#4f8cff', marginRight: '0.3rem', fontSize: '0.8rem'}}>Start:</span>
+            <input type="number" value={startKm} onChange={e => setStartKm(e.target.value)} style={{width:'100%',border:'none',background:'transparent',fontWeight:700,color:'#4f8cff',textAlign:'center',outline:'none', fontSize: '0.8rem'}} />
           </div>
-          <div style={{border: '1px solid #4f8cff', borderRadius: '6px', padding: '0.5rem', minHeight: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '150px'}}>
-            <span style={{fontWeight: 600, color: '#4f8cff', marginRight: '0.3rem'}}>End:</span>
-            <input type="number" value={endKm} onChange={e => setEndKm(e.target.value)} style={{width:'100%',border:'none',background:'transparent',fontWeight:700,color:'#4f8cff',textAlign:'center',outline:'none'}} />
+          <div style={{border: '1px solid #4f8cff', borderRadius: '6px', padding: '0.3rem', minHeight: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '150px'}}>
+            <span style={{fontWeight: 600, color: '#4f8cff', marginRight: '0.3rem', fontSize: '0.8rem'}}>End:</span>
+            <input type="number" value={endKm} onChange={e => setEndKm(e.target.value)} style={{width:'100%',border:'none',background:'transparent',fontWeight:700,color:'#4f8cff',textAlign:'center',outline:'none', fontSize: '0.8rem'}} />
           </div>
         </div>
         <div style={{textAlign: 'center', borderTop: '1px solid rgba(79,140,255,0.2)', paddingTop: '0.5rem', paddingLeft: '0.5rem', paddingRight: '0.5rem'}}>
@@ -549,7 +656,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
             />
           </div>
           <div>
-            <div style={{...labelStyle,fontSize:'1.05rem'}}>Running KM Rate</div>
+            <div style={{...labelStyle,fontSize:'1.05rem'}}>Rate/km</div>
             <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden'}}>
               <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
               <input 
@@ -579,7 +686,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
           </div>
         </div>
         {/* Cost Breakdown */}
-        {(costPerLoadedKm > 0 || costPerHead > 0 || costPerRunningKm > 0) && (
+        {(costPerLoadedKm > 0 || costPerHead > 0 || costPerRunningKm > 0 || discountAmount > 0) && (
           <div style={{
             background: '#f8f9fa',
             borderRadius: '8px',
@@ -590,56 +697,81 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
           }}>
             <div style={{fontWeight: 600, marginBottom: '0.3rem', color: '#333'}}>Cost Breakdown:</div>
             {costPerLoadedKm > 0 && (
-              <div>Cost per Loaded KM: R{costPerLoadedKm.toFixed(2)} ({tripKm} km × R{rate})</div>
+              <div>Cost per Loaded KM: R{formatCurrency(costPerLoadedKm)} ({tripKm} km × R{rate})</div>
             )}
             {costPerRunningKm > 0 && (
-              <div>Cost per Running KM: R{costPerRunningKm.toFixed(2)} ({runningKms} km × R{runningKmRate})</div>
+              <div>Cost per Running KM: R{formatCurrency(costPerRunningKm)} ({runningKms} km × R{runningKmRate})</div>
             )}
             {costPerHead > 0 && (
-              <div>Cost per Head: R{costPerHead.toFixed(2)} ({totalAnimals} animals × R{ratePerAnimal})</div>
+              <div>Cost per Head: R{formatCurrency(costPerHead)} ({totalAnimals} animals × R{ratePerAnimal})</div>
+            )}
+            {discountAmount > 0 && (
+              <div style={{color: '#dc2626'}}>Discount ({discount}%): -R{formatCurrency(discountAmount)}</div>
             )}
             <div style={{fontWeight: 600, marginTop: '0.3rem', color: '#333'}}>
-              Total Subtotal: R{subtotal.toFixed(2)}
+              Total Subtotal: R{formatCurrency(subtotal)}
             </div>
           </div>
         )}
         
-        {/* Subtotal and VAT - Same Line */}
-        <div style={{display:'flex',gap:'1rem',justifyContent:'center',marginBottom:'1rem'}}>
-          <div style={{textAlign:'center'}}>
-            <div style={labelStyle}>Subtotal</div>
-            <input 
-              type="text" 
-              value={subtotal ? `R ${subtotal.toFixed(2)}` : ''} 
-              readOnly 
-              style={{...inputStyle,width:'120px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',fontSize:'1rem',border:'1px solid #333',borderRadius:'6px'}} 
-            />
+        {/* Subtotal, Discount, VAT, and Total Invoice - Responsive Layout */}
+        <div style={{display:'flex',flexDirection:'column',gap:'0.8rem',marginBottom:'1rem',maxWidth:'100%'}}>
+          {/* Top row: Subtotal, Discount, VAT - Vertical Layout */}
+          <div style={{display:'flex',flexDirection:'column',gap:'0.8rem',alignItems:'flex-start'}}>
+            <div style={{textAlign:'left',width:'120px'}}>
+              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem'}}>Subtotal</div>
+              <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden',minHeight:'2rem'}}>
+                <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+                <input 
+                  type="text" 
+                  value={baseSubtotal ? formatCurrency(baseSubtotal) : ''} 
+                  readOnly 
+                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#333',outline:'none',minHeight:'2rem'}} 
+                />
+              </div>
+            </div>
+            <div style={{textAlign:'left',width:'120px'}}>
+              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem'}}>Discount</div>
+              <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden',minHeight:'2rem'}}>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  value={discount === 0 ? '' : discount}
+                  onChange={handleDiscountChange}
+                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#333',outline:'none',minHeight:'2rem'}} 
+                  placeholder="0.00"
+                />
+                <span style={{padding:'0 0.4rem',color:'#dc2626',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>%</span>
+              </div>
+            </div>
+            <div style={{textAlign:'left',width:'120px'}}>
+              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem'}}>VAT (15%)</div>
+              <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden',minHeight:'2rem'}}>
+                <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+                <input 
+                  type="text" 
+                  value={vatAmount ? formatCurrency(vatAmount) : ''} 
+                  readOnly 
+                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#333',outline:'none',minHeight:'2rem'}} 
+                />
+              </div>
+            </div>
           </div>
-          <div style={{textAlign:'center'}}>
-            <div style={labelStyle}>VAT (15%)</div>
-            <input 
-              type="text" 
-              value={vatAmount ? `R ${vatAmount.toFixed(2)}` : ''} 
-              readOnly 
-              style={{...inputStyle,width:'120px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',fontSize:'1rem',border:'1px solid #333',borderRadius:'6px'}} 
-            />
-          </div>
+          
+          {/* Bottom row: TOTAL */}
+          <div style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
+            <div style={{textAlign:'center',minWidth:'200px',maxWidth:'300px'}}>
+              <div style={{...labelStyle,fontSize:'1.05rem',fontWeight:700,color:'#38d39f',marginBottom:'0.2rem'}}>TOTAL</div>
+              <div style={{display:'flex',alignItems:'center',width:'100%',borderRadius:'6px',border:'2px solid #38d39f',background:'#fff',overflow:'hidden'}}>
+                <span style={{padding:'0 0.4rem',color:'#38d39f',fontWeight:700,fontSize:'1rem',background:'#e3f6f5',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+                <input 
+                  type="text" 
+                  value={totalInvoice ? formatCurrency(totalInvoice) : '0.00'} 
+                  readOnly 
+                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#38d39f',outline:'none'}} 
+                />
+              </div>
       </div>
-        
-        <div style={{textAlign:'center'}}>
-          <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#38d39f'}}>TOTAL INVOICE</div>
-          <div style={{
-            background:'#e3f6f5',
-            color:'#38d39f',
-            fontWeight:700,
-            fontSize:'1.3rem',
-            padding:'0.8rem',
-            borderRadius:'8px',
-            border:'2px solid #38d39f',
-            textAlign:'center',
-            marginTop:'0.3rem'
-          }}>
-            {totalInvoice ? `R ${totalInvoice.toFixed(2)}` : 'R 0.00'}
         </div>
         </div>
       </div>
@@ -684,8 +816,146 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
       >
         {submitting ? '⏳ Approving...' : '✅ Approve & Continue'}
       </button>
+
+      {/* Photo Thumbnails */}
+      {load.photos && load.photos.length > 0 && (
+        <div style={{
+          marginTop: '1rem',
+          padding: '1rem',
+          background: '#f8fafc',
+          borderRadius: '8px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <div style={{
+            fontSize: '0.9rem',
+            fontWeight: 600,
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>
+            📸 Document Photos ({load.photos.length})
+          </div>
+          {/* Debug info */}
+          <div style={{
+            fontSize: '0.7rem',
+            color: '#666',
+            marginBottom: '0.5rem',
+            padding: '0.3rem',
+            background: '#f0f0f0',
+            borderRadius: '4px'
+          }}>
+            Debug: {load.photos.length} photos found. First URL: {load.photos[0] ? load.photos[0].substring(0, 50) + '...' : 'No URL'}
+          </div>
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-start'
+          }}>
+            {load.photos.map((photoUrl: string, i: number) => {
+              // Check if this is a Supabase storage path (starts with loads/) or a full URL
+              const isStoragePath = photoUrl && photoUrl.startsWith('loads/');
+              const [imageUrl, setImageUrl] = useState(photoUrl);
+              
+              // If it's a storage path, generate a new signed URL
+              useEffect(() => {
+                if (isStoragePath) {
+                  const generateSignedUrl = async () => {
+                    try {
+                      const { supabase } = await import('../lib/supabase');
+                      const { data, error } = await supabase.storage
+                        .from('loads')
+                        .createSignedUrl(photoUrl, 60 * 60 * 24 * 365); // 1 year expiry
+                      
+                      if (data && data.signedUrl) {
+                        setImageUrl(data.signedUrl);
+                        console.log(`Generated new signed URL for ${photoUrl}:`, data.signedUrl);
+                      } else {
+                        console.error(`Failed to generate signed URL for ${photoUrl}:`, error);
+                      }
+                    } catch (err) {
+                      console.error(`Error generating signed URL for ${photoUrl}:`, err);
+                    }
+                  };
+                  generateSignedUrl();
+                }
+              }, [photoUrl, isStoragePath]);
+              
+              return (
+                <img
+                  key={`${load.id}-photo-${i}`}
+                  src={imageUrl}
+                  alt={`Document ${i+1}`}
+                  style={{
+                    width: 60,
+                    height: 60,
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    border: '2px solid #d1d5db',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}
+                  onError={(e) => {
+                    console.error(`Failed to load image ${i}:`, imageUrl);
+                    e.currentTarget.style.border = '2px solid #ef4444';
+                    e.currentTarget.style.background = '#fef2f2';
+                  }}
+                  onLoad={() => {
+                    console.log(`Successfully loaded image ${i}:`, imageUrl);
+                  }}
+                  onClick={() => {
+                    // Create modal for expanded view
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      background: rgba(0,0,0,0.8);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      z-index: 10000;
+                      cursor: pointer;
+                    `;
+                    
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.style.cssText = `
+                      max-width: 90%;
+                      max-height: 90%;
+                      object-fit: contain;
+                      border-radius: 8px;
+                      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                    `;
+                    
+                    modal.appendChild(img);
+                    document.body.appendChild(modal);
+                    
+                    modal.onclick = () => {
+                      document.body.removeChild(modal);
+                    };
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                    e.currentTarget.style.borderColor = '#3b82f6';
+                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
     </form>
   )
 }
 
 export default FirstApproverSection
+

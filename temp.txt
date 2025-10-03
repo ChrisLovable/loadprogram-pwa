@@ -1,0 +1,1 @@
+"  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);"  
