@@ -74,7 +74,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
     }
   }
 
-  const roles = [
+  const roleButtons = [
     { key: 'driver', name: 'Driver', color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderColor: '#34d399', icon: '🚛' },
     { key: 'first_approver', name: 'First Approver', color: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', borderColor: '#60a5fa', icon: '✅' },
     { key: 'second_approver', name: 'Second Approver', color: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)', borderColor: '#c4b5fd', icon: '🔍' },
@@ -90,14 +90,15 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       marginTop: '-30px',
       marginBottom: '1rem'
     }}>
-      {/* Role Buttons */}
+      {/* Role Buttons - Vertical Stack */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
+        display: 'flex',
+        flexDirection: 'column',
         gap: '0.7rem',
-        marginBottom: '1rem'
+        marginBottom: '1rem',
+        alignItems: 'center'
       }}>
-        {roles.map((role) => {
+        {roleButtons.map((role) => {
           const isDisabled = currentUser?.type === 'driver' && role.key !== 'driver';
           
           return (
@@ -115,18 +116,21 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 color: currentRole === role.key ? '#222' : 'white',
                 border: `2.5px solid ${currentRole === role.key ? '#fff' : role.borderColor}`,
                 borderRadius: '16px',
-                padding: '0.5rem 0.8rem',
+                padding: '0.8rem 1rem',
                 fontWeight: 900,
-                fontSize: '0.85rem',
+                fontSize: '0.9rem',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
                 opacity: isDisabled ? 0.5 : 1,
                 position: 'relative',
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'column',
+                flexDirection: 'row',
                 alignItems: 'center',
-                gap: '0.2rem'
+                justifyContent: 'space-between',
+                gap: '0.5rem',
+                width: '80vw',
+                maxWidth: '400px'
               }}
               onMouseOver={(e) => {
                 if (!isDisabled && currentRole !== role.key) {
@@ -141,24 +145,22 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 }
               }}
             >
-              <span style={{fontSize:'1.2em'}}>{role.icon}</span>
-              <span>{role.name}</span>
+              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                <span style={{fontSize:'1.5em'}}>{role.icon}</span>
+                <span>{role.name}</span>
+              </div>
               {role.key !== 'driver' && (
                 <span style={{
-                  position: 'absolute',
-                  top: '-8px',
-                  right: '-8px',
                   background: currentRole === role.key ? '#fff' : '#ef4444',
                   color: currentRole === role.key ? '#222' : 'white',
                   borderRadius: '50%',
-                  width: '20px',
-                  height: '20px',
+                  width: '24px',
+                  height: '24px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.7rem',
+                  fontSize: '0.8rem',
                   fontWeight: 700,
-                  padding: '0 6px',
                 }}>{queueCounts[role.key]}</span>
               )}
             </button>
