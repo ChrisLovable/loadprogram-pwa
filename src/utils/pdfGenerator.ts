@@ -128,11 +128,20 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     doc.text('9595', 22, 67);
     doc.text('BTW 4220283446', 22, 72);
     
-    // INVOICE BOX (Simple Design)
-    // Simple box with thin border
-    doc.setDrawColor(200, 200, 200); // Light grey border
-    doc.setFillColor(255, 255, 255); // White background
+    // INVOICE BOX (3D Design matching COMPANY DETAILS)
+    // Create 3D shadow effect
+    doc.setDrawColor(160, 160, 160); // Shadow border
+    doc.setFillColor(220, 220, 220); // Shadow fill
+    doc.rect(112, 42, 80, 35, 'FD'); // Shadow box
+    
+    // Main box with gradient effect
+    doc.setDrawColor(80, 80, 80); // Darker border for depth
+    doc.setFillColor(255, 255, 255); // Pure white background
     doc.rect(110, 40, 80, 35, 'FD'); // Main box
+    
+    // Add subtle inner highlight
+    doc.setDrawColor(240, 240, 240);
+    doc.rect(111, 41, 78, 33);
     
     // Modern header with accent
     doc.setFontSize(9);
@@ -166,11 +175,20 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     console.log('  Discount Amount:', invoiceDiscountAmount);
     console.log('  Discounted Subtotal:', discountedSubtotal);
     
-    // CLIENT BOX (Simple Design)
-    // Simple box with thin border
-    doc.setDrawColor(200, 200, 200); // Light grey border
-    doc.setFillColor(255, 255, 255); // White background
+    // CLIENT BOX (3D Design matching COMPANY DETAILS)
+    // Create 3D shadow effect
+    doc.setDrawColor(160, 160, 160); // Shadow border
+    doc.setFillColor(220, 220, 220); // Shadow fill
+    doc.rect(22, 87, 80, 35, 'FD'); // Shadow box
+    
+    // Main box with gradient effect
+    doc.setDrawColor(80, 80, 80); // Darker border for depth
+    doc.setFillColor(255, 255, 255); // Pure white background
     doc.rect(20, 85, 80, 35, 'FD'); // Main box
+    
+    // Add subtle inner highlight
+    doc.setDrawColor(240, 240, 240);
+    doc.rect(21, 86, 78, 33);
     
     // Modern header with accent
     doc.setFontSize(9);
@@ -198,11 +216,20 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
       clientY += 5;
     });
     
-    // REFERENCE BOX (Simple Design)
-    // Simple box with thin border
-    doc.setDrawColor(200, 200, 200); // Light grey border
-    doc.setFillColor(255, 255, 255); // White background
+    // REFERENCE BOX (3D Design matching COMPANY DETAILS)
+    // Create 3D shadow effect
+    doc.setDrawColor(160, 160, 160); // Shadow border
+    doc.setFillColor(220, 220, 220); // Shadow fill
+    doc.rect(112, 87, 80, 35, 'FD'); // Shadow box
+    
+    // Main box with gradient effect
+    doc.setDrawColor(80, 80, 80); // Darker border for depth
+    doc.setFillColor(255, 255, 255); // Pure white background
     doc.rect(110, 85, 80, 35, 'FD'); // Main box
+    
+    // Add subtle inner highlight
+    doc.setDrawColor(240, 240, 240);
+    doc.rect(111, 86, 78, 33);
     
     // Modern header with accent
     doc.setFontSize(9);
@@ -222,7 +249,7 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     doc.text(`Your Reference: ${invoiceData?.invoiceLoadRef || 'asdf'}`, 112, 100);
     doc.text('VAT Reference: 4220283446', 112, 105);
     
-    // LINE ITEMS TABLE (Modern Design with 3D Effect)
+    // LINE ITEMS TABLE (Clean Design with Thin Borders)
     const tableY = 130;
     const headerY = tableY + 5;
     const dataY = headerY + 10;
@@ -234,45 +261,41 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     const headers = ['Code', 'Description', 'Quantity', 'Unit', 'Unit Price', 'Discount %', 'VAT %', 'Nett Price'];
     const widths = [18, 45, 18, 12, 22, 18, 12, 25];
     
-    // Draw table borders (modern design with 3D effect)
+    // Draw table borders (clean design with thin borders)
     const lineItemsTableWidth = widths.reduce((a, b) => a + b, 0);
     const tableStartX = 20;
     
-    // Create shadow for 3D effect
-    doc.setDrawColor(140, 140, 140); // Shadow border
-    doc.setFillColor(200, 200, 200); // Shadow fill
-    doc.rect(tableStartX + 2, tableY + 2, lineItemsTableWidth, tableHeight + 10, 'FD'); // Shadow
-    
-    // Main table with modern styling
-    doc.setDrawColor(60, 60, 60); // Darker border for depth
+    // Main table with clean styling - white background, thin borders
+    doc.setDrawColor(100, 100, 100); // Thin grey border
     doc.setFillColor(255, 255, 255); // Pure white background
+    doc.setLineWidth(0.2); // Thin border width
     
     // Outer border
-    doc.rect(tableStartX, tableY, lineItemsTableWidth, tableHeight + 10);
+    doc.rect(tableStartX, tableY, lineItemsTableWidth, tableHeight + 10, 'FD');
     
-    // Vertical lines between columns
+    // Vertical lines between columns (thin)
     let x = tableStartX;
     for (let i = 0; i < widths.length - 1; i++) {
       x += widths[i];
       doc.line(x, tableY, x, tableY + tableHeight + 10);
     }
     
-    // Horizontal line between header and data
+    // Horizontal line between header and data (thin)
     doc.line(tableStartX, headerY + 3, tableStartX + lineItemsTableWidth, headerY + 3);
     
-    // Header text (modern styling)
+    // Header text (clean styling)
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(30, 30, 30); // Darker text for contrast
+    doc.setTextColor(0, 0, 0); // Black text
     x = tableStartX + 2; // Small padding from border
     headers.forEach((header, i) => {
       doc.text(header, x, headerY);
       x += widths[i];
     });
     
-    // Data row - Extract data from loadData (modern styling)
+    // Data row - Extract data from loadData (clean styling)
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(50, 50, 50); // Darker text
+    doc.setTextColor(0, 0, 0); // Black text
     x = tableStartX + 2; // Small padding from border
     
     // Code
@@ -319,7 +342,7 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     const nettPrice = Number(loadData.parsed_data?.subtotal || 0);
     doc.text(`R ${nettPrice.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`, x, dataY);
     
-    // SUMMARY TABLE (below line items table, auto-fit width, right-aligned)
+    // SUMMARY TABLE (Clean Design with Thin Borders)
     const summaryY = dataY + 25;
     const summaryTableWidth = 60; // Compact width
     const summaryX = 20 + lineItemsTableWidth - summaryTableWidth; // Right-aligned
@@ -362,37 +385,32 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
       { label: 'Total', value: total.toLocaleString('en-ZA', { minimumFractionDigits: 2 }), bold: true }
     ];
     
-    // Draw table borders (modern design with 3D effect)
-    // Create shadow for 3D effect
-    doc.setDrawColor(140, 140, 140); // Shadow border
-    doc.setFillColor(200, 200, 200); // Shadow fill
-    doc.rect(summaryX + 2, summaryY + 2, summaryTableWidth, summaryData.length * rowHeight, 'FD'); // Shadow
-    
-    // Main table with modern styling
-    doc.setDrawColor(60, 60, 60); // Darker border for depth
+    // Draw table borders (clean design with thin borders)
+    // Main table with clean styling - white background, thin borders
+    doc.setDrawColor(100, 100, 100); // Thin grey border
     doc.setFillColor(255, 255, 255); // Pure white background
-    doc.rect(summaryX, summaryY, summaryTableWidth, summaryData.length * rowHeight); // Main border
+    doc.setLineWidth(0.2); // Thin border width
+    doc.rect(summaryX, summaryY, summaryTableWidth, summaryData.length * rowHeight, 'FD'); // Main border
     
-    
-    // Draw horizontal lines between rows
+    // Draw horizontal lines between rows (thin)
     for (let i = 1; i < summaryData.length; i++) {
       doc.line(summaryX, summaryY + i * rowHeight, summaryX + summaryTableWidth, summaryY + i * rowHeight);
     }
     
-    // Draw vertical line separating label and value
+    // Draw vertical line separating label and value (thin)
     doc.line(summaryX + 35, summaryY, summaryX + 35, summaryY + summaryData.length * rowHeight);
     
-    // Add content to table (modern styling)
+    // Add content to table (clean styling)
     doc.setFontSize(8);
     summaryData.forEach((row, index) => {
       const y = summaryY + (index * rowHeight) + 5;
       
       if (row.bold) {
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(52, 58, 64); // Dark gray for total
+        doc.setTextColor(0, 0, 0); // Black text for total
       } else {
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(73, 80, 87); // Medium gray for other rows
+        doc.setTextColor(0, 0, 0); // Black text for other rows
       }
       
       doc.text(row.label, summaryX + 2, y);
