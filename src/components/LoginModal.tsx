@@ -99,14 +99,15 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLogin }) => {
         background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
         borderRadius: '24px',
         padding: '3rem 2rem',
-        width: '80vw',
+        width: '70vw',
         maxWidth: '600px',
         boxShadow: '0 32px 64px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)',
         border: '1px solid rgba(255,255,255,0.2)',
         position: 'relative',
         textAlign: 'center',
         backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)'
+        WebkitBackdropFilter: 'blur(20px)',
+        margin: '0 auto'
       }}>
         
         {/* Header */}
@@ -152,7 +153,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLogin }) => {
             placeholder="Enter PIN"
             maxLength={4}
             style={{
-              width: '100%',
+              width: '100px',
               padding: '1.5rem',
               fontSize: '2rem',
               fontWeight: '700',
@@ -163,7 +164,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onLogin }) => {
               background: 'linear-gradient(145deg, #ffffff 0%, #f9fafb 100%)',
               outline: 'none',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.1)'
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.1)',
+              margin: '0 auto',
+              display: 'block'
             }}
             onFocus={(e) => {
               e.currentTarget.style.borderColor = '#7c3aed';
