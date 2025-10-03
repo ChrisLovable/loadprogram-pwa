@@ -144,6 +144,9 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
         }
 
         if (data) {
+          console.log('🔍 InvoiceManager - Raw data from database:', data);
+          console.log('🔍 InvoiceManager - Number of loads with pdf_invoice:', data.length);
+          
           const transformedInvoices: Invoice[] = data.map((load: any) => ({
             id: load.id,
             invoice_number: load.invoice_number || `INV-${load.id}`,
@@ -159,6 +162,7 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
             loadData: load
           }));
 
+          console.log('🔍 InvoiceManager - Transformed invoices:', transformedInvoices);
           setInvoices(transformedInvoices);
           setFilteredInvoices(transformedInvoices);
 
@@ -197,19 +201,28 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
 
   // Filter invoices based on search term
   useEffect(() => {
+    console.log('🔍 InvoiceManager - Search term changed:', searchTerm);
+    console.log('🔍 InvoiceManager - Total invoices available:', invoices.length);
+    
     if (!searchTerm.trim()) {
+      console.log('🔍 InvoiceManager - No search term, showing all invoices');
       setFilteredInvoices(invoices);
       return;
     }
 
-    const filtered = invoices.filter(invoice =>
-      invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (invoice.debtor_name && invoice.debtor_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (invoice.truck_reg && invoice.truck_reg.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (invoice.sender && invoice.sender.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (invoice.receiver && invoice.receiver.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-
+    const filtered = invoices.filter(invoice => {
+      const matches = 
+        invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (invoice.debtor_name && invoice.debtor_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (invoice.truck_reg && invoice.truck_reg.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (invoice.sender && invoice.sender.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (invoice.receiver && invoice.receiver.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      console.log(`🔍 InvoiceManager - Invoice ${invoice.id} matches "${searchTerm}":`, matches);
+      return matches;
+    });
+    
+    console.log('🔍 InvoiceManager - Filtered results:', filtered.length, 'of', invoices.length);
     setFilteredInvoices(filtered);
   }, [searchTerm, invoices]);
 
