@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { generatePDFInvoice } from '../utils/pdfGenerator'
 import { isDesktop } from '../utils/errorHandling'
-import { supabase } from '../lib/supabase'
 
 interface InvoicerSectionProps {
   load: any // expects load with textract_data, ocr_data, and approval data
@@ -809,33 +808,20 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <button 
-          type="submit" 
-          disabled={submitting || !invoiceSentToDebtor}
-          style={{
-            background: submitting ? '#94a3b8' : !invoiceSentToDebtor ? '#d1d5db' : 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            padding: desktopLayout ? '1.2rem' : '1rem',
-            fontWeight: 700,
-            fontSize: desktopLayout ? '1.2rem' : '1.1rem',
-            cursor: submitting || !invoiceSentToDebtor ? 'not-allowed' : 'pointer',
-            width: '100%',
-            boxShadow: !invoiceSentToDebtor ? 'none' : '0 4px 12px rgba(220, 38, 38, 0.3)',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          {submitting ? '⏳ Processing Invoice...' : '🧾 Complete Invoice Processing'}
-        </button>
-
-        {/* Generate PDF Invoice Button */}
+        {/* Combined Complete Invoice Processing & Generate PDF Button */}
         <button 
           type="button"
-          onClick={async () => {
-            console.log('Generate PDF Invoice clicked for load:', load);
+          disabled={submitting || !invoiceSentToDebtor}
+          onClick={async (e) => {
+            e.preventDefault();
+            if (!invoiceMadeOutTo || !invoiceDate || !invoiceNumber || !invoiceSubtotal) {
+              alert('Please fill in all required fields: Invoice made out to, Date, Number, and Subtotal')
+              return
+            }
+            setSubmitting(true)
             try {
-              // Pass invoice data from the invoice details section
+              // First generate PDF
+              console.log('Generating PDF Invoice for load:', load);
               const invoiceData = {
                 invoiceNumber,
                 invoiceDate,
@@ -851,55 +837,123 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
               const { pdfData, filename } = await generatePDFInvoice(load, invoiceData);
               console.log('PDF generation completed successfully');
               
-              // Store PDF in database
+              // Then complete invoice processing
+              console.log('Completing invoice processing...');
+              
+              // Prepare updated parsed_data
+              const updatedParsedData = {
+                ...(load.parsed_data || {}),
+                invoice: {
+                  invoiceMadeOutTo: invoiceMadeOutTo,
+                  invoiceDate: invoiceDate,
+                  invoiceNumber: invoiceNumber,
+                  invoiceSubtotal: Number(invoiceSubtotal),
+                  invoiceVat: Number(invoiceVat),
+                  invoiceTotal: Number(invoiceTotal),
+                  invoiceSentToDebtor: invoiceSentToDebtor,
+                  rate: Number(getField('rate', 0)),
+                  ratePerAnimal: Number(getField('ratePerAnimal', 0)),
+                  runningKmRate: Number(getField('runningKmRate', 0)),
+                  runningKms: Number(getField('runningKms', 0)),
+                  subtotal: Number(getField('subtotal', 0)),
+                  vat: Number(getField('vat', 0)),
+                  total: Number(getField('total', 0)),
+                  totalAnimals: Number(getField('totalAnimals', 0)),
+                  tripKm: Number(getField('tripKm', 0)),
+                  startKm: Number(getField('startKm', 0)),
+                  endKm: Number(getField('endKm', 0)),
+                },
+                invoicer: 'Invoicer',
+                approved_by_invoicer: currentUser.role === 'invoicer' ? currentUser.name : undefined,
+                invoice_processed_at: new Date().toISOString(),
+                invoice_sent: invoiceSentToDebtor, // Add invoice sent status
+              };
+              
+              // Update the load in Supabase with both PDF and processing data
+              let supabase
               try {
-                const { error: updateError } = await supabase
-                  .from('loads')
-                  .update({
-                    pdf_invoice: pdfData,
-                    pdf_invoice_filename: filename,
-                    pdf_invoice_generated_at: new Date().toISOString(),
-                    invoice_number: invoiceNumber,
-                    debtor_name: invoiceMadeOutTo
-                  })
-                  .eq('id', load.id);
+                const supabaseModule = await import('../lib/supabase')
+                supabase = supabaseModule.supabase
                 
-                if (updateError) {
-                  console.error('Error storing PDF in database:', updateError);
-                } else {
-                  console.log('PDF stored in database successfully');
+                if (!supabase) {
+                  throw new Error('Supabase client is undefined')
                 }
-              } catch (dbError) {
-                console.error('Database error:', dbError);
+              } catch (importError) {
+                const errorMessage = importError instanceof Error ? importError.message : String(importError)
+                console.error('Supabase import failed:', errorMessage)
+                
+                // Fallback: Try to create Supabase client directly
+                try {
+                  console.log('Trying direct Supabase creation...')
+                  const { createClient } = await import('@supabase/supabase-js')
+                  supabase = createClient(
+                    'https://rdzjowqopmdlbkfuafxr.supabase.co',
+                    'sb_publishable_Zfc7tBpl0ho1GuF2HLjKxQ_BlU_A24w'
+                  )
+                  console.log('Direct Supabase created:', !!supabase)
+                } catch (directError) {
+                  const directErrorMessage = directError instanceof Error ? directError.message : String(directError)
+                  console.error('Direct creation failed:', directErrorMessage)
+                  throw new Error('Failed to create Supabase client: ' + directErrorMessage)
+                }
+              }
+              
+              const { error } = await supabase.from('loads').update({
+                status: 'third_approved',
+                parsed_data: updatedParsedData,
+                pdf_invoice: pdfData,
+                pdf_invoice_filename: filename,
+                pdf_invoice_generated_at: new Date().toISOString(),
+                invoice_number: invoiceNumber,
+                debtor_name: invoiceMadeOutTo,
+                invoice_sent: invoiceSentToDebtor // Store invoice sent status
+              }).eq('id', load.id)
+              
+              if (error) {
+                alert('Failed to update load: ' + error.message);
+              } else {
+                setInvoiceMadeOutTo('');
+                setInvoiceDate('');
+                setInvoiceNumber('');
+                setInvoiceSubtotal('');
+                setInvoiceVat('');
+                setInvoiceTotal('');
+                setInvoiceSentToDebtor(false);
+                alert('Invoice processed, PDF generated, and promoted to Final Approver!');
+                onInvoiceComplete();
               }
             } catch (error) {
-              console.error('Error generating PDF:', error);
-              alert('Error generating PDF: ' + (error as Error).message);
+              console.error('Combined invoice processing failed:', error)
+              alert('Failed to process invoice and generate PDF. See console for details.')
+            } finally {
+              setSubmitting(false)
             }
           }}
           style={{
-            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+            background: submitting ? '#94a3b8' : !invoiceSentToDebtor ? '#d1d5db' : 'linear-gradient(135deg, #059669 0%, #047857 100%)',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
             padding: desktopLayout ? '1.2rem' : '1rem',
             fontWeight: 700,
             fontSize: desktopLayout ? '1.2rem' : '1.1rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
-            width: '100%'
+            cursor: submitting || !invoiceSentToDebtor ? 'not-allowed' : 'pointer',
+            width: '100%',
+            boxShadow: !invoiceSentToDebtor ? 'none' : '0 4px 12px rgba(5, 150, 105, 0.3)',
+            transition: 'all 0.2s ease'
           }}
           onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
+            if (!submitting && invoiceSentToDebtor) {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
+            }
           }}
           onMouseOut={(e) => {
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.3)';
+            e.currentTarget.style.boxShadow = !invoiceSentToDebtor ? 'none' : '0 4px 12px rgba(5, 150, 105, 0.3)';
           }}
         >
-          📄 Generate PDF Invoice
+          {submitting ? '⏳ Processing & Generating PDF...' : '🧾 Complete Invoice & Generate PDF'}
         </button>
       </div>
 

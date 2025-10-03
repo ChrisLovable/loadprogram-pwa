@@ -988,6 +988,7 @@ function App() {
                         <span>2nd Approver: <b>{load.approved_by_2nd || '-'}</b></span>
                         <span>Invoicer: <b>{load.approved_by_invoicer || '-'}</b></span>
                         <span>Final Approver: <b>{load.approved_by_final || '-'}</b></span>
+                        <span>Invoice Sent: <b style={{color: load.invoice_sent ? '#10b981' : '#ef4444'}}>{load.invoice_sent ? 'YES' : 'NO'}</b></span>
                       </div>
                       <div style={{fontSize:'0.85rem',color:'#666',marginTop:'0.2rem'}}>
                         {load.created_at && <span>Created: {load.created_at.slice(0,10)}</span>}
