@@ -14,7 +14,7 @@ const inputStyle = { width: '100%', padding: '0.6rem', borderRadius: '8px', bord
 
 const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComplete, onDeleteLoad, index = 0 }) => {
   const [invoiceMadeOutTo, setInvoiceMadeOutTo] = useState('')
-  const [invoiceDate, setInvoiceDate] = useState('')
+  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().slice(0, 10))
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [invoiceAccountRef, setInvoiceAccountRef] = useState('')
   const [invoiceLoadRef, setInvoiceLoadRef] = useState('')
@@ -57,6 +57,21 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       window.removeEventListener('firstApprovalUpdated', handleFirstApprovalUpdate as EventListener)
     }
   }, [])
+
+  // Populate invoice fields from calculations
+  React.useEffect(() => {
+    if (load?.parsed_data) {
+      // Set discount from calculations
+      if (load.parsed_data.discount && !invoiceDiscount) {
+        setInvoiceDiscount(load.parsed_data.discount.toString())
+      }
+      
+      // Set subtotal from calculations
+      if (load.parsed_data.subtotal && !invoiceSubtotal) {
+        setInvoiceSubtotal(formatCurrency(load.parsed_data.subtotal))
+      }
+    }
+  }, [load?.parsed_data, invoiceDiscount, invoiceSubtotal])
 
   // Debug: Log the load data
   console.log('Invoicer received load:', load)
@@ -568,7 +583,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 borderRadius:'6px',
                 width: desktopLayout ? '100%' : '100%'
               }}
-              placeholder="Enter company/person name and address for invoice..."
+              placeholder=""
               required
             />
           </div>
@@ -606,7 +621,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   background:'#f7fafd',
                   width: desktopLayout ? '160px' : '120px'
                 }} 
-                placeholder="INV-001"
+                placeholder=""
                 required 
               />
             </div>
@@ -628,7 +643,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   background:'#f7fafd',
                   width: desktopLayout ? '160px' : '120px'
                 }} 
-                placeholder="REG002"
+                placeholder=""
                 required 
               />
             </div>
@@ -646,7 +661,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   background:'#f7fafd',
                   width: desktopLayout ? '160px' : '120px'
                 }} 
-                placeholder={`LOAD ${load.id || 'N/A'}`}
+                placeholder=""
                 required 
               />
             </div>
@@ -667,7 +682,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 background:'#f7fafd',
                 width: desktopLayout ? '160px' : '120px'
               }} 
-              placeholder="1450707"
+              placeholder=""
               required 
             />
           </div>
@@ -687,7 +702,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 background:'#f7fafd',
                 width: desktopLayout ? '160px' : '120px'
               }} 
-              placeholder="0"
+              placeholder=""
               min="0"
               max="100"
               step="0.01"
@@ -713,7 +728,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   textAlign:'center',
                   width: desktopLayout ? '160px' : '120px'
                 }} 
-                placeholder="0.00"
+                placeholder=""
                 required 
               />
             </div>
