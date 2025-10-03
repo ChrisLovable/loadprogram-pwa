@@ -92,11 +92,10 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
     }}>
       {/* Role Buttons */}
       <div style={{
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: '0.7rem',
-        marginBottom: '1rem',
-        alignItems: 'center'
+        marginBottom: '1rem'
       }}>
         {roles.map((role) => {
           const isDisabled = currentUser?.type === 'driver' && role.key !== 'driver';
@@ -116,21 +115,18 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 color: currentRole === role.key ? '#222' : 'white',
                 border: `2.5px solid ${currentRole === role.key ? '#fff' : role.borderColor}`,
                 borderRadius: '16px',
-                padding: '0.8rem 1rem',
+                padding: '0.5rem 0.8rem',
                 fontWeight: 900,
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
                 opacity: isDisabled ? 0.5 : 1,
                 position: 'relative',
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '0.5rem',
-                width: '80vw',
-                maxWidth: '400px'
+                gap: '0.2rem'
               }}
               onMouseOver={(e) => {
                 if (!isDisabled && currentRole !== role.key) {
@@ -145,22 +141,24 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 }
               }}
             >
-              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                <span style={{fontSize:'1.5em'}}>{role.icon}</span>
-                <span>{role.name}</span>
-              </div>
+              <span style={{fontSize:'1.2em'}}>{role.icon}</span>
+              <span>{role.name}</span>
               {role.key !== 'driver' && (
                 <span style={{
+                  position: 'absolute',
+                  top: '-8px',
+                  right: '-8px',
                   background: currentRole === role.key ? '#fff' : '#ef4444',
                   color: currentRole === role.key ? '#222' : 'white',
                   borderRadius: '50%',
-                  width: '24px',
-                  height: '24px',
+                  width: '20px',
+                  height: '20px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.8rem',
+                  fontSize: '0.7rem',
                   fontWeight: 700,
+                  padding: '0 6px',
                 }}>{queueCounts[role.key]}</span>
               )}
             </button>
