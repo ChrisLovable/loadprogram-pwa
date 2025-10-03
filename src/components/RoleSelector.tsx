@@ -119,7 +119,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 fontWeight: 900,
                 fontSize: '0.8rem',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 opacity: isDisabled ? 0.5 : 1,
                 position: 'relative',
                 overflow: 'hidden',
@@ -128,22 +128,46 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '0.5rem',
-                width: '280px',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)',
-                border: '1px solid rgba(255,255,255,0.1)'
+                width: '90vw',
+                maxWidth: '320px',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                boxShadow: `
+                  0 20px 40px rgba(0,0,0,0.4),
+                  0 8px 16px rgba(0,0,0,0.2),
+                  inset 0 2px 4px rgba(255,255,255,0.3),
+                  inset 0 -2px 4px rgba(0,0,0,0.2),
+                  0 0 0 1px rgba(255,255,255,0.1)
+                `,
+                border: '2px solid rgba(255,255,255,0.2)',
+                transform: 'perspective(1000px) rotateX(5deg)',
+                filter: 'saturate(1.2) contrast(1.1)'
               }}
               onMouseOver={(e) => {
                 if (!isDisabled && currentRole !== role.key) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+                  e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = `
+                    0 30px 60px rgba(0,0,0,0.5),
+                    0 15px 30px rgba(0,0,0,0.3),
+                    inset 0 3px 6px rgba(255,255,255,0.4),
+                    inset 0 -3px 6px rgba(0,0,0,0.3),
+                    0 0 0 2px rgba(255,255,255,0.2),
+                    0 0 20px rgba(59, 130, 246, 0.3)
+                  `;
+                  e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
                 }
               }}
               onMouseOut={(e) => {
                 if (!isDisabled && currentRole !== role.key) {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
+                  e.currentTarget.style.boxShadow = `
+                    0 20px 40px rgba(0,0,0,0.4),
+                    0 8px 16px rgba(0,0,0,0.2),
+                    inset 0 2px 4px rgba(255,255,255,0.3),
+                    inset 0 -2px 4px rgba(0,0,0,0.2),
+                    0 0 0 1px rgba(255,255,255,0.1)
+                  `;
+                  e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
                 }
               }}
             >
@@ -173,7 +197,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       {/* Dashboard and Search in 2-column layout */}
       <div style={{
         display: 'flex',
-        gap: '1rem',
+        gap: '0.5rem',
         marginTop: '20px'
       }}>
         <button
@@ -183,26 +207,50 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             flex: 1,
             background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.8) 0%, rgba(37, 99, 235, 0.8) 100%)',
             color: 'white',
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
-            padding: '0.4rem 0.8rem',
+            padding: '0.3rem 0.5rem',
             fontWeight: 900,
-            fontSize: '0.7rem',
+            fontSize: '0.65rem',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
             overflow: 'hidden',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: `
+              0 20px 40px rgba(0,0,0,0.4),
+              0 8px 16px rgba(0,0,0,0.2),
+              inset 0 2px 4px rgba(255,255,255,0.3),
+              inset 0 -2px 4px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(255,255,255,0.1)
+            `,
+            height: '50px',
+            transform: 'perspective(1000px) rotateX(5deg)',
+            filter: 'saturate(1.2) contrast(1.1)'
           }}
           onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(79, 140, 255, 0.4)';
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
+            e.currentTarget.style.boxShadow = `
+              0 30px 60px rgba(0,0,0,0.5),
+              0 15px 30px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              0 0 0 2px rgba(255,255,255,0.2),
+              0 0 20px rgba(37, 99, 235, 0.4)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
           }}
           onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
+            e.currentTarget.style.boxShadow = `
+              0 20px 40px rgba(0,0,0,0.4),
+              0 8px 16px rgba(0,0,0,0.2),
+              inset 0 2px 4px rgba(255,255,255,0.3),
+              inset 0 -2px 4px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(255,255,255,0.1)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
           }}
         >
           <span style={{position:'relative',zIndex:4,display:'flex',flexDirection:'column',alignItems:'center',gap:'0.2rem'}}>
@@ -218,26 +266,50 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             flex: 1,
             background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.8) 0%, rgba(190, 24, 93, 0.8) 100%)',
             color: 'white',
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
-            padding: '0.4rem 0.8rem',
+            padding: '0.3rem 0.5rem',
             fontWeight: 900,
-            fontSize: '0.7rem',
+            fontSize: '0.65rem',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
             overflow: 'hidden',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: `
+              0 20px 40px rgba(0,0,0,0.4),
+              0 8px 16px rgba(0,0,0,0.2),
+              inset 0 2px 4px rgba(255,255,255,0.3),
+              inset 0 -2px 4px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(255,255,255,0.1)
+            `,
+            height: '50px',
+            transform: 'perspective(1000px) rotateX(5deg)',
+            filter: 'saturate(1.2) contrast(1.1)'
           }}
           onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(236, 72, 153, 0.4)';
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
+            e.currentTarget.style.boxShadow = `
+              0 30px 60px rgba(0,0,0,0.5),
+              0 15px 30px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              0 0 0 2px rgba(255,255,255,0.2),
+              0 0 20px rgba(190, 24, 93, 0.4)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
           }}
           onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
+            e.currentTarget.style.boxShadow = `
+              0 20px 40px rgba(0,0,0,0.4),
+              0 8px 16px rgba(0,0,0,0.2),
+              inset 0 2px 4px rgba(255,255,255,0.3),
+              inset 0 -2px 4px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(255,255,255,0.1)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
           }}
         >
           <span style={{position:'relative',zIndex:4,display:'flex',flexDirection:'column',alignItems:'center',gap:'0.2rem'}}>
@@ -250,7 +322,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       {/* Summary and Invoices buttons */}
       <div style={{
         display: 'flex',
-        gap: '1rem',
+        gap: '0.5rem',
         marginTop: '0.5rem'
       }}>
         <button
@@ -260,26 +332,50 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             flex: 1,
             background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.8) 0%, rgba(124, 58, 237, 0.8) 100%)',
             color: 'white',
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
-            padding: '0.4rem 0.8rem',
+            padding: '0.3rem 0.5rem',
             fontWeight: 900,
-            fontSize: '0.7rem',
+            fontSize: '0.65rem',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
             overflow: 'hidden',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: `
+              0 20px 40px rgba(0,0,0,0.4),
+              0 8px 16px rgba(0,0,0,0.2),
+              inset 0 2px 4px rgba(255,255,255,0.3),
+              inset 0 -2px 4px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(255,255,255,0.1)
+            `,
+            height: '50px',
+            transform: 'perspective(1000px) rotateX(5deg)',
+            filter: 'saturate(1.2) contrast(1.1)'
           }}
           onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(139, 92, 246, 0.4)';
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
+            e.currentTarget.style.boxShadow = `
+              0 30px 60px rgba(0,0,0,0.5),
+              0 15px 30px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              0 0 0 2px rgba(255,255,255,0.2),
+              0 0 20px rgba(124, 58, 237, 0.4)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
           }}
           onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
+            e.currentTarget.style.boxShadow = `
+              0 20px 40px rgba(0,0,0,0.4),
+              0 8px 16px rgba(0,0,0,0.2),
+              inset 0 2px 4px rgba(255,255,255,0.3),
+              inset 0 -2px 4px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(255,255,255,0.1)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
           }}
         >
           <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
@@ -295,26 +391,50 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             flex: 1,
             background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.8) 0%, rgba(217, 119, 6, 0.8) 100%)',
             color: 'white',
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
-            padding: '0.4rem 0.8rem',
+            padding: '0.3rem 0.5rem',
             fontWeight: 900,
-            fontSize: '0.7rem',
+            fontSize: '0.65rem',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
             overflow: 'hidden',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: `
+              0 20px 40px rgba(0,0,0,0.4),
+              0 8px 16px rgba(0,0,0,0.2),
+              inset 0 2px 4px rgba(255,255,255,0.3),
+              inset 0 -2px 4px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(255,255,255,0.1)
+            `,
+            height: '50px',
+            transform: 'perspective(1000px) rotateX(5deg)',
+            filter: 'saturate(1.2) contrast(1.1)'
           }}
           onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(245, 158, 11, 0.4)';
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
+            e.currentTarget.style.boxShadow = `
+              0 30px 60px rgba(0,0,0,0.5),
+              0 15px 30px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              0 0 0 2px rgba(255,255,255,0.2),
+              0 0 20px rgba(217, 119, 6, 0.4)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
           }}
           onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
+            e.currentTarget.style.boxShadow = `
+              0 20px 40px rgba(0,0,0,0.4),
+              0 8px 16px rgba(0,0,0,0.2),
+              inset 0 2px 4px rgba(255,255,255,0.3),
+              inset 0 -2px 4px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(255,255,255,0.1)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
           }}
         >
           <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
