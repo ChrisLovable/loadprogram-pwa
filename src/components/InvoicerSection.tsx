@@ -762,23 +762,24 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             </div>
             <div>
               <div style={labelStyle}>VAT (15%)</div>
-              <input 
-                type="text" 
-                value={invoiceVat ? `R ${invoiceVat}` : ''} 
-                readOnly 
-                style={{
-                  padding:'0.6rem',
-                  borderRadius:'6px',
-                  fontSize:'1.2rem',
-                  background:'#fff4e6',
-                  color:'#ff8c00',
-                  fontWeight:700,
-                  textAlign:'center',
-                  width: '160px',
-                  height: '50px',
-                  border:'1px solid #ff8c00'
-                }} 
-              />
+              <div style={{
+                background:'#fff4e6',
+                color:'#ff8c00',
+                fontWeight:700,
+                fontSize:'1.2rem',
+                padding:'0.8rem',
+                borderRadius:'8px',
+                border:'2px solid #ff8c00',
+                textAlign:'center',
+                marginTop:'0.3rem',
+                width: '160px',
+                height: '50px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {invoiceVat ? `R ${invoiceVat}` : 'R 0.00'}
+              </div>
             </div>
             <div>
               <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>INVOICE TOTAL</div>
