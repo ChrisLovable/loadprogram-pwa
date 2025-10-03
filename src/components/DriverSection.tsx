@@ -581,7 +581,7 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
             required
               readOnly={currentUser.role === 'driver'}
               style={{
-                width: '160px',
+                width: '180px',
                 padding: '1rem 1.2rem',
                 borderRadius: '16px',
                 border: '2px solid rgba(255,255,255,0.3)',

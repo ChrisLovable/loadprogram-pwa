@@ -48,7 +48,7 @@ const getField = (load: any, field: string, fallback: any = '') => {
 }
 
 const labelStyle = { fontSize: '1.05rem', fontWeight: 700, color: '#333', marginBottom: '0.1rem' }
-const inputStyle = { width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid #e0e7ef', fontSize: '1rem', background: '#f7fafd' }
+const inputStyle = { width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid #e0e7ef', fontSize: '1rem', background: '#f7fafd', height: '2.2rem', minHeight: '2.2rem' }
 
 const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApprovalComplete }) => {
   // Debug: Log the load data
