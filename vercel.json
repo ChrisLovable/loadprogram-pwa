@@ -1,19 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -21,13 +8,25 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache"
+          "value": "no-cache, no-store, must-revalidate"
         }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        },
         {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
@@ -39,6 +38,10 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
         }
       ]
     }
