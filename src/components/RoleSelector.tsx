@@ -97,14 +97,14 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
       borderRadius: '12px',
       padding: '1.5rem',
-      marginTop: '20px',
+      marginTop: '0px',
       marginBottom: '1rem'
     }}>
       {/* Role Buttons - Vertical Stack at 80% width */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.2rem',
+        gap: '0.9rem',
         marginBottom: '2rem',
         alignItems: 'center'
       }}>
@@ -125,7 +125,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                     : role.color,
                 color: currentRole === role.key ? '#222' : 'white',
                 borderRadius: '20px',
-                padding: '0.6rem 0.8rem',
+                padding: '0.4rem 0.8rem',
                 fontWeight: 900,
                 fontSize: '1rem',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -214,7 +214,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       <div style={{
         display: 'flex',
         gap: '0.5rem',
-        marginTop: '1.5rem'
+        marginTop: '0.9rem'
       }}>
         <button
           type="button"
@@ -349,7 +349,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       <div style={{
         display: 'flex',
         gap: '0.5rem',
-        marginTop: '1rem'
+        marginTop: '0.4rem'
       }}>
         <button
           type="button"
@@ -483,7 +483,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       <div style={{
         display: 'flex',
         justifyContent: 'center',
-        marginTop: '1rem'
+        marginTop: '0.4rem'
       }}>
         <button
           type="button"
