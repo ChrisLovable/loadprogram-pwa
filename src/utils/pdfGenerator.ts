@@ -252,14 +252,23 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     // LINE ITEMS TABLE (Clean Design with Thin Borders)
     const tableY = 130;
     const headerY = tableY + 5;
-    const dataY = headerY + 10;
-    const tableHeight = 20; // Height for data row
     
     // Headers
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     const headers = ['Code', 'Description', 'Quantity', 'Unit', 'Unit Price', 'Discount %', 'VAT %', 'Nett Price'];
     const widths = [18, 45, 18, 12, 22, 18, 12, 25];
+    
+    // Calculate description text wrapping first to determine table height
+    const descriptionText = `78 KALLERS\nVAN: ${loadData.parsed_data?.sender || 'Unknown'}\nNA: ${loadData.parsed_data?.receiver || 'Unknown'}`;
+    const descriptionWidth = widths[1] - 4; // Subtract padding
+    const wrappedDesc = doc.splitTextToSize(descriptionText, descriptionWidth);
+    const lineHeight = 3;
+    const descHeight = wrappedDesc.length * lineHeight;
+    
+    // Dynamic table height based on wrapped text
+    const tableHeight = Math.max(20, descHeight + 4); // Minimum 20, or text height + padding
+    const dataY = headerY + 10;
     
     // Draw table borders (clean design with thin borders)
     const lineItemsTableWidth = widths.reduce((a, b) => a + b, 0);
@@ -302,18 +311,8 @@ export const generatePDFInvoice = async (loadData: LoadData, invoiceData?: any):
     doc.text(invoiceData?.invoiceCode || '1450707', x, dataY);
     x += widths[0];
     
-    // Description (only Kallers and VAN/NA details)
-    const descLines = [
-      '78 KALLERS',
-      `VAN: ${loadData.parsed_data?.sender || 'Unknown'}`,
-      `NA: ${loadData.parsed_data?.receiver || 'Unknown'}`
-    ];
-    
-    let descY = dataY;
-    descLines.forEach(line => {
-      doc.text(line, x, descY);
-      descY += 3;
-    });
+    // Description (with proper text wrapping)
+    doc.text(wrappedDesc, x + 2, dataY);
     x += widths[1];
     
     // Quantity (kms)
