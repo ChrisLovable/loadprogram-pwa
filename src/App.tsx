@@ -1499,7 +1499,7 @@ function App() {
             <div style={{ 
               display: 'flex', 
               justifyContent: 'center', 
-              marginTop: '1rem',
+              marginTop: '-40px',
               padding: '0 1rem'
             }}>
               <button
