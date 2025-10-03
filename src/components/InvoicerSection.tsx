@@ -69,9 +69,9 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
 
   // Auto-calculate VAT and total when subtotal changes
   React.useEffect(() => {
-    if (invoiceSubtotal) {
-      // Remove currency formatting and parse as number
-      const cleanSubtotal = invoiceSubtotal.replace(/[R,\s]/g, '');
+    if (invoiceSubtotal && invoiceSubtotal.trim() !== '') {
+      // Remove currency formatting and parse as number - handle both comma and dot as decimal separator
+      const cleanSubtotal = invoiceSubtotal.replace(/[R,\s]/g, '').replace(',', '.');
       const subtotal = parseFloat(cleanSubtotal) || 0
       
       console.log('🔍 InvoicerSection VAT Calculation:');
@@ -80,8 +80,8 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       console.log('  Parsed subtotal:', subtotal);
       
       if (subtotal > 0) {
-        const vat = subtotal * 0.15
-        const total = subtotal + vat
+        const vat = Math.round(subtotal * 0.15 * 100) / 100; // Round to 2 decimal places
+        const total = Math.round((subtotal + vat) * 100) / 100; // Round to 2 decimal places
         setInvoiceVat(formatCurrency(vat))
         setInvoiceTotal(formatCurrency(total))
         
@@ -116,12 +116,15 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       } else {
         setInvoiceSubtotal('0.00');
       }
-    } else if (invoiceDiscount === '0' && load?.parsed_data?.subtotal) {
-      const originalSubtotal = Number(load.parsed_data.subtotal);
-      if (originalSubtotal > 0) {
-        setInvoiceSubtotal(formatCurrency(originalSubtotal));
-      } else {
-        setInvoiceSubtotal('0.00');
+    } else if (invoiceDiscount === '0') {
+      // Only clear the subtotal if it was auto-populated, don't auto-populate when discount is 0
+      if (invoiceSubtotal && load?.parsed_data?.subtotal) {
+        const originalSubtotal = Number(load.parsed_data.subtotal);
+        const currentSubtotal = parseFloat(invoiceSubtotal.replace(/[R,\s]/g, '').replace(',', '.')) || 0;
+        // Only clear if the current subtotal matches the original (meaning it was auto-populated)
+        if (Math.abs(currentSubtotal - originalSubtotal) < 0.01) {
+          setInvoiceSubtotal('');
+        }
       }
     } else if (!load?.parsed_data?.subtotal) {
       // If no subtotal data, clear the field
