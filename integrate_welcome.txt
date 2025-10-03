@@ -1,0 +1,56 @@
+# Integration Instructions for WelcomeScreen
+
+## Changes to make in src/App.tsx:
+
+### 1. Add import after line 11:
+```typescript
+import WelcomeScreen from './components/WelcomeScreen'
+```
+
+### 2. Add state after line 33:
+```typescript
+const [showWelcomeScreen, setShowWelcomeScreen] = useState(false)
+```
+
+### 3. Add useEffect after line 74 (after the existing PWA Installation handling useEffect):
+```typescript
+// Show welcome screen on first visit
+useEffect(() => {
+  const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  
+  // Show welcome if user hasn't seen it and app isn't already installed
+  if (!hasSeenWelcome && !isStandalone) {
+    setShowWelcomeScreen(true);
+  }
+}, []);
+```
+
+### 4. Add handlers after line 85 (after handleInstallClick function):
+```typescript
+const handleSkipWelcome = () => {
+  localStorage.setItem('hasSeenWelcome', 'true');
+  setShowWelcomeScreen(false);
+};
+
+const handleWelcomeInstall = () => {
+  localStorage.setItem('hasSeenWelcome', 'true');
+  handleInstallClick();
+};
+```
+
+### 5. Add WelcomeScreen component BEFORE the PWA Install Button section (around line 467):
+```typescript
+{/* Welcome Screen */}
+{showWelcomeScreen && (
+  <WelcomeScreen
+    onInstall={handleWelcomeInstall}
+    onSkip={handleSkipWelcome}
+    installState={installState}
+    showInstallButton={showInstallButton}
+  />
+)}
+```
+
+## Complete integration done!
+
