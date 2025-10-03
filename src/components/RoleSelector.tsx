@@ -26,16 +26,20 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
   console.log('🔍 RoleSelector - Queue counts:', queueCounts);
   console.log('🔍 RoleSelector - All loads:', loads.map(l => ({ id: l.id, status: l.status, driver_name: l.driver_name })));
   console.log('🔍 RoleSelector - Loads with status "uploaded":', loads.filter(l => l.status === 'uploaded'));
+  console.log('🔍 RoleSelector - Current user:', currentUser);
+  console.log('🔍 RoleSelector - User type:', currentUser?.type);
 
   const handleRoleClick = (role: string) => {
     console.log('🔴 LATEST VERSION - Role clicked:', role);
     if (role === currentRole) return // Already selected
     
     // Check access permissions
+    console.log('🔍 RoleSelector - Checking access for role:', role, 'User type:', currentUser?.type);
     if (currentUser?.type === 'driver' && role !== 'driver') {
-      console.log('🔴 Driver trying to access non-driver role:', role);
+      console.log('🔴 ACCESS DENIED: Driver trying to access non-driver role:', role);
       return; // Drivers can only access driver role
     }
+    console.log('🔍 RoleSelector - ACCESS GRANTED for role:', role);
     
     console.log('🔴 Direct role access - Changing role to:', role);
     onRoleChange(role)
