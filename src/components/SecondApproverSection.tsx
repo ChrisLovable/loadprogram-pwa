@@ -82,8 +82,32 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
       
       // Test Supabase connection first
       addDebugInfo('Testing Supabase connection...')
-      const { supabase } = await import('../lib/supabase')
-      addDebugInfo(`Supabase loaded: ${!!supabase}`)
+      let supabase
+      try {
+        const supabaseModule = await import('../lib/supabase')
+        supabase = supabaseModule.supabase
+        addDebugInfo(`Supabase loaded: ${!!supabase}`)
+        
+        if (!supabase) {
+          throw new Error('Supabase client is undefined')
+        }
+      } catch (importError) {
+        addDebugInfo(`Supabase import failed: ${importError.message}`)
+        
+        // Fallback: Try to create Supabase client directly
+        try {
+          addDebugInfo('Trying direct Supabase creation...')
+          const { createClient } = await import('@supabase/supabase-js')
+          supabase = createClient(
+            'https://rdzjowqopmdlbkfuafxr.supabase.co',
+            'sb_publishable_Zfc7tBpl0ho1GuF2HLjKxQ_BlU_A24w'
+          )
+          addDebugInfo(`Direct Supabase created: ${!!supabase}`)
+        } catch (directError) {
+          addDebugInfo(`Direct creation failed: ${directError.message}`)
+          throw new Error('Failed to create Supabase client: ' + directError.message)
+        }
+      }
       
       // Test network connectivity
       try {
