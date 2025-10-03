@@ -438,13 +438,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
             <div>
               <div style={labelStyle}>Start KM</div>
-              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'0.65rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
                 {getField('startKm')}
               </div>
             </div>
             <div>
               <div style={labelStyle}>End KM</div>
-              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'0.65rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
                 {getField('endKm')}
               </div>
             </div>
@@ -609,7 +609,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 height: desktopLayout ? '4rem' : '3rem',
                 border:'1px solid #333',
                 borderRadius:'6px',
-                width: '300px'
+                width: '360px'
               }}
               placeholder=""
               required
@@ -725,9 +725,11 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
               style={{
                 padding:'0.6rem',
                 borderRadius:'6px',
-                border:'1px solid #333',
+                border:'1px solid #dc2626',
                 fontSize:'1rem',
-                background:'#f7fafd',
+                background:'#fef2f2',
+                color:'#dc2626',
+                fontWeight:600,
                 width: desktopLayout ? '160px' : '120px'
               }} 
               placeholder=""
