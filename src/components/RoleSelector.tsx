@@ -483,7 +483,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       <div style={{
         display: 'flex',
         justifyContent: 'center',
-        marginTop: '0.5rem'
+        marginTop: '1rem'
       }}>
         <button
           type="button"
