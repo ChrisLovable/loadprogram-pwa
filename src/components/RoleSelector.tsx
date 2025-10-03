@@ -75,11 +75,11 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
   }
 
   const roleButtons = [
-    { key: 'driver', name: 'Driver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🚛' },
-    { key: 'first_approver', name: 'First Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '✅' },
-    { key: 'second_approver', name: 'Second Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🔍' },
-    { key: 'invoicer', name: 'Invoice', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '📄' },
-    { key: 'final_approver', name: 'Final Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🏁' }
+    { key: 'driver', name: 'Driver', color: 'linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🚛' },
+    { key: 'first_approver', name: 'First Approver', color: 'linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '✅' },
+    { key: 'second_approver', name: 'Second Approver', color: 'linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🔍' },
+    { key: 'invoicer', name: 'Invoice', color: 'linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '📄' },
+    { key: 'final_approver', name: 'Final Approver', color: 'linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🏁' }
   ];
 
   return (
@@ -181,7 +181,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummariesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(37, 99, 235, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.8) 0%, rgba(37, 99, 235, 0.8) 100%)',
             color: 'white',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
@@ -216,7 +216,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onDashboardClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(190, 24, 93, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.8) 0%, rgba(190, 24, 93, 0.8) 100%)',
             color: 'white',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
@@ -258,7 +258,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummaryClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(124, 58, 237, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.8) 0%, rgba(124, 58, 237, 0.8) 100%)',
             color: 'white',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
@@ -293,7 +293,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onInvoicesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(217, 119, 6, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(107, 114, 128, 0.8) 0%, rgba(217, 119, 6, 0.8) 100%)',
             color: 'white',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
