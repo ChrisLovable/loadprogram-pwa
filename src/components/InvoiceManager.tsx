@@ -451,156 +451,271 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
               gap: '2rem',
               maxWidth: '100%'
             }}>
-              {filteredInvoices.map((invoice) => (
+              {filteredInvoices.map((invoice, index) => (
                 <div key={invoice.id} style={{
-                  background: '#ffffff',
-                  borderRadius: '12px',
-                  padding: '1.5rem',
-                  border: '1px solid #e5e7eb',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                  transition: 'all 0.2s ease'
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  borderRadius: '16px',
+                  padding: '0',
+                  border: '1px solid rgba(0,0,0,0.08)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.18)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.12)';
                 }}>
-                  {/* Invoice Header */}
+                  {/* Card Header with Gradient */}
                   <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '1rem',
-                    paddingBottom: '1rem',
-                    borderBottom: '1px solid #f3f4f6'
+                    background: `linear-gradient(135deg, ${index % 2 === 0 ? '#7c3aed' : '#3b82f6'} 0%, ${index % 2 === 0 ? '#5b21b6' : '#1d4ed8'} 100%)`,
+                    padding: '1.5rem',
+                    color: 'white',
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}>
-                    <div>
-                      <div style={{
-                        fontSize: '1.3rem',
-                        fontWeight: 700,
-                        color: '#1f2937',
-                        marginBottom: '0.25rem'
-                      }}>
-                        Invoice #{invoice.invoice_number}
-                      </div>
-                      <div style={{
-                        fontSize: '1rem',
-                        color: '#6b7280'
-                      }}>
-                        {new Date(invoice.pdf_invoice_generated_at).toLocaleDateString()} • {invoice.truck_reg || 'N/A'}
-                      </div>
-                      {invoice.debtor_name && (
-                        <div style={{
-                          fontSize: '0.9rem',
-                          color: '#9ca3af',
-                          marginTop: '0.25rem'
-                        }}>
-                          Debtor: {invoice.debtor_name}
-                        </div>
-                      )}
-                    </div>
+                    {/* Decorative Pattern */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-50%',
+                      right: '-20%',
+                      width: '200px',
+                      height: '200px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '50%',
+                      opacity: 0.3
+                    }} />
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '-30%',
+                      left: '-10%',
+                      width: '150px',
+                      height: '150px',
+                      background: 'rgba(255,255,255,0.05)',
+                      borderRadius: '50%',
+                      opacity: 0.4
+                    }} />
+                    
+                    {/* Header Content */}
                     <div style={{
                       display: 'flex',
-                      gap: '0.5rem',
-                      alignItems: 'center'
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      position: 'relative',
+                      zIndex: 2
                     }}>
-                      <button
-                        onClick={() => handleGenerateInvoice(invoice)}
-                        style={{
-                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          padding: '0.5rem 1rem',
+                      <div style={{ flex: 1 }}>
+                        <div style={{
+                          fontSize: '1.5rem',
+                          fontWeight: 800,
+                          marginBottom: '0.5rem',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                        }}>
+                          #{invoice.invoice_number}
+                        </div>
+                        <div style={{
+                          fontSize: '1rem',
+                          opacity: 0.9,
+                          marginBottom: '0.25rem'
+                        }}>
+                          📅 {new Date(invoice.pdf_invoice_generated_at).toLocaleDateString()}
+                        </div>
+                        <div style={{
                           fontSize: '0.9rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-1px)';
-                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
-                        }}
-                      >
-                        📥 Download
-                      </button>
-                      <button
-                        onClick={() => handleDeleteInvoice(invoice.id)}
-                        style={{
-                          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          padding: '0.5rem 1rem',
-                          fontSize: '0.9rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-1px)';
-                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
-                        }}
-                      >
-                        🗑️ Remove
-                      </button>
+                          opacity: 0.8,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}>
+                          <span>🚛 {invoice.truck_reg || 'N/A'}</span>
+                          {invoice.debtor_name && <span>• 👤 {invoice.debtor_name}</span>}
+                        </div>
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div style={{
+                        display: 'flex',
+                        gap: '0.75rem',
+                        alignItems: 'center'
+                      }}>
+                        <button
+                          onClick={() => handleGenerateInvoice(invoice)}
+                          style={{
+                            background: 'rgba(255,255,255,0.2)',
+                            color: 'white',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                            borderRadius: '8px',
+                            padding: '0.5rem 1rem',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
+                        >
+                          📥 Download
+                        </button>
+                        <button
+                          onClick={() => handleDeleteInvoice(invoice.id)}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.2)',
+                            color: 'white',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            borderRadius: '8px',
+                            padding: '0.5rem 1rem',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
+                        >
+                          🗑️ Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  {/* PDF Image Display */}
-                  {pdfImages[invoice.id] && (
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      marginBottom: '1rem'
-                    }}>
-                      <img
-                        src={pdfImages[invoice.id]}
-                        alt={`Invoice ${invoice.invoice_number}`}
-                        onClick={() => setEnlargedImage(pdfImages[invoice.id])}
-                        style={{
-                          width: '90%',
-                          maxWidth: '90%',
-                          height: 'auto',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                          border: '1px solid #e5e7eb',
-                          cursor: 'pointer',
-                          transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.transform = 'scale(1.02)';
-                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)';
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.transform = 'scale(1)';
-                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                        }}
-                      />
-                    </div>
-                  )}
+                  {/* Card Body */}
+                  <div style={{ padding: '1.5rem' }}>
+                    {/* PDF Preview */}
+                    {pdfImages[invoice.id] && (
+                      <div style={{
+                        marginBottom: '1.5rem',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+                      }}>
+                        <img
+                          src={pdfImages[invoice.id]}
+                          alt={`Invoice ${invoice.invoice_number}`}
+                          onClick={() => setEnlargedImage(pdfImages[invoice.id])}
+                          style={{
+                            width: '100%',
+                            height: 'auto',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s ease'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.02)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                        />
+                      </div>
+                    )}
 
-                  {/* Invoice Details */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isDesktop ? 'repeat(3, 1fr)' : '1fr',
-                    gap: '1rem',
-                    fontSize: '0.9rem',
-                    color: '#6b7280'
-                  }}>
-                    <div>
-                      <strong>Sender:</strong> {invoice.sender || 'N/A'}
-                    </div>
-                    <div>
-                      <strong>Receiver:</strong> {invoice.receiver || 'N/A'}
-                    </div>
-                    <div>
-                      <strong>Total:</strong> {invoice.total ? `R${invoice.total.toLocaleString()}` : 'N/A'}
+                    {/* Invoice Summary Cards */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: isDesktop ? 'repeat(3, 1fr)' : '1fr',
+                      gap: '1rem'
+                    }}>
+                      {/* Sender Card */}
+                      <div style={{
+                        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                        borderRadius: '12px',
+                        padding: '1rem',
+                        border: '1px solid #bae6fd',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          color: '#0369a1',
+                          marginBottom: '0.5rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          📤 From
+                        </div>
+                        <div style={{
+                          fontSize: '1rem',
+                          fontWeight: 700,
+                          color: '#0c4a6e',
+                          wordBreak: 'break-word'
+                        }}>
+                          {invoice.sender || 'N/A'}
+                        </div>
+                      </div>
+
+                      {/* Receiver Card */}
+                      <div style={{
+                        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                        borderRadius: '12px',
+                        padding: '1rem',
+                        border: '1px solid #bbf7d0',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          color: '#166534',
+                          marginBottom: '0.5rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          📥 To
+                        </div>
+                        <div style={{
+                          fontSize: '1rem',
+                          fontWeight: 700,
+                          color: '#14532d',
+                          wordBreak: 'break-word'
+                        }}>
+                          {invoice.receiver || 'N/A'}
+                        </div>
+                      </div>
+
+                      {/* Total Card */}
+                      <div style={{
+                        background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                        borderRadius: '12px',
+                        padding: '1rem',
+                        border: '1px solid #f59e0b',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          color: '#92400e',
+                          marginBottom: '0.5rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          💰 Total
+                        </div>
+                        <div style={{
+                          fontSize: '1.2rem',
+                          fontWeight: 800,
+                          color: '#78350f'
+                        }}>
+                          {invoice.total ? `R${invoice.total.toLocaleString()}` : 'N/A'}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

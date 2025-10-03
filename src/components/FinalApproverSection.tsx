@@ -28,7 +28,9 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
     if (storedInvoiceData) {
       const data = JSON.parse(storedInvoiceData)
       setInvoiceData(data)
-      console.log('FinalApprover loaded invoice data:', data)
+      console.log('🔍 FinalApprover loaded invoice data:', data)
+      console.log('🔍 FinalApprover - invoiceVat:', data.invoiceVat)
+      console.log('🔍 FinalApprover - invoiceTotal:', data.invoiceTotal)
     }
     
     // const storedFirstApproval = localStorage.getItem('firstApprovalData')
@@ -49,7 +51,9 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
     const handleInvoiceDataUpdate = (event: CustomEvent) => {
       const updatedData = event.detail
       setInvoiceData(updatedData)
-      console.log('FinalApprover received invoice update:', updatedData)
+      console.log('🔍 FinalApprover received invoice update:', updatedData)
+      console.log('🔍 FinalApprover - Updated invoiceVat:', updatedData.invoiceVat)
+      console.log('🔍 FinalApprover - Updated invoiceTotal:', updatedData.invoiceTotal)
     }
     
     // window.addEventListener('firstApprovalUpdated', handleFirstApprovalUpdate as EventListener)

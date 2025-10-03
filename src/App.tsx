@@ -501,9 +501,11 @@ function App() {
     console.log('📋 Sample load structure:', loads[0]);
     
     setTimeout(() => { // Simulate loading
-      let results = [...loads]; // Create a copy to avoid mutating original
+      // Filter for completed loads only (final_signed_off)
+      let results = loads.filter(l => l.status === 'final_signed_off');
       
-      console.log('🔍 Initial results count:', results.length);
+      console.log('🔍 Completed loads count:', results.length);
+      console.log('🔍 All load statuses:', loads.map(l => ({ id: l.id, status: l.status })));
       
       if (searchInvoice.trim()) {
         const beforeCount = results.length;
@@ -925,6 +927,24 @@ function App() {
                     color:'#222',
                     position:'relative',
                   }}>
+                    {/* Status Badge */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '8px',
+                      left: '8px',
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      color: 'white',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '6px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.5px',
+                      boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                      zIndex: 10
+                    }}>
+                      ✅ COMPLETED
+                    </div>
+                    
                     {/* Delete Button */}
                     <button
                       onClick={() => setDeleteConfirm({ show: true, loadId: load.id })}
@@ -992,28 +1012,37 @@ function App() {
                       </div>
                       {/* Image thumbnails at the bottom of Load Info */}
                       {load.photos && load.photos.length > 0 && (
-                        <div style={{marginTop:'0.7rem',display:'flex',gap:'0.5rem',flexWrap:'wrap',justifyContent:'flex-start'}}>
-                          {load.photos.map((photoUrl: string, i: number) => (
-                            <img
-                              key={`${load.id}-photo-${i}`}
-                              src={photoUrl}
-                              alt={`Document ${i+1}`}
-                              style={{
-                                width: 44,
-                                height: 44,
-                                objectFit: 'cover',
-                                borderRadius: '7px',
-                                border: '1.5px solid #bae6fd',
-                                boxShadow: '0 1px 4px rgba(37,99,235,0.10)',
-                                transition: 'transform 0.15s',
-                                cursor: 'pointer',
-                              }}
-                              onClick={() => { console.log('Thumbnail clicked:', photoUrl); setPreviewImage(photoUrl); }}
-                              onMouseOver={e => e.currentTarget.style.transform = 'scale(1.12)'}
-                              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
-                              onError={e => { if (!e.currentTarget.src.endsWith('/no-image.png')) e.currentTarget.src = '/no-image.png'; }}
-                            />
-                          ))}
+                        <div style={{marginTop:'0.7rem'}}>
+                          <div style={{fontWeight:700,color:'#2563eb',fontSize:'0.9rem',marginBottom:'0.5rem',letterSpacing:'0.5px'}}>📸 Document Images ({load.photos.length})</div>
+                          <div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap',justifyContent:'flex-start'}}>
+                            {load.photos.map((photoUrl: string, i: number) => (
+                              <img
+                                key={`${load.id}-photo-${i}`}
+                                src={photoUrl}
+                                alt={`Document ${i+1}`}
+                                style={{
+                                  width: 60,
+                                  height: 60,
+                                  objectFit: 'cover',
+                                  borderRadius: '8px',
+                                  border: '2px solid #3b82f6',
+                                  boxShadow: '0 2px 8px rgba(37,99,235,0.15)',
+                                  transition: 'all 0.2s ease',
+                                  cursor: 'pointer',
+                                }}
+                                onClick={() => { console.log('Thumbnail clicked:', photoUrl); setPreviewImage(photoUrl); }}
+                                onMouseOver={e => {
+                                  e.currentTarget.style.transform = 'scale(1.15)';
+                                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(37,99,235,0.25)';
+                                }}
+                                onMouseOut={e => {
+                                  e.currentTarget.style.transform = 'scale(1)';
+                                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(37,99,235,0.15)';
+                                }}
+                                onError={e => { if (!e.currentTarget.src.endsWith('/no-image.png')) e.currentTarget.src = '/no-image.png'; }}
+                              />
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>

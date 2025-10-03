@@ -132,18 +132,27 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
   // Real-time update when invoice data changes
   React.useEffect(() => {
     if (invoiceSubtotal && invoiceMadeOutTo && invoiceDate && invoiceNumber) {
+      // Parse currency strings properly
+      const parseCurrency = (value: string) => {
+        if (!value) return 0;
+        const cleanValue = value.replace(/[R,\s]/g, '');
+        return parseFloat(cleanValue) || 0;
+      };
+      
       const currentInvoiceData = {
         invoiceMadeOutTo: invoiceMadeOutTo,
         invoiceDate: invoiceDate,
         invoiceNumber: invoiceNumber,
-        invoiceSubtotal: Number(invoiceSubtotal),
-        invoiceVat: Number(invoiceVat),
-        invoiceTotal: Number(invoiceTotal),
+        invoiceSubtotal: parseCurrency(invoiceSubtotal),
+        invoiceVat: parseCurrency(invoiceVat),
+        invoiceTotal: parseCurrency(invoiceTotal),
         invoiceDiscount: invoiceDiscount,
         invoiceSentToDebtor: invoiceSentToDebtor,
         invoicer: 'Invoicer',
         timestamp: new Date().toISOString()
       }
+      
+      console.log('🔍 InvoicerSection - Storing invoice data:', currentInvoiceData);
       
       // Update localStorage immediately when invoice data changes
       localStorage.setItem('invoiceData', JSON.stringify(currentInvoiceData))

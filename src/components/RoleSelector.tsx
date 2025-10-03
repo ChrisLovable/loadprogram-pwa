@@ -477,16 +477,23 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           </span>
         </button>
         
+      </div>
+      
+      {/* Logout Button - Below the 2x2 grid */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        marginTop: '0.5rem'
+      }}>
         <button
           type="button"
           onClick={onLogout}
           style={{
-            flex: 1,
             background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(239, 68, 68, 0.8) 50%, rgba(220, 38, 38, 0.9) 100%)',
             color: 'white',
             border: '2px solid rgba(255,255,255,0.2)',
             borderRadius: '16px',
-            padding: '0.3rem 0.5rem',
+            padding: '0.3rem 1rem',
             fontWeight: 900,
             fontSize: '0.85rem',
             cursor: 'pointer',
@@ -506,7 +513,8 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             `,
             height: '70px',
             transform: 'perspective(1000px) rotateX(5deg)',
-            filter: 'saturate(1.2) contrast(1.1)'
+            filter: 'saturate(1.2) contrast(1.1)',
+            minWidth: '120px'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
@@ -536,7 +544,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
         >
           <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
             <span>🚪</span>
-            <span>Logout</span>
+            <span>Logout / Login</span>
           </span>
         </button>
       </div>
