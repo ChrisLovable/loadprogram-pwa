@@ -315,6 +315,90 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
         </div>
       </div>
 
+      {/* Previous Approver Comments */}
+      {(load?.parsed_data?.comments && load.parsed_data.comments !== '-') || 
+       (load?.parsed_data?.secondApproverComments && load.parsed_data.secondApproverComments !== '-') || 
+       (load?.invoicer_comments && load.invoicer_comments !== '-') ? (
+        <div style={{
+          background:'#f8fafc',
+          borderRadius:'12px',
+          padding:'1rem',
+          marginBottom:'1rem',
+          boxShadow:'0 1px 4px rgba(0,0,0,0.1)',
+          border:'1px solid #e5e7eb'
+        }}>
+          <div style={{
+            fontWeight:700,
+            marginBottom:'0.8rem',
+            fontSize:'1.05rem',
+            color:'#374151',
+            textAlign:'center',
+            paddingBottom:'0.5rem',
+            borderBottom:'2px solid #d1d5db'
+          }}>📝 Previous Approver Comments</div>
+          
+          {/* First Approver Comments */}
+          {load?.parsed_data?.comments && load.parsed_data.comments !== '-' && (
+            <div style={{marginBottom:'0.8rem'}}>
+              <div style={{fontWeight:600,color:'#4f8cff',marginBottom:'0.3rem',fontSize:'0.95rem'}}>First Approver:</div>
+              <div style={{
+                padding:'0.6rem',
+                borderRadius:'6px',
+                border:'1px solid #4f8cff',
+                fontSize:'0.95rem',
+                background:'#f0f4ff',
+                color:'#4f8cff',
+                fontWeight:500,
+                minHeight:'50px',
+                whiteSpace:'pre-wrap'
+              }}>
+                {load.parsed_data.comments}
+              </div>
+            </div>
+          )}
+          
+          {/* Second Approver Comments */}
+          {load?.parsed_data?.secondApproverComments && load.parsed_data.secondApproverComments !== '-' && (
+            <div style={{marginBottom:'0.8rem'}}>
+              <div style={{fontWeight:600,color:'#059669',marginBottom:'0.3rem',fontSize:'0.95rem'}}>Second Approver:</div>
+              <div style={{
+                padding:'0.6rem',
+                borderRadius:'6px',
+                border:'1px solid #059669',
+                fontSize:'0.95rem',
+                background:'#f0fdf4',
+                color:'#059669',
+                fontWeight:500,
+                minHeight:'50px',
+                whiteSpace:'pre-wrap'
+              }}>
+                {load.parsed_data.secondApproverComments}
+              </div>
+            </div>
+          )}
+          
+          {/* Invoicer Comments */}
+          {load?.invoicer_comments && load.invoicer_comments !== '-' && (
+            <div>
+              <div style={{fontWeight:600,color:'#dc2626',marginBottom:'0.3rem',fontSize:'0.95rem'}}>Invoicer:</div>
+              <div style={{
+                padding:'0.6rem',
+                borderRadius:'6px',
+                border:'1px solid #dc2626',
+                fontSize:'0.95rem',
+                background:'#fef2f2',
+                color:'#dc2626',
+                fontWeight:500,
+                minHeight:'50px',
+                whiteSpace:'pre-wrap'
+              }}>
+                {load.invoicer_comments}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : null}
+
       {/* Final Approver Comments */}
       <div className="form-group" style={{paddingLeft:'0.5rem',paddingRight:'0.5rem',paddingBottom:'0.5rem'}}>
         <label style={labelStyle}>Final Approver Comments</label>

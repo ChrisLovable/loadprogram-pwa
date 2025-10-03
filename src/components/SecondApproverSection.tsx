@@ -310,16 +310,34 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
         }}>
           <div style={{fontWeight:700,marginBottom:'0.5rem',fontSize:'1.05rem',color:'#2563eb'}}>💰 First Approver Calculation</div>
           
-          <div style={{display:'flex',gap:'0.8rem',justifyContent:'flex-start',marginBottom:'1rem'}}>
+          <div style={{display:'flex',flexDirection:'column',gap:'0.8rem',alignItems:'flex-start',marginBottom:'1rem'}}>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>Subtotal</div>
-              <div style={{...inputStyle,width:'90px',background:'#f0f4ff',color:'#4f8cff',fontWeight:700,textAlign:'center',border:'1px solid #4f8cff',borderRadius:'6px'}}>
+              <div style={{...inputStyle,width:'120px',background:'#f0f4ff',color:'#4f8cff',fontWeight:700,textAlign:'center',border:'1px solid #4f8cff',borderRadius:'6px'}}>
                 {getField('subtotal') ? formatCurrency(Number(getField('subtotal'))) : '0.00'}
               </div>
             </div>
             <div style={{textAlign:'center'}}>
+              <div style={labelStyle}>Discount %</div>
+              <div style={{...inputStyle,width:'120px',background:'#fef2f2',color:'#dc2626',fontWeight:700,textAlign:'center',border:'1px solid #dc2626',borderRadius:'6px'}}>
+                {getField('discount') ? `${getField('discount')}%` : '0%'}
+              </div>
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={labelStyle}>Subtotal after discount</div>
+              <div style={{...inputStyle,width:'120px',background:'#f0f4ff',color:'#4f8cff',fontWeight:700,textAlign:'center',border:'1px solid #4f8cff',borderRadius:'6px'}}>
+                {(() => {
+                  const subtotal = parseFloat(getField('subtotal') || '0');
+                  const discountPercent = parseFloat(getField('discount') || '0');
+                  const discountAmount = subtotal * (discountPercent / 100);
+                  const subtotalAfterDiscount = subtotal - discountAmount;
+                  return subtotalAfterDiscount > 0 ? formatCurrency(subtotalAfterDiscount) : '0.00';
+                })()}
+              </div>
+            </div>
+            <div style={{textAlign:'center'}}>
               <div style={labelStyle}>VAT (15%)</div>
-              <div style={{...inputStyle,width:'90px',background:'#fff4e6',color:'#ff8c00',fontWeight:700,textAlign:'center',border:'1px solid #ff8c00',borderRadius:'6px'}}>
+              <div style={{...inputStyle,width:'120px',background:'#fff4e6',color:'#ff8c00',fontWeight:700,textAlign:'center',border:'1px solid #ff8c00',borderRadius:'6px'}}>
                 {getField('vat') ? formatCurrency(Number(getField('vat'))) : '0.00'}
               </div>
             </div>
@@ -343,6 +361,27 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
           </div>
         </div>
       </div>
+
+      {/* First Approver Comments Display */}
+      {getField('comments') && getField('comments') !== '-' && (
+        <div className="form-group" style={{paddingLeft:'0.5rem',paddingRight:'0.5rem',paddingBottom:'0.5rem'}}>
+          <label style={labelStyle}>First Approver Comments</label>
+          <div style={{
+            width: '100%',
+            padding: '0.6rem',
+            borderRadius: '6px',
+            border: '1px solid #e0e7ef',
+            fontSize: '1rem',
+            background: '#f0f4ff',
+            color: '#4f8cff',
+            fontWeight: 500,
+            minHeight: '60px',
+            whiteSpace: 'pre-wrap'
+          }}>
+            {getField('comments')}
+          </div>
+        </div>
+      )}
 
       {/* Second Approver Comments */}
       <div className="form-group" style={{paddingLeft:'0.5rem',paddingRight:'0.5rem',paddingBottom:'0.5rem'}}>

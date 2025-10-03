@@ -23,6 +23,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
   const [invoiceSubtotal, setInvoiceSubtotal] = useState('')
   const [invoiceVat, setInvoiceVat] = useState('')
   const [invoiceTotal, setInvoiceTotal] = useState('')
+  const [invoicerComments, setInvoicerComments] = useState('')
 
   // Currency formatting function
   const formatCurrency = (value: number): string => {
@@ -167,6 +168,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
         invoiceTotal: parseCurrency(invoiceTotal),
         invoiceDiscount: invoiceDiscount,
         invoiceSentToDebtor: invoiceSentToDebtor,
+        invoicerComments: invoicerComments,
         invoicer: 'Invoicer',
         timestamp: new Date().toISOString()
       }
@@ -181,7 +183,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
         detail: currentInvoiceData 
       }))
     }
-  }, [invoiceSubtotal, invoiceMadeOutTo, invoiceDate, invoiceNumber, invoiceVat, invoiceTotal, invoiceDiscount, invoiceSentToDebtor])
+  }, [invoiceSubtotal, invoiceMadeOutTo, invoiceDate, invoiceNumber, invoiceVat, invoiceTotal, invoiceDiscount, invoiceSentToDebtor, invoicerComments])
 
   // Helper to get a field from load.parsed_data or firstApprovalData
   const getField = (field: string, fallback: any = '-') => {
@@ -542,8 +544,8 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             </div>
           </div>
           
-          {/* Total - Own Line */}
-          <div style={{textAlign:'center',marginBottom:'0.7rem',marginLeft:'-150px'}}>
+          {/* Total - Left aligned under VAT */}
+          <div style={{textAlign:'left',marginBottom:'0.7rem'}}>
             <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>TOTAL AMOUNT</div>
             <div style={{
               background:'#f0fdf4',
@@ -555,8 +557,11 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
               border:'2px solid #16a34a',
               textAlign:'center',
               marginTop:'0.3rem',
-              width: desktopLayout ? '300px' : 'auto',
-              margin: desktopLayout ? '0.3rem auto 0' : '0.3rem 0 0'
+              width: '200px',
+              height: '50px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
               {(() => {
                 const subtotal = parseFloat(getField('subtotal') || '0');
@@ -571,6 +576,68 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           </div>
         </div>
       </div>
+
+      {/* Previous Approver Comments */}
+      {(getField('comments') && getField('comments') !== '-') || (load?.parsed_data?.secondApproverComments && load.parsed_data.secondApproverComments !== '-') ? (
+        <div style={{
+          background:'#f8fafc',
+          borderRadius:'12px',
+          padding:'1rem',
+          marginBottom:'1rem',
+          boxShadow:'0 1px 4px rgba(0,0,0,0.1)',
+          border:'1px solid #e5e7eb'
+        }}>
+          <div style={{
+            fontWeight:700,
+            marginBottom:'0.8rem',
+            fontSize:'1.05rem',
+            color:'#374151',
+            textAlign:'center',
+            paddingBottom:'0.5rem',
+            borderBottom:'2px solid #d1d5db'
+          }}>📝 Previous Approver Comments</div>
+          
+          {/* First Approver Comments */}
+          {getField('comments') && getField('comments') !== '-' && (
+            <div style={{marginBottom:'0.8rem'}}>
+              <div style={{fontWeight:600,color:'#4f8cff',marginBottom:'0.3rem',fontSize:'0.95rem'}}>First Approver:</div>
+              <div style={{
+                padding:'0.6rem',
+                borderRadius:'6px',
+                border:'1px solid #4f8cff',
+                fontSize:'0.95rem',
+                background:'#f0f4ff',
+                color:'#4f8cff',
+                fontWeight:500,
+                minHeight:'50px',
+                whiteSpace:'pre-wrap'
+              }}>
+                {getField('comments')}
+              </div>
+            </div>
+          )}
+          
+          {/* Second Approver Comments */}
+          {load?.parsed_data?.secondApproverComments && load.parsed_data.secondApproverComments !== '-' && (
+            <div>
+              <div style={{fontWeight:600,color:'#059669',marginBottom:'0.3rem',fontSize:'0.95rem'}}>Second Approver:</div>
+              <div style={{
+                padding:'0.6rem',
+                borderRadius:'6px',
+                border:'1px solid #059669',
+                fontSize:'0.95rem',
+                background:'#f0fdf4',
+                color:'#059669',
+                fontWeight:500,
+                minHeight:'50px',
+                whiteSpace:'pre-wrap'
+              }}>
+                {load.parsed_data.secondApproverComments}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : null}
 
       {/* Invoice Details */}
       <div style={{
@@ -716,28 +783,24 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             />
           </div>
 
-          {/* Discount % Field */}
+          {/* Invoicer Comments */}
           <div style={{marginBottom:'0.7rem'}}>
-            <div style={labelStyle}>Discount %</div>
-            <input 
-              type="number" 
-              value={invoiceDiscount} 
-              onChange={e => setInvoiceDiscount(e.target.value)} 
+            <div style={labelStyle}>Invoicer Comments</div>
+            <textarea 
+              value={invoicerComments} 
+              onChange={e => setInvoicerComments(e.target.value)} 
+              rows={4} 
+              placeholder="Add any comments about the invoice processing..."
               style={{
-                padding:'0.6rem',
-                borderRadius:'6px',
-                border:'1px solid #dc2626',
-                fontSize:'1rem',
-                background:'#fef2f2',
-                color:'#dc2626',
-                fontWeight:600,
-                width: desktopLayout ? '160px' : '120px'
-              }} 
-              placeholder=""
-              min="0"
-              max="100"
-              step="0.01"
-              required 
+                width: '100%',
+                padding: '0.6rem',
+                borderRadius: '6px',
+                border: '1px solid #333',
+                fontSize: '1rem',
+                background: '#f7fafd',
+                resize: 'vertical',
+                minHeight: '80px'
+              }}
             />
           </div>
 
@@ -788,6 +851,48 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   placeholder="0.00"
                   required
                 />
+              </div>
+            </div>
+            <div>
+              <div style={labelStyle}>Discount %</div>
+              <div style={{
+                background:'#fef2f2',
+                color:'#dc2626',
+                fontWeight:700,
+                fontSize:'1.2rem',
+                padding:'0.8rem',
+                borderRadius:'8px',
+                border:'2px solid #dc2626',
+                textAlign:'center',
+                marginTop:'0.3rem',
+                width: '160px',
+                height: '50px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <input 
+                  type="number" 
+                  value={invoiceDiscount} 
+                  onChange={e => setInvoiceDiscount(e.target.value)} 
+                  style={{
+                    background:'transparent',
+                    border:'none',
+                    outline:'none',
+                    color:'#dc2626',
+                    fontWeight:700,
+                    fontSize:'1.2rem',
+                    textAlign:'center',
+                    flexGrow:1,
+                    minWidth:'0'
+                  }}
+                  placeholder="0"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  required 
+                />
+                <span style={{ color: '#dc2626', fontWeight: 700, fontSize: '1.2rem' }}>%</span>
               </div>
             </div>
             <div>
@@ -986,7 +1091,8 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 pdf_invoice_generated_at: new Date().toISOString(),
                 invoice_number: invoiceNumber,
                 debtor_name: invoiceMadeOutTo,
-                invoice_sent: invoiceSentToDebtor // Store invoice sent status
+                invoice_sent: invoiceSentToDebtor, // Store invoice sent status
+                invoicer_comments: invoicerComments // Store invoicer comments
               }).eq('id', load.id)
               
               if (error) {

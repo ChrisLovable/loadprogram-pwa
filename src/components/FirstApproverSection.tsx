@@ -434,7 +434,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         {/* Date - Left Aligned */}
         <div style={{marginBottom:'0.7rem',paddingLeft:'0.5rem',paddingRight:'0.5rem'}}>
           <div style={labelStyle}>Date</div>
-          <input type="text" value={date} onChange={e => setDate(e.target.value)} style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f7fafd',width:'120px'}} />
+          <input type="text" value={date} onChange={e => setDate(e.target.value)} style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f7fafd',width:'180px'}} />
           </div>
         
         {/* Sender - Left Aligned */}
@@ -656,7 +656,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         <div style={{marginBottom:'0.8rem'}}>
           <div style={{...labelStyle,fontSize:'1.05rem'}}>Rate per Loaded KM</div>
           <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden'}}>
-            <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+            <span style={{padding:'0 0.4rem',color:'#333',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
             <input 
               type="number" 
               step="0.01" 
@@ -674,7 +674,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
             <div style={{...labelStyle,fontSize:'1.05rem'}}>Running KMs</div>
             <input 
               type="number" 
-              step="0.01" 
+              step="0.01"
               value={runningKms === 0 ? '' : runningKms}
               onChange={handleRunningKmsChange}
               style={{...inputStyle,width:'120px',textAlign:'right',fontSize:'1rem',border:'1px solid #333',borderRadius:'6px'}} 
@@ -684,7 +684,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
           <div>
             <div style={{...labelStyle,fontSize:'1.05rem'}}>Rate/km</div>
             <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden'}}>
-              <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+              <span style={{padding:'0 0.4rem',color:'#333',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
               <input 
                 type="number" 
                 step="0.01" 
@@ -700,7 +700,7 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         <div style={{marginBottom:'0.8rem'}}>
           <div style={{...labelStyle,fontSize:'1.05rem'}}>Rate / Animal</div>
           <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden'}}>
-            <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+            <span style={{padding:'0 0.4rem',color:'#333',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
             <input 
               type="number" 
               step="0.01" 
@@ -744,51 +744,63 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         <div style={{display:'flex',flexDirection:'column',gap:'0.8rem',marginBottom:'1rem',maxWidth:'100%'}}>
           {/* Top row: Subtotal, Discount, VAT - Vertical Layout */}
           <div style={{display:'flex',flexDirection:'column',gap:'0.8rem',alignItems:'flex-start'}}>
-            <div style={{textAlign:'left',width:'120px'}}>
-              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem'}}>Subtotal</div>
-              <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden',minHeight:'2rem'}}>
-                <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+            <div style={{textAlign:'left',width:'200px'}}>
+              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem',color:'#4f8cff'}}>Subtotal</div>
+              <div style={{display:'flex',alignItems:'center',width:'200px',borderRadius:'6px',border:'1px solid #4f8cff',background:'#f0f4ff',overflow:'hidden',minHeight:'2rem'}}>
+                <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#e6f3ff',height:'100%',display:'flex',alignItems:'center'}}>R</span>
                 <input 
                   type="text" 
                   value={baseSubtotal ? formatCurrency(baseSubtotal) : ''} 
                   readOnly 
-                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#333',outline:'none',minHeight:'2rem'}} 
+                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#4f8cff',outline:'none',minHeight:'2rem'}} 
                 />
               </div>
             </div>
-            <div style={{textAlign:'left',width:'120px'}}>
-              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem'}}>Discount</div>
-              <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden',minHeight:'2rem'}}>
+            <div style={{textAlign:'left',width:'200px'}}>
+              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem',color:'#dc2626'}}>Discount</div>
+              <div style={{display:'flex',alignItems:'center',width:'200px',borderRadius:'6px',border:'1px solid #dc2626',background:'#fef2f2',overflow:'hidden',minHeight:'2rem'}}>
                 <input 
                   type="number" 
                   step="0.01" 
                   value={discount === 0 ? '' : discount}
                   onChange={handleDiscountChange}
-                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#333',outline:'none',minHeight:'2rem'}} 
+                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#dc2626',outline:'none',minHeight:'2rem'}} 
                   placeholder="0.00"
                 />
-                <span style={{padding:'0 0.4rem',color:'#dc2626',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>%</span>
+                <span style={{padding:'0 0.4rem',color:'#dc2626',fontWeight:700,fontSize:'1rem',background:'#fecaca',height:'100%',display:'flex',alignItems:'center'}}>%</span>
               </div>
             </div>
-            <div style={{textAlign:'left',width:'120px'}}>
-              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem'}}>VAT (15%)</div>
-              <div style={{display:'flex',alignItems:'center',width:'120px',borderRadius:'6px',border:'1px solid #333',background:'#fff',overflow:'hidden',minHeight:'2rem'}}>
-                <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#f7fafd',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+            <div style={{textAlign:'left',width:'200px'}}>
+              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem',color:'#4f8cff',whiteSpace:'nowrap'}}>Subtotal after discount</div>
+              <div style={{display:'flex',alignItems:'center',width:'200px',borderRadius:'6px',border:'1px solid #4f8cff',background:'#f0f4ff',overflow:'hidden',minHeight:'2rem'}}>
+                <span style={{padding:'0 0.4rem',color:'#4f8cff',fontWeight:700,fontSize:'1rem',background:'#e6f3ff',height:'100%',display:'flex',alignItems:'center'}}>R</span>
+                <input 
+                  type="text" 
+                  value={subtotal ? formatCurrency(subtotal) : ''} 
+                  readOnly 
+                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#4f8cff',outline:'none',minHeight:'2rem'}} 
+                />
+              </div>
+            </div>
+            <div style={{textAlign:'left',width:'200px'}}>
+              <div style={{...labelStyle,fontSize:'1.05rem',marginBottom:'0.2rem',color:'#ff8c00'}}>VAT (15%)</div>
+              <div style={{display:'flex',alignItems:'center',width:'200px',borderRadius:'6px',border:'1px solid #ff8c00',background:'#fff4e6',overflow:'hidden',minHeight:'2rem'}}>
+                <span style={{padding:'0 0.4rem',color:'#ff8c00',fontWeight:700,fontSize:'1rem',background:'#ffe4b5',height:'100%',display:'flex',alignItems:'center'}}>R</span>
                 <input 
                   type="text" 
                   value={vatAmount ? formatCurrency(vatAmount) : ''} 
                   readOnly 
-                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#333',outline:'none',minHeight:'2rem'}} 
+                  style={{...inputStyle,border:'none',width:'100%',textAlign:'right',fontSize:'1rem',background:'transparent',fontWeight:700,color:'#ff8c00',outline:'none',minHeight:'2rem'}} 
                 />
               </div>
             </div>
           </div>
           
           {/* Bottom row: TOTAL */}
-          <div style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
-            <div style={{textAlign:'center',minWidth:'200px',maxWidth:'300px'}}>
+          <div style={{display:'flex',justifyContent:'flex-start',alignItems:'center',marginLeft:'0px'}}>
+            <div style={{textAlign:'center',width:'200px'}}>
               <div style={{...labelStyle,fontSize:'1.05rem',fontWeight:700,color:'#38d39f',marginBottom:'0.2rem'}}>TOTAL</div>
-              <div style={{display:'flex',alignItems:'center',width:'100%',borderRadius:'6px',border:'2px solid #38d39f',background:'#fff',overflow:'hidden'}}>
+              <div style={{display:'flex',alignItems:'center',width:'200px',borderRadius:'6px',border:'2px solid #38d39f',background:'#f0fdf4',overflow:'hidden'}}>
                 <span style={{padding:'0 0.4rem',color:'#38d39f',fontWeight:700,fontSize:'1rem',background:'#e3f6f5',height:'100%',display:'flex',alignItems:'center'}}>R</span>
                 <input 
                   type="text" 
