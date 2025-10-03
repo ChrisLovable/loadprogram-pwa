@@ -449,7 +449,8 @@ const InvoiceManager: React.FC<InvoiceManagerProps> = ({ onClose }) => {
               display: 'flex',
               flexDirection: 'column',
               gap: '2rem',
-              maxWidth: '100%'
+              maxWidth: '100%',
+              marginTop: '500px'
             }}>
               {filteredInvoices.map((invoice, index) => (
                 <div key={invoice.id} style={{

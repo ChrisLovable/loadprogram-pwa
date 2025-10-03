@@ -742,7 +742,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
         {/* Right Column - Invoice Total and Confirmation */}
         <div>
           {/* Invoice Total - Own Line */}
-          <div style={{textAlign:'center',marginBottom:'0.8rem'}}>
+          <div style={{textAlign:'center',marginBottom:'0.8rem',marginTop:'300px'}}>
             <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>INVOICE TOTAL</div>
             <div style={{
               background:'#f0fdf4',
