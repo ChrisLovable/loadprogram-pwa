@@ -147,15 +147,16 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
     }
   }, [invoiceDiscount, load?.parsed_data?.subtotal])
 
+  // Helper function to parse currency strings
+  const parseCurrency = (value: string) => {
+    if (!value) return 0;
+    const cleanValue = value.replace(/[R,\s]/g, '');
+    return parseFloat(cleanValue) || 0;
+  };
+
   // Real-time update when invoice data changes
   React.useEffect(() => {
     if (invoiceSubtotal && invoiceMadeOutTo && invoiceDate && invoiceNumber) {
-      // Parse currency strings properly
-      const parseCurrency = (value: string) => {
-        if (!value) return 0;
-        const cleanValue = value.replace(/[R,\s]/g, '');
-        return parseFloat(cleanValue) || 0;
-      };
       
       const currentInvoiceData = {
         invoiceMadeOutTo: invoiceMadeOutTo,
@@ -226,9 +227,9 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           invoiceMadeOutTo: invoiceMadeOutTo,
           invoiceDate: invoiceDate, // Use the state variable directly
           invoiceNumber: invoiceNumber,
-          invoiceSubtotal: Number(invoiceSubtotal),
-          invoiceVat: Number(invoiceVat),
-          invoiceTotal: Number(invoiceTotal),
+          invoiceSubtotal: parseCurrency(invoiceSubtotal),
+          invoiceVat: parseCurrency(invoiceVat),
+          invoiceTotal: parseCurrency(invoiceTotal),
           invoiceSentToDebtor: invoiceSentToDebtor,
           rate: Number(getField('rate', 0)),
           ratePerAnimal: Number(getField('ratePerAnimal', 0)),
@@ -926,9 +927,9 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   invoiceMadeOutTo: invoiceMadeOutTo,
                   invoiceDate: invoiceDate,
                   invoiceNumber: invoiceNumber,
-                  invoiceSubtotal: Number(invoiceSubtotal),
-                  invoiceVat: Number(invoiceVat),
-                  invoiceTotal: Number(invoiceTotal),
+                  invoiceSubtotal: parseCurrency(invoiceSubtotal),
+                  invoiceVat: parseCurrency(invoiceVat),
+                  invoiceTotal: parseCurrency(invoiceTotal),
                   invoiceSentToDebtor: invoiceSentToDebtor,
                   rate: Number(getField('rate', 0)),
                   ratePerAnimal: Number(getField('ratePerAnimal', 0)),
