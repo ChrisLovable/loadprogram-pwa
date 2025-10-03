@@ -75,11 +75,11 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
   }
 
   const roleButtons = [
-    { key: 'driver', name: 'Driver', color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderColor: '#34d399', icon: '🚛' },
-    { key: 'first_approver', name: 'First Approver', color: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', borderColor: '#60a5fa', icon: '✅' },
-    { key: 'second_approver', name: 'Second Approver', color: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)', borderColor: '#c4b5fd', icon: '🔍' },
-    { key: 'invoicer', name: 'Invoice', color: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', borderColor: '#fbbf24', icon: '📄' },
-    { key: 'final_approver', name: 'Final Approver', color: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', borderColor: '#fbbf24', icon: '🏁' }
+    { key: 'driver', name: 'Driver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🚛' },
+    { key: 'first_approver', name: 'First Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '✅' },
+    { key: 'second_approver', name: 'Second Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🔍' },
+    { key: 'invoicer', name: 'Invoice', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '📄' },
+    { key: 'final_approver', name: 'Final Approver', color: 'linear-gradient(135deg, #000000 0%, #1e3a8a 100%)', borderColor: '#3b82f6', icon: '🏁' }
   ];
 
   return (
@@ -87,7 +87,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
       borderRadius: '12px',
       padding: '1rem',
-      marginTop: '-30px',
+      marginTop: '20px',
       marginBottom: '1rem'
     }}>
       {/* Role Buttons - Vertical Stack at 80% width */}
@@ -114,11 +114,10 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                     ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
                     : role.color,
                 color: currentRole === role.key ? '#222' : 'white',
-                border: `2.5px solid ${currentRole === role.key ? '#fff' : role.borderColor}`,
-                borderRadius: '16px',
-                padding: '0.8rem 1rem',
+                borderRadius: '20px',
+                padding: '0.6rem 0.8rem',
                 fontWeight: 900,
-                fontSize: '0.9rem',
+                fontSize: '0.8rem',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
                 opacity: isDisabled ? 0.5 : 1,
@@ -129,8 +128,11 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '0.5rem',
-                width: '80vw',
-                maxWidth: '400px'
+                width: '280px',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)',
+                border: '1px solid rgba(255,255,255,0.1)'
               }}
               onMouseOver={(e) => {
                 if (!isDisabled && currentRole !== role.key) {
@@ -179,17 +181,20 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummariesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
-            color: '#222',
-            border: '2.5px solid #60a5fa',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(37, 99, 235, 0.8) 100%)',
+            color: 'white',
+            border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
-            padding: '0.5rem 1.2rem',
+            padding: '0.4rem 0.8rem',
             fontWeight: 900,
-            fontSize: '0.85rem',
+            fontSize: '0.7rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -211,17 +216,20 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onDashboardClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
-            color: '#222',
-            border: '2.5px solid #f472b6',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(190, 24, 93, 0.8) 100%)',
+            color: 'white',
+            border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
-            padding: '0.5rem 1.2rem',
+            padding: '0.4rem 0.8rem',
             fontWeight: 900,
-            fontSize: '0.85rem',
+            fontSize: '0.7rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -250,17 +258,20 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onSummaryClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-            color: '#222',
-            border: '2.5px solid #a78bfa',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(124, 58, 237, 0.8) 100%)',
+            color: 'white',
+            border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
-            padding: '0.5rem 1.2rem',
+            padding: '0.4rem 0.8rem',
             fontWeight: 900,
-            fontSize: '0.85rem',
+            fontSize: '0.7rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -282,17 +293,20 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onClick={onInvoicesClick}
           style={{
             flex: 1,
-            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            color: '#222',
-            border: '2.5px solid #fbbf24',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(217, 119, 6, 0.8) 100%)',
+            color: 'white',
+            border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
-            padding: '0.5rem 1.2rem',
+            padding: '0.4rem 0.8rem',
             fontWeight: 900,
-            fontSize: '0.85rem',
+            fontSize: '0.7rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)'
           }}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';

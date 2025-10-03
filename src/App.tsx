@@ -1019,7 +1019,7 @@ function App() {
       {/* Goliatskraal Banner */}
       <div style={{
         width: '100%',
-        marginTop: '30px',
+        marginTop: '-10px',
         marginBottom: '1rem',
         borderRadius: '12px',
         overflow: 'hidden',
