@@ -11,6 +11,13 @@ const inputStyle = { width: '100%', padding: '0.6rem', borderRadius: '8px', bord
 const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onApprovalComplete }) => {
   const [comments, setComments] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<string[]>([])
+
+  // Add debug info to visual display
+  const addDebugInfo = (message: string) => {
+    console.log(message)
+    setDebugInfo(prev => [...prev.slice(-4), `${new Date().toLocaleTimeString()}: ${message}`])
+  }
 
   // Currency formatting function
   const formatCurrency = (value: number): string => {
@@ -63,20 +70,20 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+    setDebugInfo([]) // Clear previous debug info
     try {
-      console.log('SecondApprover submitting with load:', load)
-      console.log('Load ID:', load?.id)
-      console.log('User Agent:', navigator.userAgent)
-      console.log('Is Mobile:', /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+      addDebugInfo('Starting submission...')
+      addDebugInfo(`Load ID: ${load?.id}`)
+      addDebugInfo(`Mobile: ${/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)}`)
       
       if (!load?.id) {
         throw new Error('Load ID is missing')
       }
       
       // Test Supabase connection first
-      console.log('Testing Supabase connection...')
+      addDebugInfo('Testing Supabase connection...')
       const { supabase } = await import('../lib/supabase')
-      console.log('Supabase client loaded:', !!supabase)
+      addDebugInfo(`Supabase loaded: ${!!supabase}`)
       
       // Test network connectivity
       try {
@@ -86,9 +93,9 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
             'apikey': 'sb_publishable_Zfc7tBpl0ho1GuF2HLjKxQ_BlU_A24w'
           }
         })
-        console.log('Network test result:', response.status, response.statusText)
+        addDebugInfo(`Network test: ${response.status} ${response.statusText}`)
       } catch (networkError) {
-        console.error('Network connectivity test failed:', networkError)
+        addDebugInfo(`Network error: ${networkError.message}`)
         throw new Error('Network connectivity issue: ' + networkError.message)
       }
       
@@ -118,26 +125,26 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
         totalAnimals: Number(getField('totalAnimals', '0')),
       };
       
-      console.log('Updated parsed data:', updatedParsedData)
+      addDebugInfo('Preparing data for submission...')
       
       // Update the load in Supabase
+      addDebugInfo('Sending to Supabase...')
       const { error } = await supabase.from('loads').update({
         status: 'second_approved',
         parsed_data: updatedParsedData,
       }).eq('id', load.id)
       
-      console.log('Supabase update result:', { error })
-      
       if (error) {
-        console.error('Supabase error details:', error)
+        addDebugInfo(`Supabase error: ${error.message}`)
         alert('Failed to update load: ' + error.message);
       } else {
+        addDebugInfo('Success! Submission completed.')
         setComments('');
         alert('Second approval submitted and promoted to Invoicer!');
         onApprovalComplete();
       }
     } catch (error) {
-      console.error('SecondApproverSection approval failed:', error)
+      addDebugInfo(`Error: ${(error as Error).message}`)
       alert('Failed to submit second approval: ' + (error as Error).message)
     } finally {
       setSubmitting(false)
@@ -146,6 +153,26 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
 
   return (
     <form onSubmit={handleSubmit} className="approver-form">
+      {/* Debug Info Display */}
+      {debugInfo.length > 0 && (
+        <div style={{
+          background: '#f0f0f0',
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          padding: '10px',
+          marginBottom: '20px',
+          fontSize: '12px',
+          fontFamily: 'monospace'
+        }}>
+          <strong>Debug Info:</strong>
+          {debugInfo.map((info, index) => (
+            <div key={index} style={{ marginTop: '5px', color: '#333' }}>
+              {info}
+            </div>
+          ))}
+        </div>
+      )}
+      
       {/* Sender and Receiver */}
       <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
         <div>
