@@ -726,6 +726,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 textAlign:'center',
                 marginTop:'0.3rem',
                 width: desktopLayout ? '160px' : '120px',
+                height: '2.5rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -733,7 +734,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 <span style={{ color: '#3b82f6', fontWeight: 700, fontSize: '1.2rem' }}>R </span>
                 <input
                   type="text"
-                  value={invoiceSubtotal.replace(/[R,\s]/g, '')}
+                  value={invoiceSubtotal.replace(/[R,\s]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   onChange={e => {
                     const rawValue = e.target.value.replace(/[R,\s]/g, '');
                     const parsedValue = parseFloat(rawValue);
