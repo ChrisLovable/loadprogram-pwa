@@ -626,12 +626,12 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         boxShadow: '0 1px 4px rgba(79,140,255,0.07)'
       }}>
         <div style={{display: 'flex', justifyContent: 'center', marginBottom: '0.5rem', gap: '1rem'}}>
-          <div style={{border: '1px solid #4f8cff', borderRadius: '6px', padding: '0.3rem', minHeight: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '150px'}}>
-            <span style={{fontWeight: 600, color: '#4f8cff', marginRight: '0.3rem', fontSize: '0.8rem'}}>Start:</span>
+          <div style={{border: '1px solid #4f8cff', borderRadius: '6px', padding: '0.1rem', minHeight: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '150px'}}>
+            <span style={{fontWeight: 600, color: '#4f8cff', marginRight: '0.2rem', fontSize: '0.8rem'}}>Start:</span>
             <input type="number" value={startKm} onChange={e => setStartKm(e.target.value)} style={{width:'100%',border:'none',background:'transparent',fontWeight:700,color:'#4f8cff',textAlign:'center',outline:'none', fontSize: '0.8rem'}} />
           </div>
-          <div style={{border: '1px solid #4f8cff', borderRadius: '6px', padding: '0.3rem', minHeight: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '150px'}}>
-            <span style={{fontWeight: 600, color: '#4f8cff', marginRight: '0.3rem', fontSize: '0.8rem'}}>End:</span>
+          <div style={{border: '1px solid #4f8cff', borderRadius: '6px', padding: '0.1rem', minHeight: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '150px'}}>
+            <span style={{fontWeight: 600, color: '#4f8cff', marginRight: '0.2rem', fontSize: '0.8rem'}}>End:</span>
             <input type="number" value={endKm} onChange={e => setEndKm(e.target.value)} style={{width:'100%',border:'none',background:'transparent',fontWeight:700,color:'#4f8cff',textAlign:'center',outline:'none', fontSize: '0.8rem'}} />
           </div>
         </div>
