@@ -393,7 +393,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Date - Above Sender */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Date</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '120px' : '80px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '120px' : '80px'}}>
               {getField('date')}
             </div>
           </div>
@@ -401,7 +401,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Truck Registration - Above Sender */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Truck Registration</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '160px' : '140px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '160px' : '140px'}}>
               {getField('truck_reg') || getField('truckReg')}
             </div>
           </div>
@@ -409,7 +409,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Trailer Registration - Same Line as Truck */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Trailer Registration</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '160px' : '140px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '160px' : '140px'}}>
               {getField('trailer_reg') || getField('trailerReg')}
             </div>
           </div>
@@ -417,7 +417,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Sender - Full Width */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Sender</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '350px' : '280px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '350px' : '280px'}}>
               {getField('sender')}
             </div>
           </div>
@@ -425,7 +425,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Receiver - Full Width */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Receiver</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '350px' : '280px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '350px' : '280px'}}>
               {getField('receiver')}
             </div>
           </div>
@@ -438,13 +438,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
             <div>
               <div style={labelStyle}>Start KM</div>
-              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #333',fontSize:'0.65rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'0.65rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
                 {getField('startKm')}
               </div>
             </div>
             <div>
               <div style={labelStyle}>End KM</div>
-              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #333',fontSize:'0.65rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'0.65rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
                 {getField('endKm')}
               </div>
             </div>
@@ -504,20 +504,39 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           <div style={{display:'flex',flexDirection:'column',gap:'0.7rem',alignItems:'flex-start',marginBottom:'0.7rem'}}>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>Subtotal</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #4f8cff',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
                 {getField('subtotal') ? formatCurrency(parseFloat(getField('subtotal'))) : ''}
               </div>
             </div>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>Discount</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #dc2626',fontSize:'1rem',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
                 {getField('discount') ? `${getField('discount')}%` : (firstApprovalData?.discount ? `${firstApprovalData.discount}%` : '')}
               </div>
             </div>
             <div style={{textAlign:'center'}}>
+              <div style={labelStyle}>Subtotal after discount</div>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #4f8cff',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+                {(() => {
+                  const subtotal = parseFloat(getField('subtotal') || '0');
+                  const discountPercent = parseFloat(getField('discount') || firstApprovalData?.discount || '0');
+                  const discountAmount = subtotal * (discountPercent / 100);
+                  const subtotalAfterDiscount = subtotal - discountAmount;
+                  return subtotalAfterDiscount > 0 ? formatCurrency(subtotalAfterDiscount) : '';
+                })()}
+              </div>
+            </div>
+            <div style={{textAlign:'center'}}>
               <div style={labelStyle}>VAT (15%)</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
-                {getField('vat') ? formatCurrency(parseFloat(getField('vat'))) : ''}
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #ff8c00',fontSize:'1rem',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+                {(() => {
+                  const subtotal = parseFloat(getField('subtotal') || '0');
+                  const discountPercent = parseFloat(getField('discount') || firstApprovalData?.discount || '0');
+                  const discountAmount = subtotal * (discountPercent / 100);
+                  const subtotalAfterDiscount = subtotal - discountAmount;
+                  const vatAmount = subtotalAfterDiscount * 0.15;
+                  return vatAmount > 0 ? formatCurrency(vatAmount) : '';
+                })()}
               </div>
             </div>
           </div>
@@ -538,7 +557,15 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
               width: desktopLayout ? '300px' : 'auto',
               margin: desktopLayout ? '0.3rem auto 0' : '0.3rem 0 0'
             }}>
-              {getField('total') ? formatCurrency(parseFloat(getField('total'))) : '0.00'}
+              {(() => {
+                const subtotal = parseFloat(getField('subtotal') || '0');
+                const discountPercent = parseFloat(getField('discount') || firstApprovalData?.discount || '0');
+                const discountAmount = subtotal * (discountPercent / 100);
+                const subtotalAfterDiscount = subtotal - discountAmount;
+                const vatAmount = subtotalAfterDiscount * 0.15;
+                const totalAmount = subtotalAfterDiscount + vatAmount;
+                return totalAmount > 0 ? formatCurrency(totalAmount) : '0.00';
+              })()}
             </div>
           </div>
         </div>
