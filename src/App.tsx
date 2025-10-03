@@ -190,8 +190,8 @@ function App() {
   const [showSummary, setShowSummary] = useState(false);
   const [showInvoices, setShowInvoices] = useState(false);
   const [showInvoicerModal, setShowInvoicerModal] = useState(false);
-  const [summarySortBy, setSummarySortBy] = useState<'truckReg' | 'sender' | 'receiver' | null>(null);
-  const [summarySortOrder, setSummarySortOrder] = useState<'asc' | 'desc'>('asc');
+  const [summarySortBy, setSummarySortBy] = useState<'truckReg' | 'sender' | 'receiver' | 'date' | null>('date');
+  const [summarySortOrder, setSummarySortOrder] = useState<'asc' | 'desc'>('desc');
   const [summaryDateRange, setSummaryDateRange] = useState({ from: '', to: '' });
 
   const loadData = async () => {
@@ -297,7 +297,7 @@ function App() {
   };
 
   // Summary table sorting function
-  const handleSummarySort = (column: 'truckReg' | 'sender' | 'receiver') => {
+  const handleSummarySort = (column: 'truckReg' | 'sender' | 'receiver' | 'date') => {
     if (summarySortBy === column) {
       setSummarySortOrder(summarySortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -336,16 +336,41 @@ function App() {
         if (summarySortBy === 'truckReg') {
           aValue = a?.parsed_data?.truckReg || a?.truck_reg || '';
           bValue = b?.parsed_data?.truckReg || b?.truck_reg || '';
-        } else {
+          
+          if (summarySortOrder === 'asc') {
+            return aValue.localeCompare(bValue);
+          } else {
+            return bValue.localeCompare(aValue);
+          }
+        } else if (summarySortBy === 'date') {
+          // Handle date sorting - most recent first by default
+          const aDate = a?.parsed_data?.date || a?.date || a?.first_approval?.date || '';
+          const bDate = b?.parsed_data?.date || b?.date || b?.first_approval?.date || '';
+          
+          if (!aDate && !bDate) return 0;
+          if (!aDate) return 1;
+          if (!bDate) return -1;
+          
+          const aDateObj = new Date(aDate);
+          const bDateObj = new Date(bDate);
+          
+          if (summarySortOrder === 'asc') {
+            return aDateObj.getTime() - bDateObj.getTime();
+          } else {
+            return bDateObj.getTime() - aDateObj.getTime();
+          }
+        } else if (summarySortBy === 'sender' || summarySortBy === 'receiver') {
           aValue = a?.parsed_data?.[summarySortBy] || '';
           bValue = b?.parsed_data?.[summarySortBy] || '';
+          
+          if (summarySortOrder === 'asc') {
+            return aValue.localeCompare(bValue);
+          } else {
+            return bValue.localeCompare(aValue);
+          }
         }
         
-        if (summarySortOrder === 'asc') {
-          return aValue.localeCompare(bValue);
-        } else {
-          return bValue.localeCompare(aValue);
-        }
+        return 0;
       });
     }
     
@@ -358,7 +383,7 @@ function App() {
     
     // Prepare data for Excel
     const excelData = data.map(load => ({
-      'Date': load?.parsed_data?.date || load?.date || '-',
+      'Date': load?.parsed_data?.date || load?.date || load?.first_approval?.date || '-',
       'Truck Reg': load?.parsed_data?.truckReg || load?.truck_reg || '-',
       'Sender': load?.parsed_data?.sender || '-',
       'Receiver': load?.parsed_data?.receiver || '-',
@@ -944,7 +969,7 @@ function App() {
                     <div style={{marginBottom:'0.7rem',padding:'0.7rem',background:'#f1f5f9',borderRadius:'8px',border:'1.5px solid #cbd5e1'}}>
                       <div style={{fontWeight:700,color:'#0284c7',fontSize:'1rem',marginBottom:'0.2rem',letterSpacing:'0.5px'}}>Load Information</div>
                       <div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',fontSize:'0.93rem'}}>
-                        <span>Trip Date: <b>{load?.parsed_data?.date || '-'}</b></span>
+                        <span>Trip Date: <b>{load?.parsed_data?.date || load?.date || load?.first_approval?.date || '-'}</b></span>
                         <span>Sender: <b>{load?.parsed_data?.sender || '-'}</b></span>
                         <span>Receiver: <b>{load?.parsed_data?.receiver || '-'}</b></span>
                         <span>Truck Reg: <b>{load?.parsed_data?.truckReg || '-'}</b></span>
@@ -1831,10 +1856,13 @@ function App() {
                         textAlign: 'left',
                         fontWeight: 700,
                         borderRight: '1px solid rgba(255,255,255,0.2)',
-                        cursor: 'default',
+                        cursor: 'pointer',
+                        userSelect: 'none',
                         width: '12%'
-                      }}>
-                        Date
+                      }}
+                        onClick={() => handleSummarySort('date')}
+                      >
+                        Date {summarySortBy === 'date' && (summarySortOrder === 'asc' ? '↑' : '↓')}
                       </th>
                       <th style={{
                         padding: '0.4rem 0.3rem',
@@ -1920,7 +1948,7 @@ function App() {
                         fontWeight: 500,
                         color: '#374151'
                       }}>
-                        {load?.parsed_data?.date || '-'}
+                        {load?.parsed_data?.date || load?.date || load?.first_approval?.date || '-'}
                       </td>
                       <td style={{
                         padding: '0.3rem 0.2rem',
