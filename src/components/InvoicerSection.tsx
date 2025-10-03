@@ -523,7 +523,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           </div>
           
           {/* Total - Own Line */}
-          <div style={{textAlign:'center',marginBottom:'0.7rem'}}>
+          <div style={{textAlign:'center',marginBottom:'0.7rem',marginLeft:'-150px'}}>
             <div style={{...labelStyle,fontSize:'1.1rem',fontWeight:700,color:'#16a34a'}}>TOTAL AMOUNT</div>
             <div style={{
               background:'#f0fdf4',
@@ -802,44 +802,46 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 {invoiceTotal ? `R ${invoiceTotal}` : 'R 0.00'}
               </div>
             </div>
+            <div>
+              <div style={labelStyle}>Invoice sent</div>
+              <div style={{
+                background:'#f8fafc',
+                borderRadius:'8px',
+                border:'1px solid #e5e7eb',
+                textAlign:'center',
+                marginTop:'0.3rem',
+                width: '160px',
+                height: '50px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <label style={{
+                  display:'flex',
+                  alignItems:'center',
+                  gap:'0.5rem',
+                  cursor:'pointer',
+                  fontSize: '1rem',
+                  fontWeight:600,
+                  color:'#333'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={invoiceSentToDebtor} 
+                    onChange={e => setInvoiceSentToDebtor(e.target.checked)}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      cursor:'pointer'
+                    }}
+                  />
+                  <span>✉️ Yes</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Right Column - Confirmation and Invoice Total */}
-        <div>
-          {/* Confirmation Checkbox - Above Invoice Total */}
-          <div style={{
-            background:'#f8fafc',
-            borderRadius:'8px',
-            padding: desktopLayout ? '1rem' : '0.8rem',
-            border:'1px solid #e5e7eb',
-            marginBottom:'0.8rem',
-            marginTop:'350px'
-          }}>
-            <label style={{
-              display:'flex',
-              alignItems:'center',
-              gap:'0.5rem',
-              cursor:'pointer',
-              fontSize: desktopLayout ? '1.1rem' : '1.05rem',
-              fontWeight:700,
-              color:'#333'
-            }}>
-              <input 
-                type="checkbox" 
-                checked={invoiceSentToDebtor} 
-                onChange={e => setInvoiceSentToDebtor(e.target.checked)}
-                style={{
-                  width: desktopLayout ? '24px' : '20px',
-                  height: desktopLayout ? '24px' : '20px',
-                  cursor:'pointer'
-                }}
-              />
-              <span>✉️ Invoice has been sent to debtor</span>
-            </label>
-          </div>
-
-        </div>
       </div>
 
       {/* Action Buttons */}
