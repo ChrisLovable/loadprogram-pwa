@@ -90,7 +90,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
       marginTop: '-30px',
       marginBottom: '1rem'
     }}>
-      {/* Role Buttons - Vertical Stack */}
+      {/* Role Buttons - Vertical Stack at 80% width */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
