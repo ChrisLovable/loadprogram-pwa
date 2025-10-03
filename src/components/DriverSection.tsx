@@ -371,7 +371,8 @@ const DriverSection: React.FC<DriverSectionProps> = ({ onUploadComplete, onTextr
         }
       ]);
       
-      console.log('Supabase insert result:', { insertData, error });
+      console.log('🔍 DriverSection - Database insert result:', { insertData, error });
+      console.log('🔍 DriverSection - Inserted load status: "uploaded"');
       
       if (error) {
         console.error('Supabase insert error:', error);

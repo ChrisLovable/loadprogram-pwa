@@ -20,7 +20,12 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
     second_approver: loads.filter(l => l.status === 'first_approved').length,
     invoicer: loads.filter(l => l.status === 'second_approved').length,
     final_approver: loads.filter(l => l.status === 'third_approved').length,
-  }
+  };
+
+  // Debug: Log queue counts and load statuses
+  console.log('🔍 RoleSelector - Queue counts:', queueCounts);
+  console.log('🔍 RoleSelector - All loads:', loads.map(l => ({ id: l.id, status: l.status, driver_name: l.driver_name })));
+  console.log('🔍 RoleSelector - Loads with status "uploaded":', loads.filter(l => l.status === 'uploaded'));
 
   const handleRoleClick = (role: string) => {
     console.log('🔴 LATEST VERSION - Role clicked:', role);
