@@ -92,7 +92,8 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
           throw new Error('Supabase client is undefined')
         }
       } catch (importError) {
-        addDebugInfo(`Supabase import failed: ${importError.message}`)
+        const errorMessage = importError instanceof Error ? importError.message : String(importError)
+        addDebugInfo(`Supabase import failed: ${errorMessage}`)
         
         // Fallback: Try to create Supabase client directly
         try {
@@ -104,8 +105,9 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
           )
           addDebugInfo(`Direct Supabase created: ${!!supabase}`)
         } catch (directError) {
-          addDebugInfo(`Direct creation failed: ${directError.message}`)
-          throw new Error('Failed to create Supabase client: ' + directError.message)
+          const directErrorMessage = directError instanceof Error ? directError.message : String(directError)
+          addDebugInfo(`Direct creation failed: ${directErrorMessage}`)
+          throw new Error('Failed to create Supabase client: ' + directErrorMessage)
         }
       }
       
@@ -119,8 +121,9 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
         })
         addDebugInfo(`Network test: ${response.status} ${response.statusText}`)
       } catch (networkError) {
-        addDebugInfo(`Network error: ${networkError.message}`)
-        throw new Error('Network connectivity issue: ' + networkError.message)
+        const networkErrorMessage = networkError instanceof Error ? networkError.message : String(networkError)
+        addDebugInfo(`Network error: ${networkErrorMessage}`)
+        throw new Error('Network connectivity issue: ' + networkErrorMessage)
       }
       
       // Prepare updated parsed_data
