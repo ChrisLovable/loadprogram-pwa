@@ -62,16 +62,16 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
   React.useEffect(() => {
     if (load?.parsed_data) {
       // Set discount from calculations
-      if (load.parsed_data.discount && !invoiceDiscount) {
+      if (load.parsed_data.discount) {
         setInvoiceDiscount(load.parsed_data.discount.toString())
       }
       
-      // Set subtotal from calculations
-      if (load.parsed_data.subtotal && !invoiceSubtotal) {
+      // Set subtotal from calculations - always carry over from load details
+      if (load.parsed_data.subtotal) {
         setInvoiceSubtotal(formatCurrency(load.parsed_data.subtotal))
       }
     }
-  }, [load?.parsed_data, invoiceDiscount, invoiceSubtotal])
+  }, [load?.parsed_data])
 
   // Debug: Log the load data
   console.log('Invoicer received load:', load)
