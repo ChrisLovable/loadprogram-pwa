@@ -455,13 +455,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             <div>
               <div style={labelStyle}>Trip KM</div>
               <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
-                {getField('tripKm') ? Math.round(Number(getField('tripKm'))) : ''}
+                {getField('tripKm') && getField('tripKm') !== '-' ? Math.round(Number(getField('tripKm'))) : ''}
               </div>
             </div>
             <div>
               <div style={labelStyle}>Rate per KM</div>
               <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
-                {getField('rate') ? `R ${formatCurrency(parseFloat(getField('rate')))}` : ''}
+                {getField('rate') && getField('rate') !== '-' ? `R ${formatCurrency(parseFloat(getField('rate')))}` : ''}
               </div>
             </div>
           </div>
@@ -472,13 +472,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
               <div>
                 <div style={labelStyle}># Animals</div>
                 <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
-                  {getField('totalAnimals') ? Math.round(Number(getField('totalAnimals'))) : ''}
+                  {getField('totalAnimals') && getField('totalAnimals') !== '-' ? Math.round(Number(getField('totalAnimals'))) : ''}
                 </div>
               </div>
               <div>
                 <div style={labelStyle}>Rate / Animal</div>
                 <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
-                  {getField('ratePerAnimal') ? `R ${formatCurrency(Number(getField('ratePerAnimal')))}` : ''}
+                  {getField('ratePerAnimal') && getField('ratePerAnimal') !== '-' ? `R ${formatCurrency(Number(getField('ratePerAnimal')))}` : ''}
                 </div>
               </div>
             </div>
@@ -489,13 +489,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             <div>
               <div style={labelStyle}>Running KMs</div>
               <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
-                {getField('runningKms') ? Math.round(Number(getField('runningKms'))) : ''}
+                {getField('runningKms') && getField('runningKms') !== '-' ? Math.round(Number(getField('runningKms'))) : ''}
               </div>
             </div>
             <div>
               <div style={labelStyle}>Running KM Rate</div>
               <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #333',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
-                {getField('runningKmRate') ? `R ${formatCurrency(parseFloat(getField('runningKmRate')))}` : ''}
+                {getField('runningKmRate') && getField('runningKmRate') !== '-' ? `R ${formatCurrency(parseFloat(getField('runningKmRate')))}` : ''}
               </div>
             </div>
           </div>
