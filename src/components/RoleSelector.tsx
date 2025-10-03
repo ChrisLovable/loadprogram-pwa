@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import PINModal from './PINModal'
+import AdminPINModal from './AdminPINModal'
 
 interface RoleSelectorProps {
   currentRole: string | null
@@ -10,6 +11,7 @@ interface RoleSelectorProps {
   onSummaryClick: () => void
   onInvoicesClick: () => void
   onDriverPINValid?: (driverName: string) => void
+  onAdminPINValid?: (userName: string, userRole: string) => void
 }
 
 // const ROLE_PINS = {
@@ -61,8 +63,9 @@ const USERS = {
   ],
 };
 
-const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, onDriverPINValid }) => {
+const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, onDriverPINValid, onAdminPINValid }) => {
   const [showPINModal, setShowPINModal] = useState(false)
+  const [showAdminPINModal, setShowAdminPINModal] = useState(false)
 
   // Calculate queue counts for each role
   const queueCounts: { [key: string]: number } = {
@@ -72,6 +75,23 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
     invoicer: loads.filter(l => l.status === 'second_approved').length,
     final_approver: loads.filter(l => l.status === 'third_approved').length,
   }
+
+  const handleAdminPINValid = (userName: string, userRole: string) => {
+    console.log('🔴 Admin PIN valid for:', userName);
+    setShowAdminPINModal(false);
+    
+    // Store admin user info in localStorage
+    localStorage.setItem('currentUser', JSON.stringify({ role: userRole, name: userName }));
+    
+    // Call the callback
+    if (onAdminPINValid) {
+      onAdminPINValid(userName, userRole);
+    }
+  };
+
+  const handleAdminPINModalClose = () => {
+    setShowAdminPINModal(false);
+  };
 
   const handlePINValid = (driverName: string) => {
     console.log('🔴 Driver PIN valid for:', driverName);
@@ -91,6 +111,10 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
 
   const handlePINModalClose = () => {
     setShowPINModal(false);
+  };
+
+  const handleAdminAccess = () => {
+    setShowAdminPINModal(true);
   };
 
   const handleRoleClick = (role: string) => {
@@ -296,6 +320,42 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
             </button>
           )
         })}
+        
+        {/* Admin Access Button */}
+        <button
+          type="button"
+          onClick={handleAdminAccess}
+          style={{
+            width: '100%',
+            background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
+            color: 'white',
+            border: '2px solid #8b5cf6',
+            borderRadius: '12px',
+            padding: '0.8rem 1rem',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            marginTop: '1rem',
+            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(124, 58, 237, 0.4)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(124, 58, 237, 0.3)';
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            <span>👨‍💼</span>
+            <span>Admin Access</span>
+          </span>
+        </button>
+        
         {/* Dashboard and Search in 2-column layout */}
         <div style={{
           display: 'flex',
@@ -648,6 +708,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
         isOpen={showPINModal}
         onClose={handlePINModalClose}
         onPINValid={handlePINValid}
+      />
+      
+      {/* Admin PIN Modal */}
+      <AdminPINModal
+        isOpen={showAdminPINModal}
+        onClose={handleAdminPINModalClose}
+        onPINValid={handleAdminPINValid}
       />
     </div>
   )

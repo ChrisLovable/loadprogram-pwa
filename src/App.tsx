@@ -1017,6 +1017,12 @@ function App() {
             // The driver name will be automatically filled in DriverSection
             // through the localStorage currentUser data
           }}
+          onAdminPINValid={(userName, userRole) => {
+            // Handle admin user login
+            console.log('Admin PIN validated for:', userName, 'Role:', userRole);
+            // Admin users can access all roles - no restrictions
+            // The user info is stored in localStorage
+          }}
         />
       </div>
       
