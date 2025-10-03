@@ -64,6 +64,13 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
     e.preventDefault()
     setSubmitting(true)
     try {
+      console.log('SecondApprover submitting with load:', load)
+      console.log('Load ID:', load?.id)
+      
+      if (!load?.id) {
+        throw new Error('Load ID is missing')
+      }
+      
       // Prepare updated parsed_data
       const updatedParsedData = {
         ...(load.parsed_data || {}),
@@ -89,6 +96,9 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
         total: Number(getField('total', '0')),
         totalAnimals: Number(getField('totalAnimals', '0')),
       };
+      
+      console.log('Updated parsed data:', updatedParsedData)
+      
       // Update the load in Supabase
       const { error } = await import('../lib/supabase').then(({ supabase }) =>
         supabase.from('loads').update({
@@ -96,7 +106,11 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
           parsed_data: updatedParsedData,
         }).eq('id', load.id)
       );
+      
+      console.log('Supabase update result:', { error })
+      
       if (error) {
+        console.error('Supabase error details:', error)
         alert('Failed to update load: ' + error.message);
       } else {
         setComments('');
@@ -105,7 +119,7 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
       }
     } catch (error) {
       console.error('SecondApproverSection approval failed:', error)
-      alert('Failed to submit second approval. See console for details.')
+      alert('Failed to submit second approval: ' + (error as Error).message)
     } finally {
       setSubmitting(false)
     }

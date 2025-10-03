@@ -522,7 +522,10 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               backgroundSize: '200% 100%',
               backgroundPosition: '200% 0',
             }} />
-            <span style={{position:'relative',zIndex:4}}>📊 Summary</span>
+            <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
+              <span>📊</span>
+              <span>Summary</span>
+            </span>
           </button>
           
           <button
