@@ -243,7 +243,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '70px',
+            height: '60px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)'
           }}
@@ -308,7 +308,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '70px',
+            height: '60px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)'
           }}
@@ -378,7 +378,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '70px',
+            height: '60px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)'
           }}
@@ -441,7 +441,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '70px',
+            height: '60px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)'
           }}
@@ -511,7 +511,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
               inset 0 0 20px rgba(255,255,255,0.1),
               0 0 0 2px rgba(255,255,255,0.15)
             `,
-            height: '70px',
+            height: '60px',
             transform: 'perspective(1000px) rotateX(5deg)',
             filter: 'saturate(1.2) contrast(1.1)',
             minWidth: '120px'

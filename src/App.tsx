@@ -1158,8 +1158,12 @@ function App() {
             height: 'auto',
             display: 'block',
             objectFit: 'contain',
-            margin: '0 auto',
-            borderRadius: '20px'
+            margin: '50px auto 0',
+            borderRadius: '20px',
+            border: '4px solid #333',
+            boxShadow: '0 12px 24px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.3), inset 0 3px 6px rgba(255,255,255,0.3), inset 0 -3px 6px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,255,255,0.1)',
+            transform: 'perspective(1000px) rotateX(3deg)',
+            transition: 'all 0.3s ease'
           }}
           onError={(e) => {
             console.log('Banner image failed to load');
