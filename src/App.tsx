@@ -59,6 +59,15 @@ function App() {
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('hasSeenWelcome');
+    setCurrentUser(null);
+    setCurrentRole(null);
+    setShowLoginModal(true);
+    setShowWelcomeScreen(false);
+  };
+
   const handleLogin = (userType: 'driver' | 'admin', userName: string, userRole: string) => {
     console.log('User logged in:', { userType, userName, userRole });
     
@@ -1146,6 +1155,7 @@ function App() {
           onSummaryClick={() => setShowSummary(true)}
           onInvoicesClick={() => setShowInvoices(true)}
           currentUser={currentUser}
+          onLogout={handleLogout}
         />
       </div>
       

@@ -9,9 +9,10 @@ interface RoleSelectorProps {
   onSummaryClick: () => void
   onInvoicesClick: () => void
   currentUser: {name: string, type: 'driver' | 'admin', role: string} | null
+  onLogout: () => void
 }
 
-const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, currentUser }) => {
+const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, loads, onDashboardClick, onSummariesClick, onSummaryClick, onInvoicesClick, currentUser, onLogout }) => {
 
   // Calculate queue counts for each role
   const queueCounts: { [key: string]: number } = {
@@ -473,6 +474,69 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
             <span>📋</span>
             <span>Search Invoices</span>
+          </span>
+        </button>
+        
+        <button
+          type="button"
+          onClick={onLogout}
+          style={{
+            flex: 1,
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(239, 68, 68, 0.8) 50%, rgba(220, 38, 38, 0.9) 100%)',
+            color: 'white',
+            border: '2px solid rgba(255,255,255,0.2)',
+            borderRadius: '16px',
+            padding: '0.3rem 0.5rem',
+            fontWeight: 900,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: 'relative',
+            overflow: 'hidden',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: `
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
+            `,
+            height: '70px',
+            transform: 'perspective(1000px) rotateX(5deg)',
+            filter: 'saturate(1.2) contrast(1.1)'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) translateY(-8px) scale(1.05)';
+            e.currentTarget.style.boxShadow = `
+              0 30px 60px rgba(0,0,0,0.5),
+              0 15px 30px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              0 0 0 2px rgba(255,255,255,0.2),
+              0 0 20px rgba(220, 38, 38, 0.4)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.4) contrast(1.2) brightness(1.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(5deg)';
+            e.currentTarget.style.boxShadow = `
+              0 25px 50px rgba(0,0,0,0.6),
+              0 12px 24px rgba(0,0,0,0.4),
+              0 6px 12px rgba(0,0,0,0.3),
+              inset 0 3px 6px rgba(255,255,255,0.4),
+              inset 0 -3px 6px rgba(0,0,0,0.3),
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 0 0 2px rgba(255,255,255,0.15)
+            `;
+            e.currentTarget.style.filter = 'saturate(1.2) contrast(1.1)';
+          }}
+        >
+          <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
+            <span>🚪</span>
+            <span>Logout</span>
           </span>
         </button>
       </div>
