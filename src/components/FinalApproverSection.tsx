@@ -167,7 +167,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
           </div>
           <div style={{textAlign:'center'}}>
             <div style={labelStyle}>Discount</div>
-            <div style={{...inputStyle,width:'100px',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
+            <div style={{...inputStyle,width:'100px',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px',minHeight:'2.5rem'}}>
               {load?.first_approval?.discount ? `${load.first_approval.discount}%` : ''}
             </div>
           </div>
