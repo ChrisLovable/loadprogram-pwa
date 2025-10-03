@@ -9,7 +9,6 @@ import FinalApproverSection from './components/FinalApproverSection'
 import RoleSelector from './components/RoleSelector'
 import Dashboard from './components/Dashboard'
 import InvoiceManager from './components/InvoiceManager'
-import WelcomeScreen from './components/WelcomeScreen'
 import './App.css'
 
 
@@ -32,7 +31,6 @@ function App() {
   // PWA Installation state
   const [showInstallButton, setShowInstallButton] = useState(false)
   const [installState, setInstallState] = useState<'idle' | 'installing' | 'success'>('idle')
-  const [showWelcomeScreen, setShowWelcomeScreen] = useState(false)
   
   // Debug: Monitor currentRole changes
   useEffect(() => {
@@ -75,17 +73,6 @@ function App() {
     };
   }, []);
 
-  // Show welcome screen on first visit
-  useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    
-    // Show welcome if user hasn't seen it and app isn't already installed
-    if (!hasSeenWelcome && !isStandalone) {
-      setShowWelcomeScreen(true);
-    }
-  }, []);
-
   const handleInstallClick = async () => {
     if (installState === 'installing') return;
     
@@ -95,16 +82,6 @@ function App() {
     if ((window as any).showInstallPrompt) {
       (window as any).showInstallPrompt();
     }
-  };
-
-  const handleSkipWelcome = () => {
-    localStorage.setItem('hasSeenWelcome', 'true');
-    setShowWelcomeScreen(false);
-  };
-
-  const handleWelcomeInstall = () => {
-    localStorage.setItem('hasSeenWelcome', 'true');
-    handleInstallClick();
   };
 
   // Service Worker Update Check
@@ -487,16 +464,6 @@ function App() {
           overflowX: 'hidden',
         }}>
           
-          {/* Welcome Screen */}
-          {showWelcomeScreen && (
-            <WelcomeScreen
-              onInstall={handleWelcomeInstall}
-              onSkip={handleSkipWelcome}
-              installState={installState}
-              showInstallButton={showInstallButton}
-            />
-          )}
-
           {/* PWA Install Button */}
           {showInstallButton && (
             <div style={{
