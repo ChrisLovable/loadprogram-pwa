@@ -313,7 +313,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ currentRole, onRoleChange, 
           onMouseOut={() => {}}
         >
           <span style={{position:'relative',zIndex:4, display:'flex', flexDirection:'column', alignItems:'center', gap:'0.2rem'}}>
-            <span>📊</span>
+            <span>📈</span>
             <span>Summary</span>
           </span>
         </button>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { generatePDFInvoice } from '../utils/pdfGenerator'
-import { isDesktop } from '../utils/errorHandling'
 
 interface InvoicerSectionProps {
   load: any // expects load with textract_data, ocr_data, and approval data
@@ -303,8 +302,6 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
     }
   }
 
-  const desktopLayout = isDesktop();
-  
   // Determine card background color based on index
   const cardBackgroundColor = index % 2 === 0 ? '#000000' : '#4169E1'; // Black or Royal Blue
   
@@ -312,9 +309,9 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
     <div style={{
       background: cardBackgroundColor,
       borderRadius: '16px',
-      padding: desktopLayout ? '2rem' : '1rem',
-      margin: desktopLayout ? '1rem auto' : '0.5rem',
-      maxWidth: desktopLayout ? '1200px' : '100%',
+      padding: '2rem',
+      margin: '1rem auto',
+      maxWidth: '1200px',
       boxShadow: '0 8px 24px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2)',
       border: '2px solid #333333',
       position: 'relative'
@@ -371,13 +368,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       <div style={{
         background:'#fef7f7',
         borderRadius:'12px',
-        padding: desktopLayout ? '1.5rem' : '0.7rem',
+        padding: '1.5rem',
         marginBottom:'1.5rem',
         boxShadow:'0 4px 12px rgba(220,38,38,0.15), 0 2px 4px rgba(220,38,38,0.1)',
         border:'2px solid #fecaca',
-        display: desktopLayout ? 'grid' : 'block',
-        gridTemplateColumns: desktopLayout ? '1fr 1fr' : 'none',
-        gap: desktopLayout ? '2rem' : '0',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '2rem',
         position: 'relative',
         overflow: 'hidden'
       }}>
@@ -396,7 +393,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Date - Above Sender */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Date</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '120px' : '80px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: '120px'}}>
               {getField('date')}
             </div>
           </div>
@@ -404,7 +401,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Truck Registration - Above Sender */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Truck Registration</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '160px' : '140px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: '160px'}}>
               {getField('truck_reg') || getField('truckReg')}
             </div>
           </div>
@@ -412,7 +409,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Trailer Registration - Same Line as Truck */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Trailer Registration</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '160px' : '140px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: '160px'}}>
               {getField('trailer_reg') || getField('trailerReg')}
             </div>
           </div>
@@ -420,7 +417,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Sender - Full Width */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Sender</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '350px' : '280px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: '350px'}}>
               {getField('sender')}
             </div>
           </div>
@@ -428,7 +425,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           {/* Receiver - Full Width */}
           <div style={{marginBottom:'0.7rem'}}>
             <div style={labelStyle}>Receiver</div>
-            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: desktopLayout ? '350px' : '280px'}}>
+            <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,width: '350px'}}>
               {getField('receiver')}
             </div>
           </div>
@@ -441,13 +438,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
             <div>
               <div style={labelStyle}>Start KM</div>
-              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: '140px'}}>
                 {getField('startKm')}
               </div>
             </div>
             <div>
               <div style={labelStyle}>End KM</div>
-              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.4rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: '140px'}}>
                 {getField('endKm')}
               </div>
             </div>
@@ -457,13 +454,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
             <div>
               <div style={labelStyle}>Trip KM</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #4f8cff',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #4f8cff',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: '140px'}}>
                 {getField('tripKm') && getField('tripKm') !== '-' ? Math.round(Number(getField('tripKm'))) : ''}
               </div>
             </div>
             <div>
               <div style={labelStyle}>Rate per KM</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: '140px'}}>
                 {getField('rate') && getField('rate') !== '-' ? `R ${formatCurrency(parseFloat(getField('rate')))}` : ''}
               </div>
             </div>
@@ -474,13 +471,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
               <div>
                 <div style={labelStyle}># Animals</div>
-                <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+                <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: '140px'}}>
                   {getField('totalAnimals') && getField('totalAnimals') !== '-' ? Math.round(Number(getField('totalAnimals'))) : ''}
                 </div>
               </div>
               <div>
                 <div style={labelStyle}>Rate / Animal</div>
-                <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+                <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: '140px'}}>
                   {getField('ratePerAnimal') && getField('ratePerAnimal') !== '-' ? `R ${formatCurrency(Number(getField('ratePerAnimal')))}` : ''}
                 </div>
               </div>
@@ -491,13 +488,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           <div style={{display:'flex',gap:'1rem',marginBottom:'0.7rem'}}>
             <div>
               <div style={labelStyle}>Running KMs</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: '140px'}}>
                 {getField('runningKms') && getField('runningKms') !== '-' ? Math.round(Number(getField('runningKms'))) : ''}
               </div>
             </div>
             <div>
               <div style={labelStyle}>Running KM Rate</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #666',fontSize:'1rem',background:'#f8fafc',color:'#666',fontWeight:500,textAlign:'center',width: '140px'}}>
                 {getField('runningKmRate') && getField('runningKmRate') !== '-' ? `R ${formatCurrency(parseFloat(getField('runningKmRate')))}` : ''}
               </div>
             </div>
@@ -507,19 +504,19 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
           <div style={{display:'flex',flexDirection:'column',gap:'0.7rem',alignItems:'flex-start',marginBottom:'0.7rem'}}>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>Subtotal</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #4f8cff',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #4f8cff',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: '140px'}}>
                 {getField('subtotal') ? formatCurrency(parseFloat(getField('subtotal'))) : ''}
               </div>
             </div>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>Discount</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #dc2626',fontSize:'1rem',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #dc2626',fontSize:'1rem',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'center',width: '140px'}}>
                 {getField('discount') ? `${getField('discount')}%` : (firstApprovalData?.discount ? `${firstApprovalData.discount}%` : '')}
               </div>
             </div>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>Subtotal after discount</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #4f8cff',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #4f8cff',fontSize:'1rem',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',width: '140px'}}>
                 {(() => {
                   const subtotal = parseFloat(getField('subtotal') || '0');
                   const discountPercent = parseFloat(getField('discount') || firstApprovalData?.discount || '0');
@@ -531,7 +528,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             </div>
             <div style={{textAlign:'center'}}>
               <div style={labelStyle}>VAT (15%)</div>
-              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #ff8c00',fontSize:'1rem',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',width: desktopLayout ? '140px' : '120px'}}>
+              <div style={{padding:'0.6rem',borderRadius:'6px',border:'1px solid #ff8c00',fontSize:'1rem',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',width: '140px'}}>
                 {(() => {
                   const subtotal = parseFloat(getField('subtotal') || '0');
                   const discountPercent = parseFloat(getField('discount') || firstApprovalData?.discount || '0');
@@ -643,13 +640,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       <div style={{
         background:'#f0f9ff',
         borderRadius:'12px',
-        padding: desktopLayout ? '1.5rem' : '0.7rem',
+        padding: '1.5rem',
         marginBottom:'1.5rem',
         boxShadow:'0 4px 12px rgba(59,130,246,0.15), 0 2px 4px rgba(59,130,246,0.1)',
         border:'2px solid #bfdbfe',
-        display: desktopLayout ? 'grid' : 'block',
-        gridTemplateColumns: desktopLayout ? '1fr 1fr' : 'none',
-        gap: desktopLayout ? '2rem' : '0',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '2rem',
         position: 'relative',
         overflow: 'hidden'
       }}>
@@ -674,7 +671,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
               style={{
                 ...inputStyle,
                 resize:'none',
-                height: desktopLayout ? '4rem' : '3rem',
+                height: '4rem',
                 border:'1px solid #333',
                 borderRadius:'6px',
                 width: '360px'
@@ -698,7 +695,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   border:'1px solid #333',
                   fontSize:'1rem',
                   background:'#f7fafd',
-                  width: desktopLayout ? '160px' : '120px'
+                  width: '160px'
                 }} 
                 required 
               />
@@ -715,7 +712,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   border:'1px solid #333',
                   fontSize:'1rem',
                   background:'#f7fafd',
-                  width: desktopLayout ? '160px' : '120px'
+                  width: '160px'
                 }} 
                 placeholder=""
                 required 
@@ -737,7 +734,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   border:'1px solid #333',
                   fontSize:'1rem',
                   background:'#f7fafd',
-                  width: desktopLayout ? '160px' : '120px'
+                  width: '160px'
                 }} 
                 placeholder=""
                 required 
@@ -755,7 +752,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                   border:'1px solid #333',
                   fontSize:'1rem',
                   background:'#f7fafd',
-                  width: desktopLayout ? '160px' : '120px'
+                  width: '160px'
                 }} 
                 placeholder=""
                 required 
@@ -776,7 +773,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
                 border:'1px solid #333',
                 fontSize:'1rem',
                 background:'#f7fafd',
-                width: desktopLayout ? '160px' : '120px'
+                width: '160px'
               }} 
               placeholder=""
               required 
@@ -983,13 +980,13 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       <div style={{
         background:'#f8fafc',
         borderRadius:'12px',
-        padding: desktopLayout ? '1.5rem' : '1rem',
+        padding: '1.5rem',
         marginTop: '1.5rem',
         boxShadow:'0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.05)',
         border:'2px solid #e2e8f0',
-        display: desktopLayout ? 'grid' : 'block',
-        gridTemplateColumns: desktopLayout ? '1fr 1fr' : 'none',
-        gap: desktopLayout ? '1rem' : '0.5rem',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '1rem',
         position: 'relative',
         overflow: 'hidden'
       }}>
@@ -1120,9 +1117,9 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            padding: desktopLayout ? '1.2rem' : '1rem',
+            padding: '1.2rem',
             fontWeight: 700,
-            fontSize: desktopLayout ? '1.2rem' : '1.1rem',
+            fontSize: '1.2rem',
             cursor: submitting || !invoiceSentToDebtor ? 'not-allowed' : 'pointer',
             width: '100%',
             boxShadow: !invoiceSentToDebtor ? 'none' : '0 4px 12px rgba(5, 150, 105, 0.3)',
