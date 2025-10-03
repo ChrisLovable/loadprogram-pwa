@@ -66,9 +66,30 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
     try {
       console.log('SecondApprover submitting with load:', load)
       console.log('Load ID:', load?.id)
+      console.log('User Agent:', navigator.userAgent)
+      console.log('Is Mobile:', /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
       
       if (!load?.id) {
         throw new Error('Load ID is missing')
+      }
+      
+      // Test Supabase connection first
+      console.log('Testing Supabase connection...')
+      const { supabase } = await import('../lib/supabase')
+      console.log('Supabase client loaded:', !!supabase)
+      
+      // Test network connectivity
+      try {
+        const response = await fetch('https://rdzjowqopmdlbkfuafxr.supabase.co/rest/v1/', {
+          method: 'HEAD',
+          headers: {
+            'apikey': 'sb_publishable_Zfc7tBpl0ho1GuF2HLjKxQ_BlU_A24w'
+          }
+        })
+        console.log('Network test result:', response.status, response.statusText)
+      } catch (networkError) {
+        console.error('Network connectivity test failed:', networkError)
+        throw new Error('Network connectivity issue: ' + networkError.message)
       }
       
       // Prepare updated parsed_data
@@ -100,12 +121,10 @@ const SecondApproverSection: React.FC<SecondApproverSectionProps> = ({ load, onA
       console.log('Updated parsed data:', updatedParsedData)
       
       // Update the load in Supabase
-      const { error } = await import('../lib/supabase').then(({ supabase }) =>
-        supabase.from('loads').update({
-          status: 'second_approved',
-          parsed_data: updatedParsedData,
-        }).eq('id', load.id)
-      );
+      const { error } = await supabase.from('loads').update({
+        status: 'second_approved',
+        parsed_data: updatedParsedData,
+      }).eq('id', load.id)
       
       console.log('Supabase update result:', { error })
       
