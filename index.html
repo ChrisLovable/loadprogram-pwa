@@ -81,8 +81,45 @@
       });
       
       function showInstallButton() {
-        // Bottom install button removed - only using top centered button
-        return;
+        // Create install button if it doesn't exist
+        let installBtn = document.querySelector('#custom-install-btn');
+        if (!installBtn) {
+          installBtn = document.createElement('button');
+          installBtn.id = 'custom-install-btn';
+          installBtn.innerHTML = '📱 Install App';
+          installBtn.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+          `;
+          
+          installBtn.addEventListener('click', startInstallProcess);
+          installBtn.addEventListener('mouseenter', () => {
+            installBtn.style.background = '#047857';
+            installBtn.style.transform = 'translateX(-50%) scale(1.05)';
+          });
+          installBtn.addEventListener('mouseleave', () => {
+            installBtn.style.background = '#059669';
+            installBtn.style.transform = 'translateX(-50%) scale(1)';
+          });
+          
+          document.body.appendChild(installBtn);
+        }
+        
+        installBtn.style.display = 'block';
+        installButtonVisible = true;
       }
       
       function startInstallProcess() {
@@ -118,8 +155,24 @@
       }
       
       function updateInstallButton() {
-        // No longer needed - bottom install button removed
-        return;
+        const installBtn = document.querySelector('#custom-install-btn');
+        if (!installBtn) return;
+        
+        switch (installState) {
+          case 'installing':
+            installBtn.innerHTML = '⏳ Installing...';
+            installBtn.disabled = true;
+            installBtn.style.background = '#6b7280';
+            break;
+          case 'success':
+            installBtn.innerHTML = '✅ Installed!';
+            installBtn.style.background = '#10b981';
+            break;
+          default:
+            installBtn.innerHTML = '📱 Install App';
+            installBtn.disabled = false;
+            installBtn.style.background = '#059669';
+        }
       }
       
       // Hide install button if app is already installed
