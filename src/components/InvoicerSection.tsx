@@ -83,7 +83,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
 
   // Auto-update invoice subtotal when discount percentage changes
   React.useEffect(() => {
-    if (load?.parsed_data?.subtotal && invoiceDiscount) {
+    if (load?.parsed_data?.subtotal && invoiceDiscount && invoiceDiscount !== '0') {
       const originalSubtotal = Number(load.parsed_data.subtotal);
       const discountPercent = Number(invoiceDiscount);
       const discountAmount = originalSubtotal * (discountPercent / 100);
@@ -96,6 +96,9 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
       console.log('  Discounted Subtotal:', discountedSubtotal);
       
       setInvoiceSubtotal(formatCurrency(discountedSubtotal));
+    } else if (invoiceDiscount === '0' && load?.parsed_data?.subtotal) {
+      // If discount is 0, show original subtotal
+      setInvoiceSubtotal(formatCurrency(Number(load.parsed_data.subtotal)));
     }
   }, [invoiceDiscount, load?.parsed_data?.subtotal])
 
@@ -109,6 +112,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
         invoiceSubtotal: Number(invoiceSubtotal),
         invoiceVat: Number(invoiceVat),
         invoiceTotal: Number(invoiceTotal),
+        invoiceDiscount: invoiceDiscount,
         invoiceSentToDebtor: invoiceSentToDebtor,
         invoicer: 'Invoicer',
         timestamp: new Date().toISOString()
@@ -122,7 +126,7 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
         detail: currentInvoiceData 
       }))
     }
-  }, [invoiceSubtotal, invoiceMadeOutTo, invoiceDate, invoiceNumber, invoiceVat, invoiceTotal, invoiceSentToDebtor])
+  }, [invoiceSubtotal, invoiceMadeOutTo, invoiceDate, invoiceNumber, invoiceVat, invoiceTotal, invoiceDiscount, invoiceSentToDebtor])
 
   // Helper to get a field from load.parsed_data or firstApprovalData
   const getField = (field: string, fallback: any = '-') => {

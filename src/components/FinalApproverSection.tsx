@@ -162,19 +162,19 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
           <div style={{textAlign:'center'}}>
             <div style={labelStyle}>Subtotal</div>
             <div style={{...inputStyle,width:'100px',background:'#f0f4ff',color:'#4f8cff',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {load?.first_approval?.subtotal ? formatCurrency(parseFloat(load.first_approval.subtotal)) : (load?.parsed_data?.subtotal ? formatCurrency(parseFloat(load.parsed_data.subtotal)) : '')}
+              {invoiceData?.invoiceSubtotal ? formatCurrency(invoiceData.invoiceSubtotal) : (load?.first_approval?.subtotal ? formatCurrency(parseFloat(load.first_approval.subtotal)) : (load?.parsed_data?.subtotal ? formatCurrency(parseFloat(load.parsed_data.subtotal)) : ''))}
             </div>
           </div>
           <div style={{textAlign:'center'}}>
             <div style={labelStyle}>Discount</div>
             <div style={{...inputStyle,width:'100px',background:'#fef2f2',color:'#dc2626',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px',minHeight:'2.5rem'}}>
-              {load?.first_approval?.discount ? `${load.first_approval.discount}%` : ''}
+              {invoiceData?.invoiceDiscount ? `${invoiceData.invoiceDiscount}%` : (load?.first_approval?.discount ? `${load.first_approval.discount}%` : '')}
             </div>
           </div>
           <div style={{textAlign:'center'}}>
             <div style={labelStyle}>VAT (15%)</div>
             <div style={{...inputStyle,width:'100px',background:'#fff4e6',color:'#ff8c00',fontWeight:600,textAlign:'center',border:'1px solid #333',borderRadius:'6px'}}>
-              {load?.first_approval?.vat_amount ? formatCurrency(parseFloat(load.first_approval.vat_amount)) : (load?.parsed_data?.vat ? formatCurrency(parseFloat(load.parsed_data.vat)) : '')}
+              {invoiceData?.invoiceVat ? formatCurrency(invoiceData.invoiceVat) : (load?.first_approval?.vat_amount ? formatCurrency(parseFloat(load.first_approval.vat_amount)) : (load?.parsed_data?.vat ? formatCurrency(parseFloat(load.parsed_data.vat)) : ''))}
             </div>
           </div>
         </div>
@@ -191,7 +191,7 @@ const FinalApproverSection: React.FC<FinalApproverSectionProps> = ({ load, onFin
             textAlign:'center',
             marginTop:'0.3rem'
           }}>
-            {load?.first_approval?.total_invoice ? formatCurrency(parseFloat(load.first_approval.total_invoice)) : (load?.parsed_data?.total ? formatCurrency(parseFloat(load.parsed_data.total)) : '0.00')}
+            {invoiceData?.invoiceTotal ? formatCurrency(invoiceData.invoiceTotal) : (load?.first_approval?.total_invoice ? formatCurrency(parseFloat(load.first_approval.total_invoice)) : (load?.parsed_data?.total ? formatCurrency(parseFloat(load.parsed_data.total)) : '0.00'))}
           </div>
         </div>
       </div>
