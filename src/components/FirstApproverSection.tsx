@@ -199,18 +199,44 @@ const FirstApproverSection: React.FC<FirstApproverSectionProps> = ({ load, onApp
         safeDate = new Date().toISOString().slice(0, 10);
       }
       // Update the load in Supabase
-      const { error } = await import('../lib/supabase').then(({ supabase }) =>
-        supabase.from('loads').update({
-          status: 'first_approved',
-          sender,
-          receiver,
-          date: safeDate,
-          truck_reg: truckReg,
-          trailer_reg: trailerReg,
-          parsed_data: updatedParsedData,
-          parsed_table: table,
-        }).eq('id', load.id)
-      );
+      let supabase
+      try {
+        const supabaseModule = await import('../lib/supabase')
+        supabase = supabaseModule.supabase
+        
+        if (!supabase) {
+          throw new Error('Supabase client is undefined')
+        }
+      } catch (importError) {
+        const errorMessage = importError instanceof Error ? importError.message : String(importError)
+        console.error('Supabase import failed:', errorMessage)
+        
+        // Fallback: Try to create Supabase client directly
+        try {
+          console.log('Trying direct Supabase creation...')
+          const { createClient } = await import('@supabase/supabase-js')
+          supabase = createClient(
+            'https://rdzjowqopmdlbkfuafxr.supabase.co',
+            'sb_publishable_Zfc7tBpl0ho1GuF2HLjKxQ_BlU_A24w'
+          )
+          console.log('Direct Supabase created:', !!supabase)
+        } catch (directError) {
+          const directErrorMessage = directError instanceof Error ? directError.message : String(directError)
+          console.error('Direct creation failed:', directErrorMessage)
+          throw new Error('Failed to create Supabase client: ' + directErrorMessage)
+        }
+      }
+      
+      const { error } = await supabase.from('loads').update({
+        status: 'first_approved',
+        sender,
+        receiver,
+        date: safeDate,
+        truck_reg: truckReg,
+        trailer_reg: trailerReg,
+        parsed_data: updatedParsedData,
+        parsed_table: table,
+      }).eq('id', load.id)
       if (error) {
         alert('Failed to update load: ' + error.message);
       } else {

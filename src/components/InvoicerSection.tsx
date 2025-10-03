@@ -189,12 +189,38 @@ const InvoicerSection: React.FC<InvoicerSectionProps> = ({ load, onInvoiceComple
         invoice_processed_at: new Date().toISOString(),
       };
       // Update the load in Supabase
-      const { error } = await import('../lib/supabase').then(({ supabase }) =>
-        supabase.from('loads').update({
-          status: 'third_approved',
-          parsed_data: updatedParsedData,
-        }).eq('id', load.id)
-      );
+      let supabase
+      try {
+        const supabaseModule = await import('../lib/supabase')
+        supabase = supabaseModule.supabase
+        
+        if (!supabase) {
+          throw new Error('Supabase client is undefined')
+        }
+      } catch (importError) {
+        const errorMessage = importError instanceof Error ? importError.message : String(importError)
+        console.error('Supabase import failed:', errorMessage)
+        
+        // Fallback: Try to create Supabase client directly
+        try {
+          console.log('Trying direct Supabase creation...')
+          const { createClient } = await import('@supabase/supabase-js')
+          supabase = createClient(
+            'https://rdzjowqopmdlbkfuafxr.supabase.co',
+            'sb_publishable_Zfc7tBpl0ho1GuF2HLjKxQ_BlU_A24w'
+          )
+          console.log('Direct Supabase created:', !!supabase)
+        } catch (directError) {
+          const directErrorMessage = directError instanceof Error ? directError.message : String(directError)
+          console.error('Direct creation failed:', directErrorMessage)
+          throw new Error('Failed to create Supabase client: ' + directErrorMessage)
+        }
+      }
+      
+      const { error } = await supabase.from('loads').update({
+        status: 'third_approved',
+        parsed_data: updatedParsedData,
+      }).eq('id', load.id)
       if (error) {
         alert('Failed to update load: ' + error.message);
       } else {
